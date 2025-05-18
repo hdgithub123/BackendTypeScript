@@ -9,30 +9,35 @@ CREATE TABLE users (
     fullName VARCHAR(100),
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdBy VARCHAR(100),
 );
 
 
 CREATE TABLE roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    roleName VARCHAR(50) UNIQUE NOT NULL,
-    code VARCHAR(50) UNIQUE, -- Mã tùy chỉnh có thể thay đổi
-    description TEXT
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    roleName VARCHAR(50) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL, -- Mã tùy chỉnh có thể thay đổi
+    description TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdBy VARCHAR(100)
 );
 
 
 CREATE TABLE rights (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    rightName VARCHAR(50) UNIQUE NOT NULL,
-    code VARCHAR(50) UNIQUE, -- Mã quyền có thể thay đổi
-    description TEXT
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    rightName VARCHAR(50) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    description TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdBy VARCHAR(100),
 );
 
 
 
 CREATE TABLE roles_rights (
-    roleId INT,
-    rightId INT,
+    roleId CHAR(36),
+    rightId CHAR(36),
     PRIMARY KEY (roleId, rightId),
     FOREIGN KEY (roleId) REFERENCES roles(id),
     FOREIGN KEY (rightId) REFERENCES rights(id)
@@ -41,7 +46,7 @@ CREATE TABLE roles_rights (
 
 CREATE TABLE users_roles (
     userId CHAR(36),
-    roleId INT,
+    roleId CHAR(36),
     PRIMARY KEY (userId, roleId),
     FOREIGN KEY (userId) REFERENCES users(id),
     FOREIGN KEY (roleId) REFERENCES roles(id)

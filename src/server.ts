@@ -12,6 +12,8 @@ require('dotenv').config();
 import userRoutes from './routes/userRoutes';
 import loginRoutes from './routes/loginRouters';
 import refreshTokenRoute from './routes/refreshTokenRoute'
+import rightRoute from './routes/rightRouters'
+
 
 import authorization from './middleware/authorization';
 import checkPermission from './middleware/checkPermission';
@@ -35,6 +37,7 @@ app.use(cors({
 
 app.use('/user', authorization, checkPermission({rightIds: ['1','20']}), userRoutes);
 //app.use('/user', userRoutes);
+app.use('/right', rightRoute);
 app.use('/login', loginRoutes);
 app.use('/auth', refreshTokenRoute);
 app.use('/', (req, res) => {

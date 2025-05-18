@@ -25,9 +25,9 @@ export async function getUsers() {
 
 
 export async function insertUser(user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-    const { username, password, fullName, phone, email } = user;
+    const { password } = user;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const reuser = { username, password: hashedPassword, fullName, phone, email }
+    const reuser = { ...user, password: hashedPassword}
     return await insertObject("users", reuser);
 }
 
