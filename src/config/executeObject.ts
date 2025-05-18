@@ -1,4 +1,4 @@
-import executeQuery from './executeQuery';
+import executeQuery from './mySql/executeQuery';
 require('dotenv').config();
 
 export async function insertObject(table: string, object: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
