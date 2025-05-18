@@ -58,10 +58,10 @@ const checkUserPermission = async ({ userId, rightIds }: { userId: string, right
     const placeholders = rightIds.map(() => '?').join(', ');
      const query = `
                 SELECT rights.id FROM users
-                JOIN users_roles ON users.id = users_roles.user_id
-                JOIN roles ON users_roles.role_id = roles.id
-                JOIN roles_rights ON roles.id = roles_rights.role_id
-                JOIN rights ON roles_rights.right_id = rights.id
+                JOIN users_roles ON users.id = users_roles.userId
+                JOIN roles ON users_roles.roleId = roles.id
+                JOIN roles_rights ON roles.id = roles_rights.roleId
+                JOIN rights ON roles_rights.rightId = rights.id
                 WHERE users.id = ? AND rights.id IN (${placeholders})
             `;
     const result = await executeQuery(query, [userId, ...rightIds]);
