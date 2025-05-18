@@ -33,7 +33,8 @@ app.use(cors({
 
 // app.use('/user', authorization, checkPermission({rightIds: [1,20]}), userRoutes);
 
-app.use('/user', authorization, checkPermission({rightIds: ['1','20']}), userRoutes);
+// app.use('/user', authorization, checkPermission({rightIds: ['1','20']}), userRoutes);
+app.use('/user', userRoutes);
 app.use('/login', loginRoutes);
 app.use('/auth', refreshTokenRoute);
 app.use('/', (req, res) => {

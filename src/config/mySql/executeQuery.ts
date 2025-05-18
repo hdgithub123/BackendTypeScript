@@ -1,16 +1,18 @@
-const mysql = require('mysql2/promise');
+// const mysql = require('mysql2/promise');
 
-// Tạo kết nối với MySQL
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  port: '3306',
-  password: '123456',
-  database: 'MYDATABASE',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+// // Tạo kết nối với MySQL
+// const pool = mysql.createPool({
+//   host: 'localhost',
+//   user: 'root',
+//   port: '3306',
+//   password: '123456',
+//   database: 'MYDATABASE',
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0
+// });
+
+import pool from './pool';
 
 
 const executeQuery = async (query: string, params: (string | number)[] = []): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> => {

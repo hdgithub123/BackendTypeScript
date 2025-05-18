@@ -6,7 +6,7 @@ CREATE TABLE users (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    full_name VARCHAR(100),
+    fullName VARCHAR(100),
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -15,7 +15,7 @@ CREATE TABLE users (
 
 CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(50) UNIQUE NOT NULL,
+    roleName VARCHAR(50) UNIQUE NOT NULL,
     code VARCHAR(50) UNIQUE, -- Mã tùy chỉnh có thể thay đổi
     description TEXT
 );
@@ -23,7 +23,7 @@ CREATE TABLE roles (
 
 CREATE TABLE rights (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    right_name VARCHAR(50) UNIQUE NOT NULL,
+    rightName VARCHAR(50) UNIQUE NOT NULL,
     code VARCHAR(50) UNIQUE, -- Mã quyền có thể thay đổi
     description TEXT
 );
@@ -31,26 +31,26 @@ CREATE TABLE rights (
 
 
 CREATE TABLE roles_rights (
-    role_id INT,
-    right_id INT,
-    PRIMARY KEY (role_id, right_id),
-    FOREIGN KEY (role_id) REFERENCES roles(id),
-    FOREIGN KEY (right_id) REFERENCES rights(id)
+    roleId INT,
+    rightId INT,
+    PRIMARY KEY (roleId, rightId),
+    FOREIGN KEY (roleId) REFERENCES roles(id),
+    FOREIGN KEY (rightId) REFERENCES rights(id)
 );
 
 
-CREATE TABLE user_roles (
-    user_id CHAR(36),
-    role_id INT,
-    PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (role_id) REFERENCES roles(id)
+CREATE TABLE users_roles (
+    userId CHAR(36),
+    roleId INT,
+    PRIMARY KEY (userId, roleId),
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (roleId) REFERENCES roles(id)
 );
 
 
 
 
-INSERT INTO users (id, username, password, full_name, email, phone)
+INSERT INTO users (id, username, password, fullName, email, phone)
 VALUES
     (UUID(), 'admin', '$2b$10$abcd1234hashedpassword', 'Admin User', 'admin@example.com', '1234567890'),
     (UUID(), 'user1', '$2b$10$xyz5678hashedpassword', 'User One', 'user1@example.com', '0987654321'),
@@ -68,7 +68,7 @@ SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
 WHERE username = 'admin';
 
 
-INSERT INTO roles (role_name, code, description)
+INSERT INTO roles (roleName, code, description)
 VALUES
     ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống'),
     ('Editor', 'EDITOR_ROLE', 'Có quyền chỉnh sửa nội dung'),
@@ -78,7 +78,7 @@ VALUES
 
 
 
-INSERT INTO rights (right_name, code, description)
+INSERT INTO rights (rightName, code, description)
 VALUES
     ('Create User', 'CREATE_USER', 'Tạo người dùng mới'),
     ('Edit User', 'EDIT_USER', 'Chỉnh sửa thông tin người dùng'),
@@ -88,7 +88,7 @@ VALUES
 
 
 
-INSERT INTO roles_rights (role_id, right_id)
+INSERT INTO roles_rights (roleId, rightId)
 VALUES
     (1, 1), -- Administrator có quyền Tạo người dùng
     (1, 2), -- Administrator có quyền Chỉnh sửa người dùng
@@ -97,7 +97,7 @@ VALUES
     (4, 5); -- Manager có quyền Quản lý quyền
 
 
-INSERT INTO users_roles (user_id, role_id)
+INSERT INTO users_roles (userId, roleId)
 VALUES
     ('user1-uuid-here', 1), -- User1 là Administrator
     ('user2-uuid-here', 2), -- User2 là Editor
@@ -106,16 +106,16 @@ VALUES
     ('user5-uuid-here', 5); -- User5 là Support
 
 
-users, roles, roles_rights, rights, user_roles
+-- users, roles, roles_rights, rights, user_roles
 
 -- Lấy danh sách quyền của người dùng có id = 'user1-uuid-here'
 -- Lấy danh sách quyền của người dùng có id = 'e80df218-3228-11f0-b25f-0242ac110003'
-SELECT  rights.id, rights.right_name, rights.code, rights.description
+SELECT  rights.id, rights.rightName, rights.code, rights.description
 FROM users
-JOIN users_roles ON users.id = users_roles.user_id
-JOIN roles ON users_roles.role_id = roles.id
-JOIN roles_rights ON roles.id = roles_rights.role_id
-JOIN rights ON roles_rights.right_id = rights.id
+JOIN users_roles ON users.id = users_roles.userId
+JOIN roles ON users_roles.roleId = roles.id
+JOIN roles_rights ON roles.id = roles_rights.roleId
+JOIN rights ON roles_rights.rightId = rights.id
 WHERE users.id = 'e80df218-3228-11f0-b25f-0242ac110003';
 
-Select * from users
+Select * from users;

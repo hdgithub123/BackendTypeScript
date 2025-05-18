@@ -1,4 +1,5 @@
-import executeQuery from './mySql/executeQuery';
+import executeQuery from './executeQuery';
+import executeTransaction from './executeTransaction';
 require('dotenv').config();
 
 export async function insertObject(table: string, object: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
@@ -70,92 +71,67 @@ export async function insertObjects(table: string, dataIn: Array<{ [key: string]
 
 
 
-export async function updateObjects(table: string, dataIn: Array<{ [key: string]: any }>, columKey: Array<string>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-    try {
-        let sqlQuery = 'BEGIN TRANSACTION; ';
-        let allValues: string[] = [];
-        // Iterate through each object in data
-        dataIn.forEach(item => {
-            // Initialize setClause, whereClause, và itemValues
-            let setClause = '';
-            let whereClause = '';     
-            // Iterate through keys of the item
-            Object.keys(item).forEach(key => {
-                // Check if the key exists in columKey
-                if (columKey.includes(key)) {
+export async function updateObjects(
+  table: string,
+  dataIn: Array<{ [key: string]: any }>,
+  columKey: Array<string>
+): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+  return await executeTransaction(async (connection) => {
+    for (const item of dataIn) {
+      // SET clause
+      const setKeys = Object.keys(item).filter(key => !columKey.includes(key));
+      const setClause = setKeys.map(key => `${key} = ?`).join(', ');
+      const setValues = setKeys.map(key => item[key]);
 
-                } else {
-                    // Append to setClause và itemValues
-                    setClause += `${key} = ?, `;
-                    allValues.push(item[key]);
-                }
-            });
+      // WHERE clause
+      const whereClause = columKey.map(key => `${key} = ?`).join(' AND ');
+      const whereValues = columKey.map(key => item[key]);
 
-            Object.keys(item).forEach(key => {
-                // Check if the key exists in columKey
-                if (columKey.includes(key)) {
-                    // Append to whereClause và itemValues
-                    whereClause += `${key} = ? AND `;
-                    allValues.push(item[key]);
-                } else {
-
-                }
-            });
-        
-            // Remove trailing commas from setClause và whereClause
-            setClause = setClause.replace(/,\s*$/, '');
-            whereClause = whereClause.replace(/ AND\s*$/, '');
-        
-            // Append the UPDATE statement to the SQL query
-            sqlQuery += `UPDATE ${table} SET ${setClause} WHERE ${whereClause}; `;
-        
-        });
-
-        sqlQuery += 'COMMIT;';
-        // Execute the SQL query with values
-        const { data, status, errorCode } = await executeQuery(sqlQuery, allValues);
-        return { data, status, errorCode };
-    } catch (error) {
-        console.error(error);
-       const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
-        return { data: null, status: false, errorCode };
+      const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
+      await connection.execute(sqlQuery, [...setValues, ...whereValues]);
     }
+    return null; // Không cần trả về dữ liệu cụ thể
+  });
 }
 
 
-export async function deleteObjects(table: string, columKey: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-    try {
-        let sqlQuery = 'BEGIN TRANSACTION; ';
+// export async function deleteObjects(table: string, columKey: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+//     try {
+//          let sqlQuery = '';
         
-        columKey.forEach(obj => {
-            const conditions = [];
-            for (const key in obj) {
-                if (Object.hasOwnProperty.call(obj, key)) {
-                    const value = obj[key];
-                    conditions.push(`${key} = '${value}'`);
-                }
-            }
-            const whereClause = conditions.join(' AND ');
-            sqlQuery += `DELETE FROM ${table} WHERE ${whereClause}; `;
-        });
+//         columKey.forEach(obj => {
+//             const conditions = [];
+//             for (const key in obj) {
+//                 if (Object.hasOwnProperty.call(obj, key)) {
+//                     const value = obj[key];
+//                     conditions.push(`${key} = '${value}'`);
+//                 }
+//             }
+//             const whereClause = conditions.join(' AND ');
+//             sqlQuery += `DELETE FROM ${table} WHERE ${whereClause}; `;
+//         });
+        
+//         const { data, status, errorCode } = await executeQuery(sqlQuery); // Execute the query
+//         return { data, status, errorCode };
+//     } catch (error) {
+//         console.error(error);
+//         const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
+//         return { data: null, status: false, errorCode };
+//     }
+// }
 
-        sqlQuery += 'COMMIT;';
-        
-        const { data, status, errorCode } = await executeQuery(sqlQuery); // Execute the query
-        return { data, status, errorCode };
-    } catch (error) {
-        console.error(error);
-        const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
-        return { data: null, status: false, errorCode };
+export async function deleteObjects(
+  table: string,
+  columKey: Array<{ [key: string]: any }>
+): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+  return await executeTransaction(async (connection) => {
+    for (const obj of columKey) {
+      const keys = Object.keys(obj);
+      const whereClause = keys.map(key => `${key} = ?`).join(' AND ');
+      const values = keys.map(key => obj[key]);
+      const sqlQuery = `DELETE FROM ${table} WHERE ${whereClause}`;
+      await connection.execute(sqlQuery, values);
     }
+    return null; // Không cần trả về dữ liệu cụ thể
+  });
 }
-
-// module.exports = {
-//     executeQuery,
-//     insertObject,
-//     updateObject,
-//     deleteObject,
-//     insertObjects,
-//     updateObjects,
-//     deleteObjects
-// };

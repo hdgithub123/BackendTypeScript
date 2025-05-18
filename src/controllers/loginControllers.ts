@@ -5,13 +5,13 @@ const loginController = async (req: Request, res: Response) => {
     const username = req.body.username
     const password = req.body.password
     const result = await authentication(username, password);
-        const cookieOptions = {
-            httpOnly: true,
-            secure: false, // Chỉ gửi cookie qua HTTPS
-            // sameSite: 'Strict',
-            sameSite:'lax' as const,
-            expires: new Date(Date.now() + 86400000) // Thời gian hết hạn, tính bằng milliseconds( 1 ngày)
-        };
+    const cookieOptions = {
+        httpOnly: true,
+        secure: false, // Chỉ gửi cookie qua HTTPS
+        // sameSite: 'Strict',
+        sameSite: 'lax' as const,
+        expires: new Date(Date.now() + 86400000) // Thời gian hết hạn, tính bằng milliseconds( 1 ngày)
+    };
     if (result.status && result.refreshToken) {
         res.cookie('RefreshToken', result.refreshToken, cookieOptions);
         res.json({ status: true, token: result.token });
