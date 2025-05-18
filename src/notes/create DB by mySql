@@ -1,6 +1,6 @@
 CREATE DATABASE MYDATABASE;
 
-use MYDATABASE
+use MYDATABASE;
 
 CREATE TABLE users (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -9,8 +9,9 @@ CREATE TABLE users (
     fullName VARCHAR(100),
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
+    isActive TINYINT(1) NOT NULL, 
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
+    createdBy VARCHAR(100)
 );
 
 
@@ -30,7 +31,7 @@ CREATE TABLE rights (
     code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
     description TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
+    createdBy VARCHAR(100)
 );
 
 
@@ -38,6 +39,7 @@ CREATE TABLE rights (
 CREATE TABLE roles_rights (
     roleId CHAR(36),
     rightId CHAR(36),
+    isActive TINYINT(1) NOT NULL,
     PRIMARY KEY (roleId, rightId),
     FOREIGN KEY (roleId) REFERENCES roles(id),
     FOREIGN KEY (rightId) REFERENCES rights(id)
@@ -47,6 +49,7 @@ CREATE TABLE roles_rights (
 CREATE TABLE users_roles (
     userId CHAR(36),
     roleId CHAR(36),
+    isActive BOOLEAN,
     PRIMARY KEY (userId, roleId),
     FOREIGN KEY (userId) REFERENCES users(id),
     FOREIGN KEY (roleId) REFERENCES roles(id)
@@ -55,18 +58,18 @@ CREATE TABLE users_roles (
 
 
 
-INSERT INTO users (id, username, password, fullName, email, phone)
+INSERT INTO users (id, username, password, fullName, email, phone, isActive)
 VALUES
-    (UUID(), 'admin', '$2b$10$abcd1234hashedpassword', 'Admin User', 'admin@example.com', '1234567890'),
-    (UUID(), 'user1', '$2b$10$xyz5678hashedpassword', 'User One', 'user1@example.com', '0987654321'),
-    (UUID(), 'user2', '$2b$10$lmn1234hashedpassword', 'User Two', 'user2@example.com', '0987654322'),
-    (UUID(), 'user3', '$2b$10$def5678hashedpassword', 'User Three', 'user3@example.com', '0987654323'),
-    (UUID(), 'user4', '$2b$10$pqr1234hashedpassword', 'User Four', 'user4@example.com', '0987654324'),
-    (UUID(), 'user5', '$2b$10$stu5678hashedpassword', 'User Five', 'user5@example.com', '0987654325'),
-    (UUID(), 'user6', '$2b$10$vwx1234hashedpassword', 'User Six', 'user6@example.com', '0987654326'),
-    (UUID(), 'user7', '$2b$10$ghi5678hashedpassword', 'User Seven', 'user7@example.com', '0987654327'),
-    (UUID(), 'user8', '$2b$10$jkl1234hashedpassword', 'User Eight', 'user8@example.com', '0987654328'),
-    (UUID(), 'user9', '$2b$10$mno5678hashedpassword', 'User Nine', 'user9@example.com', '0987654329');
+    (UUID(), 'admin', '$2b$10$abcd1234hashedpassword', 'Admin User', 'admin@example.com', '1234567890', TRUE),
+    (UUID(), 'user1', '$2b$10$xyz5678hashedpassword', 'User One', 'user1@example.com', '0987654321',TRUE),
+    (UUID(), 'user2', '$2b$10$lmn1234hashedpassword', 'User Two', 'user2@example.com', '0987654322',TRUE),
+    (UUID(), 'user3', '$2b$10$def5678hashedpassword', 'User Three', 'user3@example.com', '0987654323',TRUE),
+    (UUID(), 'user4', '$2b$10$pqr1234hashedpassword', 'User Four', 'user4@example.com', '0987654324',TRUE),
+    (UUID(), 'user5', '$2b$10$stu5678hashedpassword', 'User Five', 'user5@example.com', '0987654325',TRUE),
+    (UUID(), 'user6', '$2b$10$vwx1234hashedpassword', 'User Six', 'user6@example.com', '0987654326',TRUE),
+    (UUID(), 'user7', '$2b$10$ghi5678hashedpassword', 'User Seven', 'user7@example.com', '0987654327',TRUE),
+    (UUID(), 'user8', '$2b$10$jkl1234hashedpassword', 'User Eight', 'user8@example.com', '0987654328',TRUE),
+    (UUID(), 'user9', '$2b$10$mno5678hashedpassword', 'User Nine', 'user9@example.com', '0987654329',FALSE);
 
 UPDATE users 
 SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
@@ -93,13 +96,13 @@ VALUES
 
 
 
-INSERT INTO roles_rights (roleId, rightId)
+INSERT INTO roles_rights (roleId, rightId, isActive)
 VALUES
-    (1, 1), -- Administrator có quyền Tạo người dùng
-    (1, 2), -- Administrator có quyền Chỉnh sửa người dùng
-    (2, 2), -- Editor có quyền Chỉnh sửa người dùng
-    (3, 4), -- Viewer chỉ có quyền Xem báo cáo
-    (4, 5); -- Manager có quyền Quản lý quyền
+    (1, 1, TRUE), -- Administrator có quyền Tạo người dùng
+    (1, 2, TRUE), -- Administrator có quyền Chỉnh sửa người dùng
+    (2, 2, TRUE), -- Editor có quyền Chỉnh sửa người dùng
+    (3, 4, TRUE), -- Viewer chỉ có quyền Xem báo cáo
+    (4, 5, TRUE); -- Manager có quyền Quản lý quyền
 
 
 INSERT INTO users_roles (userId, roleId)

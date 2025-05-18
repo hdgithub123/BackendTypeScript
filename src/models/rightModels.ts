@@ -28,7 +28,7 @@ export async function insertRight(right: right): Promise<{ data: Object | null, 
 
 export async function updateRight(rightsId: string, right: right): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
     const columKey = { id: rightsId }; // Use userId as the columKey
-    return await updateObject("users", right, columKey);
+    return await updateObject("rights", right, columKey);
 }
 
 
@@ -38,14 +38,14 @@ export async function deleteRight(rightsId: string | number): Promise<{ data: Ob
 
 
 export async function insertRights(rights: Array<right>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-        return await insertObjects("users", rights);
+        return await insertObjects("rights", rights);
 }
 
 
 export async function updateRights(rights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-        return await updateObjects("users", rights, ["id"]);
+        return await updateObjects("rights", rights, ["id"]);
 }
 
 export async function deleteRights(rights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-    return await deleteObjects("users", rights);
+    return await deleteObjects("rights", rights);
 }

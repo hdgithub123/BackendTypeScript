@@ -8,6 +8,7 @@ export type user = {
     fullName?: string;
     email?: string;
     phone?: string;
+    isActive: boolean;
 
 };
 

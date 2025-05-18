@@ -28,7 +28,7 @@ export async function insertRole(role: role): Promise<{ data: Object | null, sta
 
 export async function updateRole(rolesId: string, role: role): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
     const columKey = { id: rolesId }; // Use userId as the columKey
-    return await updateObject("users", role, columKey);
+    return await updateObject("roles", role, columKey);
 }
 
 
@@ -38,14 +38,14 @@ export async function deleteRole(rolesId: string | number): Promise<{ data: Obje
 
 
 export async function insertRoles(roles: Array<role>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-        return await insertObjects("users", roles);
+        return await insertObjects("roles", roles);
 }
 
 
 export async function updateRoles(roles: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-        return await updateObjects("users", roles, ["id"]);
+        return await updateObjects("roles", roles, ["id"]);
 }
 
 export async function deleteRoles(roles: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-    return await deleteObjects("users", roles);
+    return await deleteObjects("roles", roles);
 }
