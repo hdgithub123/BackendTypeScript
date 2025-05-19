@@ -14,6 +14,7 @@ import loginRoutes from './routes/loginRouters';
 import refreshTokenRoute from './routes/refreshTokenRoute'
 import rightRoute from './routes/rightRouters'
 import roleRoute from './routes/roleRouters'
+import roleRightRoute from './routes/roleRightRouters'
 
 
 import authorization from './middleware/authorization';
@@ -38,6 +39,7 @@ app.use(cors({
 
 app.use('/user', authorization, checkPermission({rightIds: ["9e25a246-3404-11f0-9c72-0242ac110002",'20']}), userRoutes);
 //app.use('/user', userRoutes);
+app.use('/roleright', roleRightRoute);
 app.use('/role', roleRoute);
 app.use('/right', rightRoute);
 app.use('/login', loginRoutes);
