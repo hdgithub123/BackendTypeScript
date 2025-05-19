@@ -107,11 +107,11 @@ VALUES
 
 INSERT INTO users_roles (userId, roleId)
 VALUES
-    ('user1-uuid-here', 1), -- User1 là Administrator
-    ('user2-uuid-here', 2), -- User2 là Editor
-    ('user3-uuid-here', 3), -- User3 là Viewer
-    ('user4-uuid-here', 4), -- User4 là Manager
-    ('user5-uuid-here', 5); -- User5 là Support
+    ('user1-uuid-here', 1,TRUE), -- User1 là Administrator
+    ('user2-uuid-here', 2,TRUE), -- User2 là Editor
+    ('user3-uuid-here', 3,TRUE), -- User3 là Viewer
+    ('user4-uuid-here', 4,TRUE), -- User4 là Manager
+    ('user5-uuid-here', 5,TRUE); -- User5 là Support
 
 
 -- users, roles, roles_rights, rights, user_roles
