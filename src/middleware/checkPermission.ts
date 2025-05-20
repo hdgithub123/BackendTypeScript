@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import executeQuery from "../config/mySql/executeQuery";
 
-const checkPermission = ({ rightIds }: { rightIds: string[] | number[] }): RequestHandler => {
+const checkPermission = ({ rightCodes }: { rightCodes: string[] | number[] }): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Kiểm tra req.user tồn tại và có userId
@@ -11,7 +11,7 @@ const checkPermission = ({ rightIds }: { rightIds: string[] | number[] }): Reque
       }
 
       const userId = (req.user as { userId: string }).userId;
-      const result = await checkUserPermission({ userId, rightIds });
+      const result = await checkUserPermission({ userId, rightCodes });
 
       if (result) {
         next(); // Không return ở đây
@@ -29,21 +29,21 @@ const checkPermission = ({ rightIds }: { rightIds: string[] | number[] }): Reque
 
 export default checkPermission;
 
-const checkUserPermission = async ({ userId, rightIds }: { userId: string, rightIds: string[] | number[] }) => {
-  if (!rightIds || rightIds.length === 0) {
+const checkUserPermission = async ({ userId, rightCodes }: { userId: string, rightCodes: string[] | number[] }) => {
+  if (!rightCodes || rightCodes.length === 0) {
     return false;
   }
-  const placeholders = rightIds.map(() => '?').join(', ');
+  const placeholders = rightCodes.map(() => '?').join(', ');
     const query = `
                 SELECT rights.id FROM users
                 JOIN users_roles ON users.id = users_roles.userId
                 JOIN roles ON users_roles.roleId = roles.id
                 JOIN roles_rights ON roles.id = roles_rights.roleId
                 JOIN rights ON roles_rights.rightId = rights.id
-                WHERE roles_rights.isactive = TRUE AND users_roles.isactive = TRUE AND users.id = ? AND rights.id IN (${placeholders})
+                WHERE roles_rights.isactive = TRUE AND users_roles.isactive = TRUE AND users.id = ? AND rights.code IN (${placeholders})
             `;
 
-  const result = await executeQuery(query, [userId, ...rightIds]);
+  const result = await executeQuery(query, [userId, ...rightCodes]);
   if (result.data && Array.isArray(result.data) && result.data.length > 0) {
     return true; // Có ít nhất một quyền hợp lệ
   } else {

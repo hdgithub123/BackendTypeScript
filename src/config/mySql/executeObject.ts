@@ -71,6 +71,24 @@ export async function insertObjects(table: string, dataIn: Array<{ [key: string]
 
 
 
+export async function insertObjectsTables(
+  tablesData: Array<{ table: string, dataIn: Array<{ [key: string]: any }> }>
+): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+  return await executeTransaction(async (connection) => {
+    for (const { table, dataIn } of tablesData) {
+      if (!dataIn || dataIn.length === 0) continue;
+      const keys = Object.keys(dataIn[0]);
+      const placeholders = dataIn.map(() => `(${keys.map(() => '?').join(',')})`).join(',');
+      const columns = keys.join(',');
+      const values = dataIn.flatMap(item => keys.map(key => item[key]));
+      const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES ${placeholders}`;
+      await connection.execute(sqlQuery, values);
+    }
+    return null; // Không cần trả về dữ liệu cụ thể
+  });
+}
+
+
 export async function updateObjects(
   table: string,
   dataIn: Array<{ [key: string]: any }>,
@@ -89,6 +107,30 @@ export async function updateObjects(
 
       const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
       await connection.execute(sqlQuery, [...setValues, ...whereValues]);
+    }
+    return null; // Không cần trả về dữ liệu cụ thể
+  });
+}
+
+
+export async function updateObjectsTables(
+  tablesData: Array<{ table: string, dataIn: Array<{ [key: string]: any }>, columKey: Array<string> }>
+): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+  return await executeTransaction(async (connection) => {
+    for (const { table, dataIn, columKey } of tablesData) {
+      for (const item of dataIn) {
+        // SET clause
+        const setKeys = Object.keys(item).filter(key => !columKey.includes(key));
+        const setClause = setKeys.map(key => `${key} = ?`).join(', ');
+        const setValues = setKeys.map(key => item[key]);
+
+        // WHERE clause
+        const whereClause = columKey.map(key => `${key} = ?`).join(' AND ');
+        const whereValues = columKey.map(key => item[key]);
+
+        const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
+        await connection.execute(sqlQuery, [...setValues, ...whereValues]);
+      }
     }
     return null; // Không cần trả về dữ liệu cụ thể
   });
@@ -131,6 +173,24 @@ export async function deleteObjects(
       const values = keys.map(key => obj[key]);
       const sqlQuery = `DELETE FROM ${table} WHERE ${whereClause}`;
       await connection.execute(sqlQuery, values);
+    }
+    return null; // Không cần trả về dữ liệu cụ thể
+  });
+}
+
+
+export async function deleteObjectsTables(
+  tablesData: Array<{ table: string, columKey: Array<{ [key: string]: any }> }>
+): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+  return await executeTransaction(async (connection) => {
+    for (const { table, columKey } of tablesData) {
+      for (const obj of columKey) {
+        const keys = Object.keys(obj);
+        const whereClause = keys.map(key => `${key} = ?`).join(' AND ');
+        const values = keys.map(key => obj[key]);
+        const sqlQuery = `DELETE FROM ${table} WHERE ${whereClause}`;
+        await connection.execute(sqlQuery, values);
+      }
     }
     return null; // Không cần trả về dữ liệu cụ thể
   });
