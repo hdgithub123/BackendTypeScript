@@ -1,6 +1,7 @@
 import executeQuery from "./mySql/executeQuery";
 import { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from './mySql/executeObject'
 import {  insertObjectsTables, updateObjectsTables, deleteObjectsTables } from './mySql/executeObject'
+import {insertObjectsTreeTables} from './mySql/ObjectsTree/executeObjectsTree'
 
 export default executeQuery
 
@@ -14,4 +15,5 @@ export {
     insertObjectsTables,
     updateObjectsTables,
     deleteObjectsTables,
+    insertObjectsTreeTables,
 }

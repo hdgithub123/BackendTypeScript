@@ -95,23 +95,40 @@ VALUES
     ('Manage Permissions', 'MANAGE_PERMISSIONS', 'Quản lý quyền truy cập');
 
 
+SET @Administrator = (SELECT id FROM roles WHERE code = 'ADMIN_ROLE');
+SET @Editor = (SELECT id FROM roles WHERE code = 'EDITOR_ROLE');
+SET @Viewer = (SELECT id FROM roles WHERE code = 'VIEWER_ROLE');
+SET @Manager = (SELECT id FROM roles WHERE code = 'MANAGER_ROLE');
+SET @Support = (SELECT id FROM roles WHERE code = 'SUPPORT_ROLE');
+
+
+SET @Create = (SELECT id FROM rights WHERE code = 'CREATE_USER');
+SET @Edit = (SELECT id FROM rights WHERE code = 'EDIT_USER');
+SET @Delete = (SELECT id FROM rights WHERE code = 'DELETE_USER');
+SET @View = (SELECT id FROM rights WHERE code = 'VIEW_REPORTS');
+SET @Manage = (SELECT id FROM rights WHERE code = 'MANAGE_PERMISSIONS');
 
 INSERT INTO roles_rights (roleId, rightId, isActive)
 VALUES
-    (1, 1, TRUE), -- Administrator có quyền Tạo người dùng
-    (1, 2, TRUE), -- Administrator có quyền Chỉnh sửa người dùng
-    (2, 2, TRUE), -- Editor có quyền Chỉnh sửa người dùng
-    (3, 4, TRUE), -- Viewer chỉ có quyền Xem báo cáo
-    (4, 5, TRUE); -- Manager có quyền Quản lý quyền
+    (@Administrator, @Create, TRUE), -- Administrator có quyền Tạo người dùng
+    (@Administrator, @Edit, TRUE), -- Administrator có quyền Chỉnh sửa người dùng
+    (@Editor, @Edit, TRUE), -- Editor có quyền Chỉnh sửa người dùng
+    (@Manager, @Manage, TRUE), -- Viewer chỉ có quyền Xem báo cáo
+    (@Support, @Manage, TRUE); -- Manager có quyền Quản lý quyền
 
+
+SET @admin = (SELECT id FROM users WHERE username = 'admin');
+SET @user1 = (SELECT id FROM users WHERE username = 'user1');
+SET @user2 = (SELECT id FROM users WHERE username = 'user2');
+SET @user3 = (SELECT id FROM users WHERE username = 'user3');
 
 INSERT INTO users_roles (userId, roleId)
 VALUES
-    ('user1-uuid-here', 1,TRUE), -- User1 là Administrator
-    ('user2-uuid-here', 2,TRUE), -- User2 là Editor
-    ('user3-uuid-here', 3,TRUE), -- User3 là Viewer
-    ('user4-uuid-here', 4,TRUE), -- User4 là Manager
-    ('user5-uuid-here', 5,TRUE); -- User5 là Support
+    (@admin, @Administrator,TRUE), -- User1 là Administrator
+    (@admin, @Support,TRUE), -- User2 là Editor
+    (@user1, @Manager,TRUE), -- User3 là Viewer
+    (@user2, @Editor,TRUE), -- User4 là Manager
+    (@user3, @Manager,FALSE); -- User5 là Support
 
 
 -- users, roles, roles_rights, rights, user_roles
@@ -124,6 +141,42 @@ JOIN users_roles ON users.id = users_roles.userId
 JOIN roles ON users_roles.roleId = roles.id
 JOIN roles_rights ON roles.id = roles_rights.roleId
 JOIN rights ON roles_rights.rightId = rights.id
-WHERE users.id = 'e80df218-3228-11f0-b25f-0242ac110003';
+WHERE users.id = @admin;
 
 Select * from users;
+
+
+
+
+CREATE TABLE zones (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    zoneName VARCHAR(255) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    address TEXT,
+    description TEXT,
+    parentId CHAR(36) NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdBy VARCHAR(100),
+    FOREIGN KEY (parentId) REFERENCES zones(id)
+);
+
+
+INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
+(UUID(), 'Tổng Công Ty', 'TC001', 'Hà Nội', 'Trụ sở chính', NULL, 'admin');
+
+SET @parent_tct = (SELECT id FROM zones WHERE zoneName = 'Tổng Công Ty');
+INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
+(UUID(), 'Chi Nhánh TP HCM', 'CN001', 'TP HCM', 'Chi nhánh miền Nam', @parent_tct, 'admin'),
+(UUID(), 'Văn Phòng Đại Diện Hà Nội', 'VP001', 'Hà Nội', 'VP miền Bắc', @parent_tct, 'admin'),
+(UUID(), 'Chi Nhánh Đà Nẵng', 'CN002', 'Đà Nẵng', 'Chi nhánh miền Trung', @parent_tct, 'admin');
+
+
+
+SET @parent_hcm = (SELECT id FROM zones WHERE zoneName = 'Chi Nhánh TP HCM');
+SET @parent_dn = (SELECT id FROM zones WHERE zoneName = 'Chi Nhánh Đà Nẵng');
+
+INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
+(UUID(), 'Phòng Kinh Doanh HCM', 'PKD001', 'TP HCM', 'Kinh doanh miền Nam', @parent_hcm, 'admin'),
+(UUID(), 'Phòng Nhân Sự HCM', 'PNS001', 'TP HCM', 'Nhân sự miền Nam', @parent_hcm, 'admin'),
+(UUID(), 'Phòng Kinh Doanh Đà Nẵng', 'PKD002', 'Đà Nẵng', 'Kinh doanh miền Trung', @parent_dn, 'admin'),
+(UUID(), 'Phòng Nhân Sự Đà Nẵng', 'PNS002', 'Đà Nẵng', 'Nhân sự miền Trung', @parent_dn, 'admin');

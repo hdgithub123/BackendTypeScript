@@ -137,31 +137,6 @@ export async function updateObjectsTables(
 }
 
 
-// export async function deleteObjects(table: string, columKey: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-//     try {
-//          let sqlQuery = '';
-        
-//         columKey.forEach(obj => {
-//             const conditions = [];
-//             for (const key in obj) {
-//                 if (Object.hasOwnProperty.call(obj, key)) {
-//                     const value = obj[key];
-//                     conditions.push(`${key} = '${value}'`);
-//                 }
-//             }
-//             const whereClause = conditions.join(' AND ');
-//             sqlQuery += `DELETE FROM ${table} WHERE ${whereClause}; `;
-//         });
-        
-//         const { data, status, errorCode } = await executeQuery(sqlQuery); // Execute the query
-//         return { data, status, errorCode };
-//     } catch (error) {
-//         console.error(error);
-//         const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
-//         return { data: null, status: false, errorCode };
-//     }
-// }
-
 export async function deleteObjects(
   table: string,
   columKey: Array<{ [key: string]: any }>

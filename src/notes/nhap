@@ -1,0 +1,24 @@
+
+{
+      "zoneName": "Tổng Công Ty 000",
+      "code": "TC001000",
+      "address": "Hà Nội",
+      "description": "Trụ sở chính",
+      "parentId": null,
+      "createdBy": "admin"
+    }
+
+
+    {
+      "zoneName": "con Tổng Công Ty 000",
+      "code": "CONTC001000",
+      "address": "Hà Nội",
+      "description": "Trụ sở chính",
+      "parentId": "7a68615f-4c4e-11f0-acd1-0242ac110002",
+      "createdBy": "admin"
+    }
+
+
+DELETE FROM zones WHERE code = 'TC001000';
+DELETE FROM zones WHERE code = 'CONTC001000';
+select * from zones;

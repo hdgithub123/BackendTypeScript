@@ -16,6 +16,7 @@ import rightRoute from './routes/rightRouters'
 import roleRoute from './routes/roleRouters'
 import roleRightRoute from './routes/roleRightRouters'
 import UserRoleRoute from './routes/userRoleRouters'
+import zoneRouters from './routes/zoneRouters';
 
 
 import authorization from './middleware/authorization';
@@ -40,6 +41,7 @@ app.use(cors({
 
 app.use('/user', authorization, checkPermission({rightCodes: ["9e25a246-3404-11f0-9c72-0242ac110002",'20',"CREATE_USER"]}), userRoutes);
 //app.use('/user', userRoutes);
+ app.use('/zone', zoneRouters); //-- dang thu
 app.use('/roleright', roleRightRoute);
 app.use('/userrole', UserRoleRoute);
 app.use('/role', roleRoute);
