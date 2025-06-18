@@ -38,7 +38,7 @@ export async function insertZone(zone: zone): Promise<{ data: Object | null, sta
         parentField: "parentId",
         childField: "id"
     };
-    console.log("tablesData", tablesData);
+    // console.log("tablesData", tablesData);
     return await insertObjectsTreeTables([tablesData]);
 }
 
