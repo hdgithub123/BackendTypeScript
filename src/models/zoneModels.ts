@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables } from '../config'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables,updateObjectsTreeTables } from '../config'
 
 //Tạo type cho zone
 export type zone = {
@@ -38,20 +38,30 @@ export async function insertZone(zone: zone): Promise<{ data: Object | null, sta
         parentField: "parentId",
         childField: "id"
     };
-    // console.log("tablesData", tablesData);
     return await insertObjectsTreeTables([tablesData]);
 }
 
 
-export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
     const tablesData: zoneData = {
         table: "zones",
-        dataIn: zones,
+        dataIn: [zone],
         parentField: "parentId",
         childField: "id"
     };
-    return await insertObjectsTreeTables([tablesData]);
+    return await updateObjectsTreeTables([tablesData]);
 }
+
+
+// export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+//     const tablesData: zoneData = {
+//         table: "zones",
+//         dataIn: zones,
+//         parentField: "parentId",
+//         childField: "id"
+//     };
+//     return await insertObjectsTreeTables([tablesData]);
+// }
 
 
 

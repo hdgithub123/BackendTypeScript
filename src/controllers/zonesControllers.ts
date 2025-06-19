@@ -45,6 +45,24 @@ export async function insertZone(req: Request, res: Response) {
     }
 }
 
+
+export async function updateZone(req: Request, res: Response) {
+    try {
+        // const zoneId:string = req.params.id;
+        const zone = req.body;
+        const { data, status,errorCode } = await zoneModel.updateZone(zone);
+        if (status) {
+            res.status(200).json({ data, status,errorCode});
+        } else {
+            res.status(400).json({ data, status,errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
+
 // export async function insertZones(req: Request, res: Response) {
 //     try {
 //         const zones = req.body; // Lấy dữ liệu từ body của request
@@ -71,6 +89,7 @@ export async function insertZone(req: Request, res: Response) {
 //         res.status(500).json({ status: false, message: 'Internal Server Error' });
 //     }
 // }
+
 // export async function updateZones(req: Request, res: Response) {
 //     try {
 //         const zones = req.body; // Lấy dữ liệu từ body của request

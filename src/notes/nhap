@@ -18,7 +18,7 @@
       "createdBy": "admin"
     }
 
-
+use MYDATABASE;
 DELETE FROM zones WHERE code = 'TC001000';
 DELETE FROM zones WHERE code = 'CONTC001000';
 select * from zones;
