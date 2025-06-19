@@ -34,12 +34,10 @@ export async function updateObjectsTreeTables(
             connection,
             referencedTable: table,
             referencedColumn: childField,
-            value: parentIdOld,
+            value: parentIdNew,
             // currentId
           });
 
-          console.log("parentIdOld",parentIdOld);
-          console.log("parentIdNew",parentIdNew);
 
           if (isReferenced) {
             //throw new Error('have a data cannot update data for parentField');

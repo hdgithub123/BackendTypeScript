@@ -46,16 +46,38 @@ CREATE TABLE roles_rights (
 );
 
 
-CREATE TABLE users_roles (
+-- CREATE TABLE users_roles (
+--     userId CHAR(36),
+--     roleId CHAR(36),
+--     isActive BOOLEAN,
+--     PRIMARY KEY (userId, roleId),
+--     FOREIGN KEY (userId) REFERENCES users(id),
+--     FOREIGN KEY (roleId) REFERENCES roles(id)
+-- );
+
+
+CREATE TABLE users_roles_zones (
     userId CHAR(36),
     roleId CHAR(36),
+    zoneId CHAR(36),
     isActive BOOLEAN,
-    PRIMARY KEY (userId, roleId),
+    PRIMARY KEY (userId, roleId, zoneId),
     FOREIGN KEY (userId) REFERENCES users(id),
-    FOREIGN KEY (roleId) REFERENCES roles(id)
+    FOREIGN KEY (roleId) REFERENCES roles(id),
+    FOREIGN KEY (zoneId) REFERENCES zones(id)
 );
 
-
+CREATE TABLE zones (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    zoneName VARCHAR(255) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    address TEXT,
+    description TEXT,
+    parentId CHAR(36) NULL,
+    createdAt TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    createdBy VARCHAR(100),
+    FOREIGN KEY (parentId) REFERENCES zones(id)
+);
 
 
 INSERT INTO users (id, username, password, fullName, email, phone, isActive)
@@ -117,18 +139,18 @@ VALUES
     (@Support, @Manage, TRUE); -- Manager có quyền Quản lý quyền
 
 
-SET @admin = (SELECT id FROM users WHERE username = 'admin');
-SET @user1 = (SELECT id FROM users WHERE username = 'user1');
-SET @user2 = (SELECT id FROM users WHERE username = 'user2');
-SET @user3 = (SELECT id FROM users WHERE username = 'user3');
+-- SET @admin = (SELECT id FROM users WHERE username = 'admin');
+-- SET @user1 = (SELECT id FROM users WHERE username = 'user1');
+-- SET @user2 = (SELECT id FROM users WHERE username = 'user2');
+-- SET @user3 = (SELECT id FROM users WHERE username = 'user3');
 
-INSERT INTO users_roles (userId, roleId)
-VALUES
-    (@admin, @Administrator,TRUE), -- User1 là Administrator
-    (@admin, @Support,TRUE), -- User2 là Editor
-    (@user1, @Manager,TRUE), -- User3 là Viewer
-    (@user2, @Editor,TRUE), -- User4 là Manager
-    (@user3, @Manager,FALSE); -- User5 là Support
+-- INSERT INTO users_roles (userId, roleId,isActive)
+-- VALUES
+--     (@admin, @Administrator,TRUE), -- User1 là Administrator
+--     (@admin, @Support,TRUE), -- User2 là Editor
+--     (@user1, @Manager,TRUE), -- User3 là Viewer
+--     (@user2, @Editor,TRUE), -- User4 là Manager
+--     (@user3, @Manager,FALSE); -- User5 là Support
 
 
 -- users, roles, roles_rights, rights, user_roles
@@ -148,17 +170,7 @@ Select * from users;
 
 
 
-CREATE TABLE zones (
-    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    zoneName VARCHAR(255) NOT NULL,
-    code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
-    address TEXT,
-    description TEXT,
-    parentId CHAR(36) NULL,
-    createdAt TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    FOREIGN KEY (parentId) REFERENCES zones(id)
-);
+
 
 
 INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
@@ -180,3 +192,18 @@ INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy
 (UUID(), 'Phòng Nhân Sự HCM', 'PNS001', 'TP HCM', 'Nhân sự miền Nam', @parent_hcm, 'admin'),
 (UUID(), 'Phòng Kinh Doanh Đà Nẵng', 'PKD002', 'Đà Nẵng', 'Kinh doanh miền Trung', @parent_dn, 'admin'),
 (UUID(), 'Phòng Nhân Sự Đà Nẵng', 'PNS002', 'Đà Nẵng', 'Nhân sự miền Trung', @parent_dn, 'admin');
+
+
+
+SET @admin = (SELECT id FROM users WHERE username = 'admin');
+SET @user1 = (SELECT id FROM users WHERE username = 'user1');
+SET @user2 = (SELECT id FROM users WHERE username = 'user2');
+SET @user3 = (SELECT id FROM users WHERE username = 'user3');
+
+INSERT INTO users_roles_zones (userId, roleId, zoneId,isActive)
+VALUES
+    (@admin, @Administrator, @parent_hcm, TRUE), -- User1 là Administrator
+    (@admin, @Support, @parent_hcm, TRUE), -- User2 là Editor
+    (@user1, @Manager, @parent_dn, TRUE), -- User3 là Viewer
+    (@user2, @Editor, @parent_dn, TRUE), -- User4 là Manager
+    (@user3, @Manager, @parent_dn, FALSE); -- User5 là Support
