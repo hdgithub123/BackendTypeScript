@@ -16,11 +16,19 @@ const secretKey: string | null = process.env.SECRET_KEY || null
 // Middleware để xác thực token JWT
 const authorization: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
     // Lấy token từ tiêu đề 'Authorization'
-    const token = req.headers.authorization;
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
         res.status(401).json({ success: false, message: 'Unauthorized: Missing token' });
         return;
     }
+
+    // Xử lý Bearer Token
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+        res.status(401).json({ success: false, message: 'Unauthorized: Invalid token format' });
+        return;
+    }
+    const token = parts[1];
 
     // Xác thực token
     jwt.verify(token, secretKey, (err: any, decoded: any) => {

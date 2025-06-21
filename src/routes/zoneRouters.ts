@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 //import {getZones,insertZones,updateZones,deleteZones,getZone,insertZone,updateZone,deleteZone} from '../controllers/zonesControllers';
-import {getZones,insertZone,updateZone} from '../controllers/zonesControllers';
+import {getZone,getZones,insertZone,updateZone,insertZones,updateZones} from '../controllers/zonesControllers';
 // Định tuyến cho trang user
 
 
 //chú ý route cha phải được đặt sau route con
-// router.get('/detail/:id', getZone);
+router.get('/detail/:id', getZone);
 router.post('/detail/insert', insertZone);
-router.put('/detail/update', updateZone);
+router.put('/detail/update/:id', updateZone);
 // router.delete('/detail/:id', deleteZone);
 
 // router cha
 router.get('/list',getZones);
-// router.post('/list', insertZones);
-// router.put('/list', updateZones);
+router.post('/list', insertZones);
+router.put('/list', updateZones);
 // router.delete('/list', deleteZones);
 
 

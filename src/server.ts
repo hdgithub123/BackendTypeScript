@@ -39,7 +39,7 @@ app.use(cors({
 
 // app.use('/user', authorization, checkPermission({rightIds: [1,20]}), userRoutes);
 
-app.use('/user', authorization, checkPermission({rightCodes: ["9e25a246-3404-11f0-9c72-0242ac110002",'20',"CREATE_USER"]}), userRoutes);
+app.use('/user', authorization, checkPermission({rightCodes: ["9e25a246-3404-11f0-9c72-0242ac110002",'20',"CREATE_USER"], isAllowChildZone: false}), userRoutes);
 //app.use('/user', userRoutes);
  app.use('/zone', zoneRouters); //-- dang thu
 app.use('/roleright', roleRightRoute);

@@ -13,7 +13,7 @@ export type zone = {
 
 
 export async function getZone(id: string) {
-    const sqlQuery = "SELECT * FROM zones WHERE id = ?";
+    const sqlQuery = "Select * from zones WHERE id = ?";
     return await executeQuery(sqlQuery, [id]);
 }
 
@@ -42,10 +42,11 @@ export async function insertZone(zone: zone): Promise<{ data: Object | null, sta
 }
 
 
-export async function updateZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateZone(zoneId: string, zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+    const updateZone = { ...zone, id: zoneId }; // Ensure the zone has the id field for update
     const tablesData: zoneData = {
         table: "zones",
-        dataIn: [zone],
+        dataIn: [updateZone],
         parentField: "parentId",
         childField: "id"
     };
@@ -53,15 +54,26 @@ export async function updateZone(zone: zone): Promise<{ data: Object | null, sta
 }
 
 
-// export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-//     const tablesData: zoneData = {
-//         table: "zones",
-//         dataIn: zones,
-//         parentField: "parentId",
-//         childField: "id"
-//     };
-//     return await insertObjectsTreeTables([tablesData]);
-// }
+export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+    const tablesData: zoneData = {
+        table: "zones",
+        dataIn: zones,
+        parentField: "parentId",
+        childField: "id"
+    };
+    return await insertObjectsTreeTables([tablesData]);
+}
+
+
+export async function updateZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+    const tablesData: zoneData = {
+        table: "zones",
+        dataIn: zones,
+        parentField: "parentId",
+        childField: "id"
+    };
+    return await updateObjectsTreeTables([tablesData]);
+}
 
 
 

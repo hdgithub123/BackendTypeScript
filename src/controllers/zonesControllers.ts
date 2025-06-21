@@ -4,8 +4,8 @@ import * as zoneModel from "../models/zoneModels";
 
 export async function getZone(req: Request, res: Response) {
     try {
-        const zonename:string = req.params.zonename;
-        const { data, status,errorCode } = await zoneModel.getZone(zonename);
+        const id:string = req.params.id;
+        const { data, status,errorCode } = await zoneModel.getZone(id);
         if (status && Array.isArray(data) && data.length > 0) {
             res.status(200).json({ data, status,errorCode });
         } else {
@@ -48,9 +48,9 @@ export async function insertZone(req: Request, res: Response) {
 
 export async function updateZone(req: Request, res: Response) {
     try {
-        // const zoneId:string = req.params.id;
+        const zoneId:string = req.params.id;
         const zone = req.body;
-        const { data, status,errorCode } = await zoneModel.updateZone(zone);
+        const { data, status,errorCode } = await zoneModel.updateZone(zoneId,zone);
         if (status) {
             res.status(200).json({ data, status,errorCode});
         } else {
@@ -63,16 +63,16 @@ export async function updateZone(req: Request, res: Response) {
 }
 
 
-// export async function insertZones(req: Request, res: Response) {
-//     try {
-//         const zones = req.body; // Lấy dữ liệu từ body của request
-//        const { data, status,errorCode } = await zoneModel.insertZones(zones); // Gọi hàm insertZones từ model
-//         res.status(201).json({  data, status,errorCode });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ status: false, message: 'Internal Server Error' });
-//     }
-// }
+export async function insertZones(req: Request, res: Response) {
+    try {
+        const zones = req.body; // Lấy dữ liệu từ body của request
+       const { data, status,errorCode } = await zoneModel.insertZones(zones); // Gọi hàm insertZones từ model
+        res.status(201).json({  data, status,errorCode });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
 
 // export async function updateZone(req: Request, res: Response) {
 //     try {
@@ -90,20 +90,20 @@ export async function updateZone(req: Request, res: Response) {
 //     }
 // }
 
-// export async function updateZones(req: Request, res: Response) {
-//     try {
-//         const zones = req.body; // Lấy dữ liệu từ body của request
-//         const { data, status,errorCode } =  await zoneModel.updateZones(zones); // Gọi hàm updateZones từ model
-//          if (status) {
-//             res.status(200).json({ data, status,errorCode});
-//         } else {
-//             res.status(400).json({ data, status,errorCode });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ status: false, message: 'Internal Server Error' });
-//     }
-// }
+export async function updateZones(req: Request, res: Response) {
+    try {
+        const zones = req.body; // Lấy dữ liệu từ body của request
+        const { data, status,errorCode } =  await zoneModel.updateZones(zones); // Gọi hàm updateZones từ model
+         if (status) {
+            res.status(200).json({ data, status,errorCode});
+        } else {
+            res.status(400).json({ data, status,errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
 
 
 
