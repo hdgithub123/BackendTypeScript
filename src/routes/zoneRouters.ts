@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 //import {getZones,insertZones,updateZones,deleteZones,getZone,insertZone,updateZone,deleteZone} from '../controllers/zonesControllers';
-import {getZone,getZones,insertZone,updateZone,insertZones,updateZones} from '../controllers/zonesControllers';
+import {getZone,getZones,insertZone,updateZone,insertZones,updateZones,deleteZone, deleteZones,insertZonesByCode} from '../controllers/zonesControllers';
 // Định tuyến cho trang user
 
 
@@ -9,13 +9,14 @@ import {getZone,getZones,insertZone,updateZone,insertZones,updateZones} from '..
 router.get('/detail/:id', getZone);
 router.post('/detail/insert', insertZone);
 router.put('/detail/update/:id', updateZone);
-// router.delete('/detail/:id', deleteZone);
+router.delete('/detail/:id', deleteZone);
 
 // router cha
+router.post('/list/code', insertZonesByCode);
 router.get('/list',getZones);
 router.post('/list', insertZones);
 router.put('/list', updateZones);
-// router.delete('/list', deleteZones);
+router.delete('/list', deleteZones);
 
 
 

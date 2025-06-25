@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables,updateObjectsTreeTables } from '../config'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables,updateObjectsTreeTables,deleteObjectsTreeTables,insertObjectsTreeTablesUniqueField } from '../config'
 
 //Tạo type cho zone
 export type zone = {
@@ -32,7 +32,7 @@ export type zoneData = {
     childField: string;
 }
 export async function insertZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
-    const tablesData: zoneData = {
+    const tablesData = {
         table: "zones",
         dataIn: [zone],
         parentField: "parentId",
@@ -73,6 +73,39 @@ export async function updateZones(zones: Array<zone>): Promise<{ data: Object | 
         childField: "id"
     };
     return await updateObjectsTreeTables([tablesData]);
+}
+
+export async function deleteZone(zonesId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+     const tablesData = {
+        table: "zones",
+        dataIn: [zonesId],
+        parentField: "parentId",
+        childField: "id"
+    };
+    return await deleteObjectsTreeTables([tablesData]);
+}
+
+export async function deleteZones(zones: Array<string>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+    const tablesData = {
+        table: "zones",
+        dataIn: zones,
+        parentField: "parentId",
+        childField: "id"
+    };
+    return await deleteObjectsTreeTables([tablesData]);
+}
+
+
+
+export async function insertZonesByCode(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+    const tablesData = {
+        table: "zones",
+        dataIn: zones,
+        uniqueField: "code",
+        parentField: "parentId",
+        childField: "id"
+    };
+    return await insertObjectsTreeTablesUniqueField([tablesData]);
 }
 
 

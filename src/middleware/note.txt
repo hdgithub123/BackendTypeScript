@@ -1,0 +1,8 @@
+Trên client cần truyền vào header đi kèm các thông tin như trên
+
+
+const newheaders = {
+      Authorization: `Bearer ${token}`,
+      zone: zoneId,
+      is_child_zone: true,
+    };

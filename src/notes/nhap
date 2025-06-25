@@ -1,7 +1,7 @@
 
 {
-      "zoneName": "Tổng Công Ty 000",
-      "code": "TC001000",
+      "zoneName": "Cha",
+      "code": "CHA",
       "address": "Hà Nội",
       "description": "Trụ sở chính",
       "parentId": null,
@@ -10,8 +10,8 @@
 
 
     {
-      "zoneName": "con Tổng Công Ty 000",
-      "code": "CONTC001000",
+      "zoneName": "con 1",
+      "code": "CON1",
       "address": "Hà Nội",
       "description": "Trụ sở chính",
       "parentId": "7a68615f-4c4e-11f0-acd1-0242ac110002",
