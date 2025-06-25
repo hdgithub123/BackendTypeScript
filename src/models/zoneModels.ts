@@ -31,7 +31,7 @@ export type zoneData = {
     parentField: string;
     childField: string;
 }
-export async function insertZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const tablesData = {
         table: "zones",
         dataIn: [zone],
@@ -42,7 +42,7 @@ export async function insertZone(zone: zone): Promise<{ data: Object | null, sta
 }
 
 
-export async function updateZone(zoneId: string, zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateZone(zoneId: string, zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const updateZone = { ...zone, id: zoneId }; // Ensure the zone has the id field for update
     const tablesData: zoneData = {
         table: "zones",
@@ -54,7 +54,7 @@ export async function updateZone(zoneId: string, zone: zone): Promise<{ data: Ob
 }
 
 
-export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const tablesData: zoneData = {
         table: "zones",
         dataIn: zones,
@@ -65,7 +65,7 @@ export async function insertZones(zones: Array<zone>): Promise<{ data: Object | 
 }
 
 
-export async function updateZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const tablesData: zoneData = {
         table: "zones",
         dataIn: zones,
@@ -75,7 +75,7 @@ export async function updateZones(zones: Array<zone>): Promise<{ data: Object | 
     return await updateObjectsTreeTables([tablesData]);
 }
 
-export async function deleteZone(zonesId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteZone(zonesId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
      const tablesData = {
         table: "zones",
         dataIn: [zonesId],
@@ -85,7 +85,7 @@ export async function deleteZone(zonesId: string | number): Promise<{ data: Obje
     return await deleteObjectsTreeTables([tablesData]);
 }
 
-export async function deleteZones(zones: Array<string>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteZones(zones: Array<string>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const tablesData = {
         table: "zones",
         dataIn: zones,
@@ -97,7 +97,7 @@ export async function deleteZones(zones: Array<string>): Promise<{ data: Object 
 
 
 
-export async function insertZonesByCode(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertZonesByCode(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const tablesData = {
         table: "zones",
         dataIn: zones,
@@ -110,31 +110,31 @@ export async function insertZonesByCode(zones: Array<zone>): Promise<{ data: Obj
 
 
 
-// export async function insertZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+// export async function insertZone(zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
 //     return await insertObject("zones", zone);
 // }
 
 
-// export async function updateZone(zonesId: string, zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+// export async function updateZone(zonesId: string, zone: zone): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
 //     const columKey = { id: zonesId }; // Use userId as the columKey
 //     return await updateObject("zones", zone, columKey);
 // }
 
 
-// export async function deleteZone(zonesId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+// export async function deleteZone(zonesId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
 //     return await deleteObject("zones", { id: zonesId });
 // }
 
 
-// export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+// export async function insertZones(zones: Array<zone>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
 //         return await insertObjects("zones", zones);
 // }
 
 
-// export async function updateZones(zones: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+// export async function updateZones(zones: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
 //         return await updateObjects("zones", zones, ["id"]);
 // }
 
-// export async function deleteZones(zones: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+// export async function deleteZones(zones: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
 //     return await deleteObjects("zones", zones);
 // }

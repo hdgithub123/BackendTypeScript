@@ -7,7 +7,7 @@ export async function deleteObjectsTreeTables(
     parentField: string;
     childField: string;
   }>
-): Promise<{ data: any; status: boolean; errorCode: string | null }> {
+): Promise<{ data: any; status: boolean; errorCode: string | Object }> {
   return await executeTransaction(async (connection) => {
     for (const { table, dataIn, parentField, childField } of tablesData) {
       const idsToDelete = [...dataIn]; // Clone để không ảnh hưởng dữ liệu đầu vào
@@ -45,6 +45,6 @@ export async function deleteObjectsTreeTables(
       }
     }
 
-    return { data: 'Deleted successfully', status: true, errorCode: null };
+    return { data: null, status: true, errorCode: {} };
   });
 }

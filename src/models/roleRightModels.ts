@@ -24,30 +24,30 @@ export async function getRoleRights() {
 }
 
 
-export async function insertRoleRight(roleRight: roleRight): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertRoleRight(roleRight: roleRight): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await insertObject("roles_rights", roleRight);
 }
 
 
-export async function updateRoleRight( roleRight: roleRight, roleRightId: roleIdRightId): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateRoleRight( roleRight: roleRight, roleRightId: roleIdRightId): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await updateObject("roles_rights", roleRight, roleRightId);
 }
 
 
-export async function deleteRoleRight( roleRightId: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteRoleRight( roleRightId: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await deleteObject("roles_rights", { roleId: roleRightId.roleId, rightId:roleRightId.rightId  });
 }
 
 
-export async function insertRoleRights(roleRights:Array<roleRight>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertRoleRights(roleRights:Array<roleRight>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
         return await insertObjects("roles_rights", roleRights);
 }
 
 
-export async function updateRoleRights(roleRights:Array<roleRight>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateRoleRights(roleRights:Array<roleRight>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
         return await updateObjects("roles_rights", roleRights, ["roleId", "rightId"]);
 }
 
-export async function deleteRoleRights(roleRights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteRoleRights(roleRights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await deleteObjects("roles_rights", roleRights);
 }

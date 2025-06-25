@@ -25,7 +25,7 @@ export async function getUsers() {
 }
 
 
-export async function insertUser(user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertUser(user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { password } = user;
     const hashedPassword = await bcrypt.hash(password, 10);
     const reuser = { ...user, password: hashedPassword}
@@ -33,7 +33,7 @@ export async function insertUser(user: user): Promise<{ data: Object | null, sta
 }
 
 
-export async function updateUser(userId: string, user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateUser(userId: string, user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { password } = user;
     let hashedPassword = null;
     let userData = {}
@@ -48,7 +48,7 @@ export async function updateUser(userId: string, user: user): Promise<{ data: Ob
 }
 
 
-export async function deleteUser(userId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteUser(userId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         return await deleteObject("users", { id: userId });
     } catch (error) {
@@ -60,7 +60,7 @@ export async function deleteUser(userId: string | number): Promise<{ data: Objec
 }
 
 
-export async function insertUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const hashedUsers = await Promise.all(users.map(async user => {
             const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -75,7 +75,7 @@ export async function insertUsers(users: Array<user>): Promise<{ data: Object | 
 }
 
 
-export async function updateUsers(users: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateUsers(users: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const hashedUsers = await Promise.all(users.map(async user => {
             if (user.password) {
@@ -93,6 +93,6 @@ export async function updateUsers(users: Array<{ [key: string]: any }>): Promise
     }
 }
 
-export async function deleteUsers(userIds: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteUsers(userIds: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await deleteObjects("users", userIds);
 }

@@ -21,31 +21,31 @@ export async function getRights() {
 }
 
 
-export async function insertRight(right: right): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertRight(right: right): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await insertObject("rights", right);
 }
 
 
-export async function updateRight(rightsId: string, right: right): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateRight(rightsId: string, right: right): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const columKey = { id: rightsId }; // Use userId as the columKey
     return await updateObject("rights", right, columKey);
 }
 
 
-export async function deleteRight(rightsId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteRight(rightsId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await deleteObject("rights", { id: rightsId });
 }
 
 
-export async function insertRights(rights: Array<right>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertRights(rights: Array<right>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
         return await insertObjects("rights", rights);
 }
 
 
-export async function updateRights(rights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateRights(rights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
         return await updateObjects("rights", rights, ["id"]);
 }
 
-export async function deleteRights(rights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteRights(rights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     return await deleteObjects("rights", rights);
 }

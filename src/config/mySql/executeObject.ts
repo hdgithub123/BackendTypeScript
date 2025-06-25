@@ -2,7 +2,7 @@ import executeQuery from './executeQuery';
 import executeTransaction from './executeTransaction';
 require('dotenv').config();
 
-export async function insertObject(table: string, object: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertObject(table: string, object: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const keys = Object.keys(object);
         const placeholders = keys.map(() => '?').join(',');
@@ -18,7 +18,7 @@ export async function insertObject(table: string, object: { [key: string]: any }
 }
 
 
-export async function updateObject(table: string, object: { [key: string]: any }, columKey: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function updateObject(table: string, object: { [key: string]: any }, columKey: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const keys = Object.keys(object); // Get the keys from the object
         const setClause = keys.map(key => `${key} = ?`).join(','); // Create the SET clause for the update
@@ -36,7 +36,7 @@ export async function updateObject(table: string, object: { [key: string]: any }
 }
 
 
-export async function deleteObject(table: string, columKey: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function deleteObject(table: string, columKey: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const setClause = Object.keys(columKey).map(key => `${key} = ?`).join(' AND '); // Create the SET clause for the delete
         const values = Object.values(columKey); // Get the values to be used in the WHERE clause
@@ -52,7 +52,7 @@ export async function deleteObject(table: string, columKey: { [key: string]: any
 
 
 
-export async function insertObjects(table: string, dataIn: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+export async function insertObjects(table: string, dataIn: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const keys = Object.keys(dataIn[0]); // Lấy danh sách các trường từ object đầu tiên
         const placeholders = dataIn.map(() => `(${keys.map(() => '?').join(',')})`).join(','); // Tạo chuỗi placeholders cho các giá trị
@@ -73,7 +73,7 @@ export async function insertObjects(table: string, dataIn: Array<{ [key: string]
 
 export async function insertObjectsTables(
   tablesData: Array<{ table: string, dataIn: Array<{ [key: string]: any }> }>
-): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
   return await executeTransaction(async (connection) => {
     for (const { table, dataIn } of tablesData) {
       if (!dataIn || dataIn.length === 0) continue;
@@ -93,7 +93,7 @@ export async function updateObjects(
   table: string,
   dataIn: Array<{ [key: string]: any }>,
   columKey: Array<string>
-): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
   return await executeTransaction(async (connection) => {
     for (const item of dataIn) {
       // SET clause
@@ -115,7 +115,7 @@ export async function updateObjects(
 
 export async function updateObjectsTables(
   tablesData: Array<{ table: string, dataIn: Array<{ [key: string]: any }>, columKey: Array<string> }>
-): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
   return await executeTransaction(async (connection) => {
     for (const { table, dataIn, columKey } of tablesData) {
       for (const item of dataIn) {
@@ -140,7 +140,7 @@ export async function updateObjectsTables(
 export async function deleteObjects(
   table: string,
   columKey: Array<{ [key: string]: any }>
-): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
   return await executeTransaction(async (connection) => {
     for (const obj of columKey) {
       const keys = Object.keys(obj);
@@ -156,7 +156,7 @@ export async function deleteObjects(
 
 export async function deleteObjectsTables(
   tablesData: Array<{ table: string, columKey: Array<{ [key: string]: any }> }>
-): Promise<{ data: Object | null, status: boolean, errorCode: string | null }> {
+): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
   return await executeTransaction(async (connection) => {
     for (const { table, columKey } of tablesData) {
       for (const obj of columKey) {
