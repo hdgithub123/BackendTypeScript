@@ -29,10 +29,11 @@ export async function insertObjectsTreeTablesUniqueField(
           );
           if ((parentRows as any[]).length === 0) {
             throw {
+              message: `Parent with ${uniqueField} = '${parentUniqueValue}' not found` ,
               code: "ER_NO_REFERENCED_ROW_2",
               errno: 1452,
               sqlState: "23000",
-              message: `Parent with ${uniqueField} = '${parentUniqueValue}' not found` };
+            };
           }
             parentId = (parentRows as any[])[0][childField];
           }

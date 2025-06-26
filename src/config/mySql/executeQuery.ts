@@ -9,8 +9,6 @@ const executeQuery = async (query: string, params: (string | number)[] = []): Pr
       errorCode: {}
     };
   } catch (error: any) {
-    console.error('Lỗi khi thực hiện truy vấn:', error);
-    //loại bỏ error.sql
     const newError = { ...error };
     delete newError.sql;
     return {
