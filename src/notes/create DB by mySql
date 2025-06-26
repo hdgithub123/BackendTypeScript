@@ -40,6 +40,7 @@ CREATE TABLE roles_rights (
     roleId CHAR(36),
     rightId CHAR(36),
     isActive TINYINT(1) NOT NULL,
+    isSystem BOOLEAN DEFAULT false,
     PRIMARY KEY (roleId, rightId),
     FOREIGN KEY (roleId) REFERENCES roles(id),
     FOREIGN KEY (rightId) REFERENCES rights(id)
@@ -130,13 +131,13 @@ SET @Delete = (SELECT id FROM rights WHERE code = 'DELETE_USER');
 SET @View = (SELECT id FROM rights WHERE code = 'VIEW_REPORTS');
 SET @Manage = (SELECT id FROM rights WHERE code = 'MANAGE_PERMISSIONS');
 
-INSERT INTO roles_rights (roleId, rightId, isActive)
+INSERT INTO roles_rights (roleId, rightId, isActive, isSystem)
 VALUES
-    (@Administrator, @Create, TRUE), -- Administrator có quyền Tạo người dùng
-    (@Administrator, @Edit, TRUE), -- Administrator có quyền Chỉnh sửa người dùng
-    (@Editor, @Edit, TRUE), -- Editor có quyền Chỉnh sửa người dùng
-    (@Manager, @Manage, TRUE), -- Viewer chỉ có quyền Xem báo cáo
-    (@Support, @Manage, TRUE); -- Manager có quyền Quản lý quyền
+    (@Administrator, @Create, TRUE, TRUE), -- Administrator có quyền Tạo người dùng
+    (@Administrator, @Edit, TRUE,TRUE), -- Administrator có quyền Chỉnh sửa người dùng
+    (@Editor, @Edit, TRUE,FALSE), -- Editor có quyền Chỉnh sửa người dùng
+    (@Manager, @Manage, TRUE, FALSE), -- Viewer chỉ có quyền Xem báo cáo
+    (@Support, @Manage, TRUE, FALSE); -- Manager có quyền Quản lý quyền
 
 
 -- SET @admin = (SELECT id FROM users WHERE username = 'admin');
@@ -155,17 +156,28 @@ VALUES
 
 -- users, roles, roles_rights, rights, user_roles
 
--- Lấy danh sách quyền của người dùng có id = 'user1-uuid-here'
--- Lấy danh sách quyền của người dùng có id = 'e80df218-3228-11f0-b25f-0242ac110003'
-SELECT  rights.id, rights.rightName, rights.code, rights.description
-FROM users
-JOIN users_roles ON users.id = users_roles.userId
-JOIN roles ON users_roles.roleId = roles.id
-JOIN roles_rights ON roles.id = roles_rights.roleId
-JOIN rights ON roles_rights.rightId = rights.id
-WHERE users.id = @admin;
+-- lay quyen cua user trong zone
+            WITH RECURSIVE zone_tree AS (
+                SELECT id
+                FROM zones
+                WHERE id = ? -- zone gốc
+                UNION ALL
 
-Select * from users;
+                SELECT z.id
+                FROM zones z
+                JOIN zone_tree zt ON z.parentId = zt.id
+              )
+            SELECT rights.id
+            FROM users
+            JOIN users_roles_zones ON users.id = users_roles_zones.userId
+            JOIN roles ON users_roles_zones.roleId = roles.id
+            JOIN roles_rights ON roles.id = roles_rights.roleId
+            JOIN rights ON roles_rights.rightId = rights.id
+            WHERE roles_rights.isactive = TRUE
+              AND users_roles_zones.isactive = TRUE
+              AND users.id = ?
+              AND users_roles_zones.zoneId IN (SELECT id FROM zone_tree)
+              AND rights.code IN (${placeholders})
 
 
 
