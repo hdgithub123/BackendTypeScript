@@ -1,6 +1,13 @@
 const bcrypt = require('bcrypt');
 import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../config'
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+const defaultUserID = process.env.ADMIN_ID;
+
+
+
 //Tạo type cho user
 export type user = {
     username: string;
@@ -49,6 +56,9 @@ export async function updateUser(userId: string, user: user): Promise<{ data: Ob
 
 
 export async function deleteUser(userId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    if (userId === defaultUserID) {
+        return { data: null, status: false, errorCode: 'CANNOT_DELETE_ADMIN_USER' };
+    }
     try {
         return await deleteObject("users", { id: userId });
     } catch (error) {
@@ -94,5 +104,10 @@ export async function updateUsers(users: Array<{ [key: string]: any }>): Promise
 }
 
 export async function deleteUsers(userIds: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // Kiểm tra xem có cố gắng xóa người dùng quản trị hay không
+    if (userIds.some(user => user.id === defaultUserID)) {
+        return { data: null, status: false, errorCode: 'CANNOT_DELETE_ADMIN_USER' };
+    }
+
     return await deleteObjects("users", userIds);
 }

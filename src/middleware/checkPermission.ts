@@ -1,6 +1,12 @@
 import e, { Request, Response, NextFunction, RequestHandler } from 'express';
 import executeQuery from "../config/mySql/executeQuery";
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+const defaultUserID = process.env.ADMIN_ID;
+
+
 const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes: string[] | number[], isAllowChildZone?: boolean }): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -55,6 +61,10 @@ export default checkPermission;
 
 
 const checkUserPermission = async ({ userId, rightCodes, zoneId, isChildZone }: { userId: string, rightCodes: string[] | number[], zoneId: string, isChildZone: boolean }) => {
+  if (defaultUserID === userId) {
+    return true; // Người dùng quản trị luôn có quyền
+  }
+
   if (!rightCodes || rightCodes.length === 0) {
     return false;
   }
