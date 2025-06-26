@@ -10,10 +10,13 @@ const executeQuery = async (query: string, params: (string | number)[] = []): Pr
     };
   } catch (error: any) {
     console.error('Lỗi khi thực hiện truy vấn:', error);
+    //loại bỏ error.sql
+    const newError = { ...error };
+    delete newError.sql;
     return {
       data: null,
       status: false,
-      errorCode: error || 'UNKNOWN_ERROR'
+      errorCode: newError || 'UNKNOWN_ERROR'
     };
   }
 };

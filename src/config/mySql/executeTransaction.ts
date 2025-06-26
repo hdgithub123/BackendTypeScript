@@ -11,7 +11,9 @@ async function executeTransaction(
         return { data, status: true, errorCode: {} };
     } catch (error: any) {
         await connection.rollback();
-        return { data: null, status: false, errorCode: error || 'UNKNOWN_ERROR' };
+        const newError = { ...error };
+        delete newError.sql;
+        return { data: null, status: false, errorCode: newError || 'UNKNOWN_ERROR' };
     } finally {
         connection.release();
     }
