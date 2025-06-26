@@ -1,0 +1,35 @@
+# DB_USER = sa
+# DB_PASSWORD = 123456
+# DB_SERVER = 10.0.0.1
+# DB_PORT = '9000'
+# DB_DATABASE = MYDATABASE
+
+# #Docker
+# DB_USER = sa
+# DB_PASSWORD = '@Abc@1#623'
+# DB_SERVER = localhost
+# DB_PORT = '1433'
+# DB_DATABASE = MYDATABASE
+
+
+#Docker Mysql
+DB_USER = 'root'
+DB_PASSWORD = '123456'
+DB_SERVER = 'localhost'
+DB_PORT = '3306'
+DB_DATABASE = 'MYDATABASE'
+
+ADMIN_ID = "your_admin_id here"
+
+##App
+APP_PORT = 3000
+
+SECRET_KEY= "your_secret_key"
+
+
+TOKEN_EXPIRESIN = '5s'
+REFRESH_TOKEN_EXPIRESIN = '20s'
+
+
+
+
