@@ -211,3 +211,22 @@ VALUES
     (@user1, @Manager, @parent_dn, TRUE), -- User3 là Viewer
     (@user2, @Editor, @parent_dn, TRUE), -- User4 là Manager
     (@user3, @Manager, @parent_dn, FALSE); -- User5 là Support
+
+
+
+CREATE TABLE activityLogs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user VARCHAR(100) NOT NULL,
+    fullName VARCHAR(255),
+    time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    action VARCHAR(50),
+    tableName VARCHAR(100),
+    description TEXT,
+    functionName VARCHAR(100),
+    ip VARCHAR(45),
+    computerName VARCHAR(100),
+    oldData JSON,         -- Dữ liệu cũ (trước khi thay đổi)
+    newData JSON          -- Dữ liệu mới (sau khi thay đổi)
+);
+
+

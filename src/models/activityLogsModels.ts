@@ -1,0 +1,31 @@
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../config'
+
+
+//Tạo type cho user
+type activeLogs = {
+    user: string;
+    fullName: string;
+    time?: Date;
+    action: string;
+    tableName: string;
+    description: string;
+    functionName: string;
+    ip: string;
+    computerName: string;
+    oldData?: object;
+    newData?: object;
+};
+
+
+export async function getActivityLogs() {
+    const Sqlstring = "Select * from activityLogs";
+    const data = await executeQuery(Sqlstring);
+    return data;
+}
+
+export async function insertActivityLogs(activeLogs: Array<activeLogs>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    if (!Array.isArray(activeLogs) || activeLogs.length === 0) {
+        return { data: null, status: false, errorCode: "Invalid input" };
+    }
+    return await insertObjects("activityLogs", activeLogs);
+}
