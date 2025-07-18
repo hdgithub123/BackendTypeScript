@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response,NextFunction } from 'express';
 import authentication from '../services/authentication'
 
-const loginController = async (req: Request, res: Response) => {
+const loginController = async (req: Request, res: Response,next: NextFunction) => {
     const username = req.body.username
     const password = req.body.password
     const result = await authentication(username, password);
@@ -15,6 +15,9 @@ const loginController = async (req: Request, res: Response) => {
     if (result.status && result.refreshToken) {
         res.cookie('RefreshToken', result.refreshToken, cookieOptions);
         res.json({ status: true, token: result.token });
+        delete req.body.password;
+        req.user = result.user;
+        next();
     } else {
         res.status(401).json({ status: false, message: result.message });
     }

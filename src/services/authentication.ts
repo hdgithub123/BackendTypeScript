@@ -12,6 +12,7 @@ const refreshTokenExpiresIn: string | null = process.env.REFRESH_TOKEN_EXPIRESIN
 
 // tạo interface authentication status: true, token, refreshToken, message:null
 export interface AuthResult {
+    user?: object; // Optional user object
     status: boolean;
     token?: string | null;
     refreshToken?: string | null;
@@ -28,7 +29,7 @@ async function authentication(username: string, password: string): Promise<AuthR
         if (isMatch) {
             const token = jwt.sign({ userId: user.id, username: user.username }, secretKey, { expiresIn: tokenExpiresIn });
             const refreshToken = jwt.sign({ userId: user.id, username: user.username }, secretKey, { expiresIn: refreshTokenExpiresIn });
-            return { status: true, token, refreshToken, message:null };
+            return { user:{ userId: user.id, username: user.username },status: true, token, refreshToken, message:null };
         } else {
             return { status: false, token: null, refreshToken: null, message: 'Invalid username or password' };
         }
