@@ -1,19 +1,25 @@
 import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../config'
 
-
 //Tạo type cho user
 type activeLogs = {
-    user: string;
-    fullName: string;
+    user?: string;
+    fullName?: string;
     time?: Date;
     action: string;
     tableName: string;
-    description: string;
-    functionName: string;
-    ip: string;
-    computerName: string;
+    description?: string;
+    functionName?: string;
+    ip?: string;
+    computerName?: string;
     oldData?: object;
     newData?: object;
+    browserInfo?: object;
+    protocol?: string;
+    hostname?: string;
+    originalUrl?: string;
+    method?: string;
+    port?: number;
+    secure?: boolean;
 };
 
 

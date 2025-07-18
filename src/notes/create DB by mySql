@@ -216,17 +216,44 @@ VALUES
 
 CREATE TABLE activityLogs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user VARCHAR(100) NOT NULL,
-    fullName VARCHAR(255),
+    username VARCHAR(100),
     time DATETIME DEFAULT CURRENT_TIMESTAMP,
     action VARCHAR(50),
     tableName VARCHAR(100),
     description TEXT,
     functionName VARCHAR(100),
     ip VARCHAR(45),
-    computerName VARCHAR(100),
     oldData JSON,         -- Dữ liệu cũ (trước khi thay đổi)
-    newData JSON          -- Dữ liệu mới (sau khi thay đổi)
+    newData JSON,          -- Dữ liệu mới (sau khi thay đổi)
+    browserInfo JSON,      -- Thông tin trình duyệt
+    protocol,
+    hostname,
+    originalUrl,
+    method,
+    port,
+    secure,
+
+
 );
 
+
+CREATE TABLE activityLogs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100),              -- Tên người dùng thực hiện hành động
+    time DATETIME DEFAULT CURRENT_TIMESTAMP,     -- Thời gian ghi log
+    action VARCHAR(50),                 -- Loại hành động: INSERT, UPDATE, DELETE, ACCESS...
+    tableName VARCHAR(100),                     -- Tên bảng bị tác động
+    description TEXT,                            -- Mô tả chi tiết hành động
+    functionNname VARCHAR(100),                  -- Tên chức năng hoặc module
+    ip VARCHAR(45),                              -- Địa chỉ IP của client
+    oldData JSON,                               -- Dữ liệu cũ (trước khi thay đổi)
+    newData JSON,                               -- Dữ liệu mới (sau khi thay đổi)
+    browserInfo JSON,                           -- Thông tin trình duyệt (user-agent, OS, device...)
+    protocol VARCHAR(10),                        -- Giao thức: http hoặc https
+    hostname VARCHAR(255),                       -- Tên miền hoặc host truy cập
+    originalUrl TEXT,                           -- URL đầy đủ được truy cập
+    method VARCHAR(10),                          -- Phương thức HTTP: GET, POST, PUT...
+    port INT,                                    -- Cổng kết nối
+    secure BOOLEAN                               -- Có dùng HTTPS không (true/false)
+)
 

@@ -17,7 +17,7 @@ import roleRoute from './routes/roleRouters'
 import roleRightRoute from './routes/roleRightRouters'
 import UserRoleRoute from './routes/userRoleRouters'
 import zoneRouters from './routes/zoneRouters';
-import activityLogsRouters from './routes/ActivityLogsRouters';
+import activityLogsRouters from './routes/activityLogsRouters';
 
 
 import authorization from './middleware/authorization';

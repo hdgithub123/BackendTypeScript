@@ -16,11 +16,12 @@ export async function getRole(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function getRoles(req: Request, res: Response) {
+export async function getRoles(req: Request, res: Response,next: Function) {
     try {
         const { data, status,errorCode } = await roleModel.getRoles();
         if (status) {
             res.status(200).json({ data, status,errorCode });
+            next();
         } else {
             res.status(404).json({ data, status,errorCode});
         }
@@ -45,12 +46,13 @@ export async function insertRole(req: Request, res: Response) {
     }
 }
 
-export async function insertRoles(req: Request, res: Response) {
+export async function insertRoles(req: Request, res: Response, next: Function) {
     try {
         const roles = req.body; // Lấy dữ liệu từ body của request
        const { data, status,errorCode } =  await roleModel.insertRoles(roles); // Gọi hàm insertRoles từ model
            if (status) {
             res.status(201).json({ data, status,errorCode });
+            next();
         } else {
             res.status(400).json({data, status,errorCode});
         }
@@ -58,6 +60,7 @@ export async function insertRoles(req: Request, res: Response) {
         console.error(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
+    
 }
 
 export async function updateRole(req: Request, res: Response) {

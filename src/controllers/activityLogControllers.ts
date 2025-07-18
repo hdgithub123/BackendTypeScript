@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 //import {getRight,getRights,insertRight,insertRights,updateRight,updateRights} from "../models/rightModels";
 import * as activityLogsModels from "../models/activityLogsModels";
-
+const UAParser = require("ua-parser-js");
 
 
 export async function getActivityLogs(req: Request, res: Response) {
@@ -21,10 +21,46 @@ export async function getActivityLogs(req: Request, res: Response) {
 
 export async function insertActivityLogs(req: Request, res: Response) {
     try {
-        const activeLogs = req.body; // Lấy dữ liệu từ body của request
+        const activeData = req.body; // Lấy dữ liệu từ body của request
+
+        const ua = req.headers["user-agent"];
+        const parser = new UAParser(ua);
+        const browserInfo = JSON.parse(JSON.stringify(parser.getResult(), null, 2));
+        const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+        const ipString = typeof rawIp === "string" ? rawIp : String(rawIp);
+        const ip = ipString === "::1" ? "127.0.0.1" : ipString;
+
+        const protocol = req.protocol; // http hoặc https
+        const hostname = req.hostname; // tên host (không bao gồm port)
+        const originalUrl = req.originalUrl; // đường dẫn đầy đủ được truy cập
+        const method = req.method; // GET, POST, PUT, DELETE...
+
+        const port = req.socket.localPort; // Port server đang lắng nghe
+        const secure = req.secure; // true nếu HTTPS
+
+
+        const activeLogs = activeData.map((log: any) => ({
+            action: "unknown",
+            tableName: "unknown",
+            description: "unknown",
+            functionName: "unknown",
+            ...log,
+            userName: req.user?.username ? req.user.username : 'unknown',
+            ip,
+            protocol,
+            hostname,
+            originalUrl,
+            method,
+            port,
+            secure,
+            browserInfo,
+        }));
+
+
         const { data, status, errorCode } = await activityLogsModels.insertActivityLogs(activeLogs); // Gọi hàm insertActivityLogs từ model
+
         if (status) {
-            res.status(201).json({ data, status, errorCode });
+            res.status(201).json({ data, status, errorCode, browserInfo, ip });
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -33,3 +69,59 @@ export async function insertActivityLogs(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
+
+
+
+export function insertActivityLogsInfo(info?: object) {
+
+    return async function (req: Request, res: Response) {
+        try {
+            const activeData = req.body;
+            const ua = req.headers['user-agent'] || '';
+            const parser = new UAParser(ua);
+            const browserInfo = JSON.parse(JSON.stringify(parser.getResult(), null, 2));
+            const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+            const ipString = typeof rawIp === "string" ? rawIp : String(rawIp);
+            const ip = ipString === "::1" ? "127.0.0.1" : ipString;
+
+            const protocol = req.protocol; // http hoặc https
+            const hostname = req.hostname; // tên host (không bao gồm port)
+            const originalUrl = req.originalUrl; // đường dẫn đầy đủ được truy cập
+            const method = req.method; // GET, POST, PUT, DELETE...
+
+            const port = req.socket.localPort; // Port server đang lắng nghe
+            const secure = req.secure; // true nếu HTTPS
+
+
+            const activeLogs = [
+                {
+                    userName: req.user?.username ? req.user.username : 'unknown',
+                    action: "unknown",
+                    tableName: "unknown",
+                    description: "unknown",
+                    functionName: "unknown",
+                    ip: ip,
+                    oldData: {},
+                    newData: activeData ? activeData : {},
+                    browserInfo,
+                    protocol,
+                    hostname,
+                    originalUrl,
+                    method,
+                    port,
+                    secure,
+                    ...(info ?? {}),
+                }
+            ]
+
+
+            await activityLogsModels.insertActivityLogs(activeLogs);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ status: false, message: 'Internal Server Error' });
+        }
+    };
+}
+
+
