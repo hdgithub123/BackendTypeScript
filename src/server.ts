@@ -11,6 +11,7 @@ require('dotenv').config();
 
 import userRoutes from './routes/userRoutes';
 import loginRoutes from './routes/loginRouters';
+import logoutRouters from './routes/logoutRouters';
 import refreshTokenRoute from './routes/refreshTokenRoute'
 import rightRoute from './routes/rightRouters'
 import roleRoute from './routes/roleRouters'
@@ -49,6 +50,7 @@ app.use('/userrole', UserRoleRoute);
 app.use('/role', roleRoute);
 app.use('/right', rightRoute);
 app.use('/login', loginRoutes);
+app.use('/logout', logoutRouters);
 app.use('/auth', refreshTokenRoute);
 app.use('/', (req, res) => {
   res.send('hello!');

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response,NextFunction } from "express";
 //import {getRight,getRights,insertRight,insertRights,updateRight,updateRights} from "../models/rightModels";
 import * as activityLogsModels from "../models/activityLogsModels";
 const UAParser = require("ua-parser-js");
@@ -87,9 +87,9 @@ export async function insertActivityLogs(req: Request, res: Response) {
 
 
 
-export function insertActivityLogsInfo(info?: object) {
+export function insertActivityLogsInfo(info?: object,isNext?: boolean) {
 
-    return async function (req: Request, res: Response) {
+    return async function (req: Request, res: Response, next: NextFunction) {
         try {
             const activeData = req.body;
             const ua = req.headers['user-agent'] || '';
@@ -131,6 +131,10 @@ export function insertActivityLogsInfo(info?: object) {
 
 
             await activityLogsModels.insertActivityLogs(activeLogs);
+
+            if (isNext) {
+                next();
+            } 
 
         } catch (error) {
             console.error(error);
