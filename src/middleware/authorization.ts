@@ -44,13 +44,5 @@ const authorization: RequestHandler = (req: Request, res: Response, next: NextFu
 }
 
 
-
-
-
-
-
-
-
-
 export default authorization;
 

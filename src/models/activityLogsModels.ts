@@ -2,7 +2,8 @@ import executeQuery, { insertObject, insertObjects, updateObject, updateObjects,
 
 //Tạo type cho user
 type activeLogs = {
-    user?: string;
+    userId?: string;
+    userName?: string;
     fullName?: string;
     time?: Date;
     action: string;
@@ -28,6 +29,13 @@ export async function getActivityLogs() {
     const data = await executeQuery(Sqlstring);
     return data;
 }
+
+export async function getActivityLogsByUsername(username: string) {
+    const Sqlstring = "Select * from activityLogs where userName = ?";
+    const data = await executeQuery(Sqlstring, [username]);
+    return data;
+}
+
 
 export async function insertActivityLogs(activeLogs: Array<activeLogs>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     if (!Array.isArray(activeLogs) || activeLogs.length === 0) {

@@ -4,6 +4,21 @@ import * as activityLogsModels from "../models/activityLogsModels";
 const UAParser = require("ua-parser-js");
 
 
+export async function getActivityLogsByUsername(req: Request, res: Response) {
+    try {
+        const username: string = req.params.username;
+        const { data, status, errorCode } = await activityLogsModels.getActivityLogsByUsername(username);
+        if (status && Array.isArray(data) && data.length > 0) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(404).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
 export async function getActivityLogs(req: Request, res: Response) {
     try {
         const { data, status, errorCode } = await activityLogsModels.getActivityLogs();
@@ -45,6 +60,7 @@ export async function insertActivityLogs(req: Request, res: Response) {
             description: "unknown",
             functionName: "unknown",
             ...log,
+            userId: req.user?.userId ? req.user.userId : null, // Lưu ID người dùng nếu có
             userName: req.user?.username ? req.user.username : 'unknown',
             ip,
             protocol,
@@ -95,6 +111,7 @@ export function insertActivityLogsInfo(info?: object) {
 
             const activeLogs = [
                 {
+                    userId: req.user?.userId ? req.user.userId : null, // Lưu ID người dùng nếu có
                     userName: req.user?.username ? req.user.username : 'unknown',
                     action: "unknown",
                     tableName: "unknown",
