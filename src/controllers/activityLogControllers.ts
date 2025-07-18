@@ -58,7 +58,6 @@ export async function insertActivityLogs(req: Request, res: Response) {
             action: "unknown",
             tableName: "unknown",
             description: "unknown",
-            functionName: "unknown",
             ...log,
             userId: req.user?.userId ? req.user.userId : null, // Lưu ID người dùng nếu có
             userName: req.user?.username ? req.user.username : 'unknown',
@@ -116,7 +115,6 @@ export function insertActivityLogsInfo(info?: object) {
                     action: "unknown",
                     tableName: "unknown",
                     description: "unknown",
-                    functionName: "unknown",
                     ip: ip,
                     oldData: {},
                     newData: activeData ? activeData : {},

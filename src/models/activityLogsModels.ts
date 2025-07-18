@@ -9,7 +9,6 @@ type activeLogs = {
     action: string;
     tableName: string;
     description?: string;
-    functionName?: string;
     ip?: string;
     computerName?: string;
     oldData?: object;
