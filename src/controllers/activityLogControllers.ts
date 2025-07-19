@@ -1,4 +1,4 @@
-import { Request, Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 //import {getRight,getRights,insertRight,insertRights,updateRight,updateRights} from "../models/rightModels";
 import * as activityLogsModels from "../models/activityLogsModels";
 const UAParser = require("ua-parser-js");
@@ -87,11 +87,14 @@ export async function insertActivityLogs(req: Request, res: Response) {
 
 
 
-export function insertActivityLogsInfo(info?: object,isNext?: boolean) {
-
+export function insertActivityLogsInfo(
+    info?: Partial<{ action: string; tableName: string; description: string }>,
+    isNext?: boolean
+) {
     return async function (req: Request, res: Response, next: NextFunction) {
         try {
             const activeData = req.body;
+            const oldData = req.headers['old_data'];
             const ua = req.headers['user-agent'] || '';
             const parser = new UAParser(ua);
             const browserInfo = JSON.parse(JSON.stringify(parser.getResult(), null, 2));
@@ -112,11 +115,11 @@ export function insertActivityLogsInfo(info?: object,isNext?: boolean) {
                 {
                     userId: req.user?.userId ? req.user.userId : null, // Lưu ID người dùng nếu có
                     userName: req.user?.username ? req.user.username : 'unknown',
-                    action: "unknown",
-                    tableName: "unknown",
-                    description: "unknown",
+                    action: info?.action ?? "unknown",
+                    tableName: info?.tableName ?? "unknown",
+                    description: info?.description ?? "unknown",
                     ip: ip,
-                    oldData: {},
+                    oldData: oldData ? oldData : {},
                     newData: activeData ? activeData : {},
                     browserInfo,
                     protocol,
@@ -125,16 +128,13 @@ export function insertActivityLogsInfo(info?: object,isNext?: boolean) {
                     method,
                     port,
                     secure,
-                    ...(info ?? {}),
                 }
             ]
 
-
             await activityLogsModels.insertActivityLogs(activeLogs);
-
             if (isNext) {
                 next();
-            } 
+            }
 
         } catch (error) {
             console.error(error);
