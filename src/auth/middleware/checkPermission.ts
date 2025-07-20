@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction, RequestHandler } from 'express';
-import executeQuery from "../config/mySql/executeQuery";
+import executeQuery from "../../connectSql/mySql/executeQuery";
 
 import dotenv from 'dotenv';
 dotenv.config();

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables,updateObjectsTreeTables,deleteObjectsTreeTables,insertObjectsTreeTablesUniqueField } from '../config'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables,updateObjectsTreeTables,deleteObjectsTreeTables,insertObjectsTreeTablesUniqueField } from '../../connectSql'
 
 //Tạo type cho zone
 export type zone = {

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 import bcrypt from 'bcryptjs';
 
-import executeQuery from "../config/mySql/executeQuery";
+import executeQuery from "../../connectSql/mySql/executeQuery";
 
 require('dotenv').config(); // Load biến môi trường từ tệp .env
 

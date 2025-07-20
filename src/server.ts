@@ -9,20 +9,20 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 
-import userRoutes from './routes/userRoutes';
-import loginRoutes from './routes/loginRouters';
-import logoutRouters from './routes/logoutRouters';
-import refreshTokenRoute from './routes/refreshTokenRoute'
-import rightRoute from './routes/rightRouters'
-import roleRoute from './routes/roleRouters'
-import roleRightRoute from './routes/roleRightRouters'
-import UserZoneRoleRoute from './routes/userZoneRoleRouters'
-import zoneRouters from './routes/zoneRouters';
-import activityLogsRouters from './routes/activityLogsRouters';
-import mainRouter from './routes';
+import userRoutes from './auth/routes/userRoutes';
+import loginRoutes from './auth/routes/loginRouters';
+import logoutRouters from './auth/routes/logoutRouters';
+import refreshTokenRoute from './auth/routes/refreshTokenRoute'
+import rightRoute from './auth/routes/rightRouters'
+import roleRoute from './auth/routes/roleRouters'
+import roleRightRoute from './auth/routes/roleRightRouters'
+import UserZoneRoleRoute from './auth/routes/userZoneRoleRouters'
+import zoneRouters from './auth/routes/zoneRouters';
+import activityLogsRouters from './auth/routes/activityLogsRouters';
+import mainRouter from './auth/routes';
 
-import authorization from './middleware/authorization';
-import checkPermission from './middleware/checkPermission';
+import authorization from './auth/middleware/authorization';
+import checkPermission from './auth/middleware/checkPermission';
 
 dotenv.config();
 const app = express();

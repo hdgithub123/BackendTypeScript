@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../config'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../../connectSql'
 
 //Tạo type cho user
 export type right = {
