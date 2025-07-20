@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 //import {getZones,insertZones,updateZones,deleteZones,getZone,insertZone,updateZone,deleteZone} from '../controllers/zonesControllers';
 import {getZone,getZones,insertZone,updateZone,insertZones,updateZones,deleteZone, deleteZones,insertZonesByCode} from '../controllers/zonesControllers';
-// Định tuyến cho trang user
+import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 
 
 //chú ý route cha phải được đặt sau route con

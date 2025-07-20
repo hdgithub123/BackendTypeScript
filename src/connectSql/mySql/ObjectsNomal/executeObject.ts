@@ -1,5 +1,5 @@
-import executeQuery from './executeQuery';
-import executeTransaction from './executeTransaction';
+import executeQuery from '../executeQuery';
+import executeTransaction from '../executeTransaction';
 require('dotenv').config();
 
 export async function insertObject(table: string, object: { [key: string]: any }): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {

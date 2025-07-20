@@ -1,7 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import authorization from '../middleware/authorization';
-import {insertActivityLogsInfo} from '../controllers/activityLogControllers';
+import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 import {getRoles,insertRoles,updateRoles,deleteRoles,getRole,insertRole,updateRole,deleteRole} from '../controllers/roleControllers';
 // Định tuyến cho trang role
 

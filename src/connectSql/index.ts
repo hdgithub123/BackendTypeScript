@@ -1,6 +1,6 @@
 import executeQuery from "./mySql/executeQuery";
-import { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from './mySql/executeObject'
-import {  insertObjectsTables, updateObjectsTables, deleteObjectsTables } from './mySql/executeObject'
+import { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from './mySql/ObjectsNomal/executeObject'
+import {  insertObjectsTables, updateObjectsTables, deleteObjectsTables } from './mySql/ObjectsNomal/executeObject'
 import {insertObjectsTreeTables} from './mySql/ObjectsTree/insertObjectsTreeTables'
 import {insertObjectsTreeTablesUniqueField} from './mySql/ObjectsTree/insertObjectsTreeTablesUniqueField'
 import {updateObjectsTreeTables} from './mySql/ObjectsTree/updateObjectsTreeTables'

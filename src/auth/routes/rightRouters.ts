@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import {getRights,insertRights,updateRights,deleteRights,getRight,insertRight,updateRight,deleteRight} from '../controllers/rightControllers';
-// Định tuyến cho trang user
+import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 
 
 //chú ý route cha phải được đặt sau route con

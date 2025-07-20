@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import {getUserZoneRoles,insertUserZoneRoles,updateUserZoneRoles,deleteUserZoneRoles,getUserZoneRole,insertUserZoneRole,updateUserZoneRole,deleteUserZoneRole} from '../controllers/userZoneRoleControllers';
-// Định tuyến cho trang user
+import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 
 
 //chú ý route cha phải được đặt sau route con

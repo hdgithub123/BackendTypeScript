@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 import loginController from '../controllers/loginControllers';
-import {insertActivityLogsInfo} from '../controllers/activityLogControllers';
+import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 
 // Định tuyến GET cho trang chủ login
 router.post('/',loginController, insertActivityLogsInfo({action: 'login', description: "user login"}));

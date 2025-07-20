@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 import {getUsers,insertUsers,updateUsers,deleteUsers,getUser,insertUser,updateUser,deleteUser} from '../controllers/userControllers';
-// Định tuyến cho trang user
+import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 
 
 //chú ý route cha phải được đặt sau route con
