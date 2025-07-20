@@ -144,3 +144,18 @@ export function insertActivityLogsInfo(
 }
 
 
+export async function deleteActivityLogs(req: Request, res: Response) {
+    try {
+
+        const { status, errorCode } = await activityLogsModels.deleteActivityLogs();
+
+        if (status) {
+            res.status(200).json({ status, message: 'Activity log deleted successfully' });
+        } else {
+            res.status(400).json({ status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}

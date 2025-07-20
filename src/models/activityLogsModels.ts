@@ -42,3 +42,9 @@ export async function insertActivityLogs(activeLogs: Array<activeLogs>): Promise
     }
     return await insertObjects("activityLogs", activeLogs);
 }
+
+export async function deleteActivityLogs() {
+    const Sqlstring = "DELETE FROM activityLogs";
+    const data = await executeQuery(Sqlstring);
+    return data;
+}

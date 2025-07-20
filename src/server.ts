@@ -16,10 +16,10 @@ import refreshTokenRoute from './routes/refreshTokenRoute'
 import rightRoute from './routes/rightRouters'
 import roleRoute from './routes/roleRouters'
 import roleRightRoute from './routes/roleRightRouters'
-import UserRoleRoute from './routes/userRoleRouters'
+import UserZoneRoleRoute from './routes/userZoneRoleRouters'
 import zoneRouters from './routes/zoneRouters';
 import activityLogsRouters from './routes/activityLogsRouters';
-
+import mainRouter from './routes';
 
 import authorization from './middleware/authorization';
 import checkPermission from './middleware/checkPermission';
@@ -46,12 +46,13 @@ app.use('/user', authorization, checkPermission({rightCodes: ["9e25a246-3404-11f
 app.use('/activity-logs', activityLogsRouters);
 app.use('/zone', zoneRouters); //-- dang thu
 app.use('/roleright', roleRightRoute);
-app.use('/userrole', UserRoleRoute);
+app.use('/userzonerole', UserZoneRoleRoute);
 app.use('/role', roleRoute);
 app.use('/right', rightRoute);
 app.use('/login', loginRoutes);
 app.use('/logout', logoutRouters);
 app.use('/auth', refreshTokenRoute);
+app.use('/main', mainRouter);
 app.use('/', (req, res) => {
   res.send('hello!');
 });

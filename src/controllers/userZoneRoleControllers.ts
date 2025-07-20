@@ -1,30 +1,33 @@
 import { Request, Response } from "express";
-//import {getUserRole,getUserRoles,insertUserRole,insertUserRoles,updateUserRole,updateUserRoles} from "../models/userRoletModels";
-import * as userRoletModel from "../models/userRoleModels";
+//import {getUserZoneRole,getUserZoneRoles,insertUserZoneRole,insertUserZoneRoles,updateUserZoneRole,updateUserZoneRoles} from "../models/userZoneRoleModels";
+import * as userZoneRoleModel from "../models/userZoneRoleModels";
 
-export type userIdRightId = {
+export type userIdZoneIdRoleId = {
     userId: string;
+    zoneId: string;
     roleId: string;
 };
 
-export async function getUserRole(req: Request, res: Response) {
+export async function getUserZoneRole(req: Request, res: Response) {
     try {
         const userId = typeof req.query.userId === 'string' ? req.query.userId : '';
+        const zoneId = typeof req.query.zoneId === 'string' ? req.query.zoneId : '';
         const roleId = typeof req.query.roleId === 'string' ? req.query.roleId : '';
-        const { data, status } = await userRoletModel.getUserRole({ userId: userId, roleId: roleId });
+
+        const { data, status } = await userZoneRoleModel.getUserZoneRole({ userId: userId, zoneId: zoneId, roleId: roleId });
         if (status && Array.isArray(data) && data.length > 0) {
             res.status(200).json({ status: status, data: data[0] });
         } else {
-            res.status(404).json({ status: status, message: 'UserRole not found' });
+            res.status(404).json({ status: status, message: 'UserZoneRole not found' });
         }
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function getUserRoles(req: Request, res: Response) {
+export async function getUserZoneRoles(req: Request, res: Response) {
     try {
-        const { data, status } = await userRoletModel.getUserRoles();
+        const { data, status } = await userZoneRoleModel.getUserZoneRoles();
         if (status) {
             res.status(200).json({ status: status, data: data });
         } else {
@@ -36,10 +39,10 @@ export async function getUserRoles(req: Request, res: Response) {
     }
 }
 
-export async function insertUserRole(req: Request, res: Response) {
+export async function insertUserZoneRole(req: Request, res: Response) {
     try {
-        const user = req.body;
-        const { data, status, errorCode } = await userRoletModel.insertUserRole(user);
+        const userZoneRole = req.body;
+        const { data, status, errorCode } = await userZoneRoleModel.insertUserZoneRole(userZoneRole);
         if (status) {
             res.status(201).json({  status: status, data: data, errorCode  });
         } else {
@@ -51,9 +54,9 @@ export async function insertUserRole(req: Request, res: Response) {
     }
 }
 
-export async function insertUserRoles(req: Request, res: Response) {
-    const userRoles = req.body; // Lấy dữ liệu từ body của request
-    const { data, status, errorCode } = await userRoletModel.insertUserRoles(userRoles); // Gọi hàm insertUserRoles từ model
+export async function insertUserZoneRoles(req: Request, res: Response) {
+    const userZoneRoles = req.body; // Lấy dữ liệu từ body của request
+    const { data, status, errorCode } = await userZoneRoleModel.insertUserZoneRoles(userZoneRoles); // Gọi hàm insertUserZoneRoles từ model
     if (status) {
         res.status(200).json({ status: status, data: data, errorCode });
     } else {
@@ -62,11 +65,10 @@ export async function insertUserRoles(req: Request, res: Response) {
 
 }
 
-export async function updateUserRole(req: Request, res: Response) {
+export async function updateUserZoneRole(req: Request, res: Response) {
     try {
-        // const userRoletId: string = req.params.id;
-        const userRolet = req.body;
-        const { data, status, errorCode } = await userRoletModel.updateUserRole(userRolet, { userId: userRolet.userId, roleId: userRolet.roleId });
+        const userZoneRole = req.body;
+        const { data, status, errorCode } = await userZoneRoleModel.updateUserZoneRole(userZoneRole, { userId: userZoneRole.userId, zoneId: userZoneRole.zoneId, roleId: userZoneRole.roleId });
         if (status) {
             res.status(200).json({ status: status, data: data, errorCode });
         } else {
@@ -77,10 +79,10 @@ export async function updateUserRole(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function updateUserRoles(req: Request, res: Response) {
+export async function updateUserZoneRoles(req: Request, res: Response) {
     try {
-        const userRolets = req.body; // Lấy dữ liệu từ body của request
-        const { data, status, errorCode } = await userRoletModel.updateUserRoles(userRolets); // Gọi hàm updateUserRoles từ model
+        const userZoneRoles = req.body; // Lấy dữ liệu từ body của request
+        const { data, status, errorCode } = await userZoneRoleModel.updateUserZoneRoles(userZoneRoles); // Gọi hàm updateUserZoneRoles từ model
         if (status) {
             res.status(200).json({ status: status, data: data, errorCode });
         } else {
@@ -94,10 +96,10 @@ export async function updateUserRoles(req: Request, res: Response) {
 
 
 
-export async function deleteUserRole(req: Request, res: Response) {
+export async function deleteUserZoneRole(req: Request, res: Response) {
     try {
-        const userRole = req.body;
-        const { data, status, errorCode } = await userRoletModel.deleteUserRole({ userId: userRole.userId, roleId: userRole.roleId });
+        const userZoneRole = req.body;
+        const { data, status, errorCode } = await userZoneRoleModel.deleteUserZoneRole({ userId: userZoneRole.userId, zoneId: userZoneRole.zoneId, roleId: userZoneRole.roleId });
         if (status) {
             res.status(204).json({ status: true, data: data, errorCode });
         } else {
@@ -108,10 +110,10 @@ export async function deleteUserRole(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function deleteUserRoles(req: Request, res: Response) {
+export async function deleteUserZoneRoles(req: Request, res: Response) {
     try {
-        const userRolets = req.body; // Lấy dữ liệu từ body của request
-        const { data, status, errorCode } = await userRoletModel.deleteUserRoles(userRolets);
+        const userZoneRoles = req.body; // Lấy dữ liệu từ body của request
+        const { data, status, errorCode } = await userZoneRoleModel.deleteUserZoneRoles(userZoneRoles);
         if (status) {
             res.status(202).json({ status: status, data: data, errorCode });
         } else {

@@ -1,0 +1,58 @@
+Ten quyen               Ma quyen
+Login                   Login
+Loguot                  Loguot
+view user               GetUser
+add user                PostUser
+update user             PutUser
+Delete user             DeleteUser
+view users               GetUsers
+add users                PostUsers
+update users             PutUsers
+Delete users             DeleteUsers
+
+view Right               GetRight
+view Rights               GetRights
+
+view role               GetRole
+add role                PostRole
+update role             PutRole
+Delete role             DeleteRole
+view Roles               GetRoles
+add Roles                PostRoles
+update Roles             PutRoles
+Delete Roles             DeleteRoles
+
+
+view zone               GetZone
+add zone                PostZone
+update zone             PutZone
+Delete zone             DeleteZone
+view zones               GetZones
+add zones                PostZones
+update zones             PutZones
+Delete zones             DeleteZones
+
+view RoleVsRight               GetRoleVsRight
+add RoleVsRight                PostRoleVsRight
+update RoleVsRight             PutRoleVsRight
+Delete RoleVsRight             DeleteRoleVsRight
+view RoleVsRights               GetRoleVsRights
+add RoleVsRights                PostRoleVsRights
+update RoleVsRights             PutRoleVsRights
+Delete RoleVsRights             DeleteRoleVsRights
+
+
+view UserVsZoneVsRole               GetUserVsZoneVsRole
+add UserVsZoneVsRole                PostUserVsZoneVsRole
+update UserVsZoneVsRole             PutUserVsZoneVsRole
+Delete UserVsZoneVsRole             DeleteUserVsZoneVsRole
+view UserVsZoneVsRoles               GetUserVsZoneVsRoles
+add UserVsZoneVsRoles                PostUserVsZoneVsRoles
+update UserVsZoneVsRoles             PutUserVsZoneVsRoles
+Delete UserVsZoneVsRoles             DeleteUserVsZoneVsRoles
+
+
+
+
+
+
