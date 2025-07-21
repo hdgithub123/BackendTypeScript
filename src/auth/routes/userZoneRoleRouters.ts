@@ -6,15 +6,15 @@ import {insertActivityLogsInfo, authorization, checkPermission} from '../middlew
 
 //chú ý route cha phải được đặt sau route con
 router.get('/detail', getUserZoneRole);
-router.post('/detail/insert', insertUserZoneRole);
-router.put('/detail', updateUserZoneRole);
-router.delete('/detail', deleteUserZoneRole);
+router.post('/detail/insert', insertUserZoneRole,insertActivityLogsInfo({action: 'insertUserZoneRole', tableName: 'user_zone_role', description:"insert user zone role"}));
+router.put('/detail', updateUserZoneRole,insertActivityLogsInfo({action: 'updateUserZoneRole', tableName: 'user_zone_role', description:"update user zone role"}));
+router.delete('/detail', deleteUserZoneRole,insertActivityLogsInfo({action: 'deleteUserZoneRole', tableName: 'user_zone_role', description:"delete user zone role"}));
 
 // router cha
 router.get('/list',getUserZoneRoles);
-router.post('/list', insertUserZoneRoles);
-router.put('/list', updateUserZoneRoles);
-router.delete('/list', deleteUserZoneRoles);
+router.post('/list', insertUserZoneRoles,insertActivityLogsInfo({action: 'insertUserZoneRoles', tableName: 'user_zone_role', description:"insert user zone roles"}));
+router.put('/list', updateUserZoneRoles,insertActivityLogsInfo({action: 'updateUserZoneRoles', tableName: 'user_zone_role', description:"update user zone roles"}));
+router.delete('/list', deleteUserZoneRoles,insertActivityLogsInfo({action: 'deleteUserZoneRoles', tableName: 'user_zone_role', description:"delete user zone roles"}));
 
 
 

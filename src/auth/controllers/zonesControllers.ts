@@ -29,12 +29,14 @@ export async function getZones(req: Request, res: Response) {
     }
 }
 
-export async function insertZone(req: Request, res: Response) {
+export async function insertZone(req: Request, res: Response, next: Function) {
     try {
         const zone = req.body;
         const { data, status, errorCode } = await zoneModel.insertZone(zone);
         if (status) {
+            req.result = data;
             res.status(201).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -45,13 +47,15 @@ export async function insertZone(req: Request, res: Response) {
 }
 
 
-export async function updateZone(req: Request, res: Response) {
+export async function updateZone(req: Request, res: Response,next: Function) {
     try {
         const zoneId: string = req.params.id;
         const zone = req.body;
         const { data, status, errorCode } = await zoneModel.updateZone(zoneId, zone);
         if (status) {
+            req.result = data;
             res.status(200).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -99,23 +103,6 @@ export async function insertZonesByCode(req: Request, res: Response, next: Funct
 }
 
 
-
-// export async function updateZone(req: Request, res: Response) {
-//     try {
-//         const zoneId:string = req.params.id;
-//         const zone = req.body;
-//         const { data, status,errorCode } = await zoneModel.updateZone(zoneId, zone);
-//         if (status) {
-//             res.status(200).json({ data, status,errorCode});
-//         } else {
-//             res.status(400).json({ data, status,errorCode });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ status: false, message: 'Internal Server Error' });
-//     }
-// }
-
 export async function updateZones(req: Request, res: Response,next: Function) {
     try {
         const zones = req.body; // Lấy dữ liệu từ body của request
@@ -152,12 +139,14 @@ export async function deleteZones(req: Request, res: Response, next: Function) {
 }
 
 
-export async function deleteZone(req: Request, res: Response) {
+export async function deleteZone(req: Request, res: Response,next: Function) {
     try {
         const zoneId = req.params.id;
         const { data, status, errorCode } = await zoneModel.deleteZone(zoneId);
         if (status) {
+            req.result = data;
             res.status(202).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -167,18 +156,3 @@ export async function deleteZone(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-
-// export async function deleteZones(req: Request, res: Response) {
-//     try {
-//         const zones = req.body; // Lấy dữ liệu từ body của request
-//         const { data, status,errorCode } = await zoneModel.deleteZones(zones);
-//         if (status) {
-//             res.status(202).json({ data, status,errorCode });
-//         } else {
-//             res.status(400).json({ data, status,errorCode });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ status: false, message: 'Internal Server Error' });
-//     }
-// }

@@ -6,12 +6,12 @@ import {getRoles,insertRoles,updateRoles,deleteRoles,getRole,insertRole,updateRo
 
 //chú ý route cha phải được đặt sau route con
 router.get('/detail/:code', getRole);
-router.post('/detail/insert', insertRole);
-router.put('/detail/:id', updateRole);
-router.delete('/detail/:id', deleteRole);
+router.post('/detail/insert', insertRole,insertActivityLogsInfo({action: 'insertRole',tableName: 'role',description:"insert role"}));
+router.put('/detail/:id', updateRole,insertActivityLogsInfo({action: 'updateRole',tableName: 'role',description:"update role"}));
+router.delete('/detail/:id', deleteRole,insertActivityLogsInfo({action: 'deleteRole',tableName: 'role',description:"delete role"}));
 
 // router cha
-router.get('/list',getRoles,insertActivityLogsInfo({action: 'getRoles',tableName: 'role',description:"get roles"}));
+router.get('/list',getRoles);
 router.post('/list',insertRoles,insertActivityLogsInfo({action: 'insertRoles',tableName: 'role',description:"insert roles"}));
 router.put('/list', updateRoles,insertActivityLogsInfo({action: 'updateRoles',tableName: 'role',description:"update roles"}));
 router.delete('/list', deleteRoles,insertActivityLogsInfo({action: 'deleteRoles',tableName: 'role',description:"delete roles"}));

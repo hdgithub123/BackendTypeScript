@@ -7,9 +7,9 @@ import {insertActivityLogsInfo, authorization, checkPermission} from '../middlew
 
 //chú ý route cha phải được đặt sau route con
 router.get('/detail/:id', getZone);
-router.post('/detail/insert', insertZone);
-router.put('/detail/update/:id', updateZone);
-router.delete('/detail/:id', deleteZone);
+router.post('/detail/insert', insertZone,insertActivityLogsInfo({action: 'insertZone',tableName: 'zone',description:"insert zone"}));
+router.put('/detail/update/:id', updateZone,insertActivityLogsInfo({action: 'updateZone',tableName: 'zone',description:"update zone"}));
+router.delete('/detail/:id', deleteZone,insertActivityLogsInfo({action: 'deleteZone',tableName: 'zone',description:"delete zone"}));
 
 // router cha
 router.post('/list/code', insertZonesByCode,insertActivityLogsInfo({action: 'insertZones',tableName: 'zone',description:"insert zones by code"}));
