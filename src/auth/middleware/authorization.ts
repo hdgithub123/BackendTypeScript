@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Load biến môi trường từ tệp .env
 
 //Extend Express Request interface to include 'user'
-declare global {
-    namespace Express {
-        interface Request {
-            user?: any;
-        }
-    }
-}
+// declare global {
+//     namespace Express {
+//         interface Request {
+//             user?: any;
+//         }
+//     }
+// }
 
 const secretKey: string | null = process.env.SECRET_KEY || null
 

@@ -11,10 +11,10 @@ router.put('/detail/:id', updateRole);
 router.delete('/detail/:id', deleteRole);
 
 // router cha
-router.get('/list',authorization,getRoles,insertActivityLogsInfo({action: 'getRoles',tableName: 'role',description:"get roles"}));
+router.get('/list',getRoles,insertActivityLogsInfo({action: 'getRoles',tableName: 'role',description:"get roles"}));
 router.post('/list',insertRoles,insertActivityLogsInfo({action: 'insertRoles',tableName: 'role',description:"insert roles"}));
-router.put('/list', updateRoles);
-router.delete('/list', deleteRoles);
+router.put('/list', updateRoles,insertActivityLogsInfo({action: 'updateRoles',tableName: 'role',description:"update roles"}));
+router.delete('/list', deleteRoles,insertActivityLogsInfo({action: 'deleteRoles',tableName: 'role',description:"delete roles"}));
 
 
 

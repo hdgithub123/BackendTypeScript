@@ -8,9 +8,15 @@ export default function insertActivityLogsInfo(
     isNext?: boolean
 ) {
     return async function (req: Request, res: Response, next: NextFunction) {
+
         try {
-            const activeData = req.body;
-            const oldData = req.headers['old_data'];
+            const resultsData = req.result || [];
+            const userId = req.user?.userId || "unknown";
+            const userName = req.user?.username || 'unknown';
+            const action = info?.action ?? "unknown";
+            const description = info?.description ?? "unknown";
+
+            // Lấy thông tin trình duyệt và địa chỉ IP
             const ua = req.headers['user-agent'] || '';
             const parser = new UAParser(ua);
             const browserInfo = JSON.parse(JSON.stringify(parser.getResult(), null, 2));
@@ -26,17 +32,20 @@ export default function insertActivityLogsInfo(
             const port = req.socket.localPort; // Port server đang lắng nghe
             const secure = req.secure; // true nếu HTTPS
 
+            const activeLogs: any[] = [];
 
-            const activeLogs = [
-                {
-                    userId: req.user?.userId ? req.user.userId : null, // Lưu ID người dùng nếu có
-                    userName: req.user?.username ? req.user.username : 'unknown',
-                    action: info?.action ?? "unknown",
-                    tableName: info?.tableName ?? "unknown",
-                    description: info?.description ?? "unknown",
-                    ip: ip,
-                    oldData: oldData ? oldData : {},
-                    newData: activeData ? activeData : {},
+            console.log("resultsData", resultsData);
+            // Kiểm tra nếu resultsData là một mảng hoặc là mảng rỗng
+            if (!resultsData || !Array.isArray(resultsData) || resultsData.length === 0) {
+                activeLogs.push({
+                    userId,
+                    userName,
+                    action,
+                    tableName: info?.tableName || "unknown",
+                    description,
+                    ip,
+                    oldData: null,
+                    newData: null,
                     browserInfo,
                     protocol,
                     hostname,
@@ -44,8 +53,38 @@ export default function insertActivityLogsInfo(
                     method,
                     port,
                     secure,
+                });
+            } else {
+                for (const resultData of resultsData) {
+                    const tableName = resultData.table || info?.tableName || "unknown";
+
+                    const dataInArr = Array.isArray(resultData.dataIn) ? resultData.dataIn : [];
+                    const oldDataArr = Array.isArray(resultData.oldData) ? resultData.oldData : [];
+
+                    for (let i = 0; i < dataInArr.length; i++) {
+                        const activeData = dataInArr[i];
+                        const oldData = oldDataArr[i] || {};
+
+                        activeLogs.push({
+                            userId,
+                            userName,
+                            action,
+                            tableName,
+                            description,
+                            ip,
+                            oldData,
+                            newData: activeData,
+                            browserInfo,
+                            protocol,
+                            hostname,
+                            originalUrl,
+                            method,
+                            port,
+                            secure,
+                        });
+                    }
                 }
-            ]
+            }
 
             await activityLogsModels.insertActivityLogs(activeLogs);
             if (isNext) {
