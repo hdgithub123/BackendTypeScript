@@ -280,7 +280,7 @@ CREATE TABLE activityLogs (
     description TEXT,                            -- Mô tả chi tiết hành động
     ip VARCHAR(45),                              -- Địa chỉ IP của client
     oldData JSON,                               -- Dữ liệu cũ (trước khi thay đổi)
-    newData JSON,                               -- Dữ liệu mới (sau khi thay đổi)
+    activeData JSON,                               -- Dữ liệu mới (sau khi thay đổi)
     browserInfo JSON,                           -- Thông tin trình duyệt (user-agent, OS, device...)
     protocol VARCHAR(10),                        -- Giao thức: http hoặc https
     hostname VARCHAR(255),                       -- Tên miền hoặc host truy cập
