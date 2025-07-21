@@ -121,12 +121,14 @@ export async function deleteRole(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function deleteRoles(req: Request, res: Response) {
+export async function deleteRoles(req: Request, res: Response, next: Function) {
     try {
         const roles = req.body; // Lấy dữ liệu từ body của request
         const { data, status, errorCode } = await roleModel.deleteRoles(roles);
         if (status) {
+            req.result = data;
             res.status(202).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }

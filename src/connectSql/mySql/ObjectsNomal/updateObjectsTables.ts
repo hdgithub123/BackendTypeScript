@@ -24,9 +24,6 @@ export default async function updateObjectsTables(
         oldData: Object[];
         columKey: string[];
     }> = [];
-
-
-
     const { data, status, errorCode } = await executeTransaction(async (connection) => {
         for (const { table, dataIn, columKey } of tablesData) {
             const tableOldData: Object[] = [];

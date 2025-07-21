@@ -24,11 +24,7 @@ export default async function deleteObjectsTables(
         columKey: Array<{ [key: string]: any }>;
         oldData: Object[];
     }> = [];
-
-
     const { data, status, errorCode } = await executeTransaction(async (connection) => {
-
-
         for (const { table, columKey } of tablesData) {
             const validColumKey: Array<{ [key: string]: any }> = [];
             const deletedOldData: Object[] = [];

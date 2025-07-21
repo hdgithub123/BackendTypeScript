@@ -62,11 +62,17 @@ export async function updateZone(req: Request, res: Response) {
 }
 
 
-export async function insertZones(req: Request, res: Response) {
+export async function insertZones(req: Request, res: Response, next: Function) {
     try {
         const zones = req.body; // Lấy dữ liệu từ body của request
         const { data, status, errorCode } = await zoneModel.insertZones(zones); // Gọi hàm insertZones từ model
-        res.status(201).json({ data, status, errorCode });
+        if (status) {
+            req.result = data;
+            res.status(200).json({ data, status, errorCode });
+            next();
+        } else {
+            res.status(400).json({ data, status, errorCode });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -75,11 +81,17 @@ export async function insertZones(req: Request, res: Response) {
 
 
 
-export async function insertZonesByCode(req: Request, res: Response) {
+export async function insertZonesByCode(req: Request, res: Response, next: Function) {
     try {
         const zones = req.body; // Lấy dữ liệu từ body của request
         const { data, status, errorCode } = await zoneModel.insertZonesByCode(zones); // Gọi hàm insertZones từ model
-        res.status(201).json({ data, status, errorCode });
+        if (status) {
+            req.result = data;
+            res.status(201).json({ data, status, errorCode });
+            next();
+        } else {
+            res.status(400).json({ data, status, errorCode });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
@@ -104,12 +116,14 @@ export async function insertZonesByCode(req: Request, res: Response) {
 //     }
 // }
 
-export async function updateZones(req: Request, res: Response) {
+export async function updateZones(req: Request, res: Response,next: Function) {
     try {
         const zones = req.body; // Lấy dữ liệu từ body của request
         const { data, status, errorCode } = await zoneModel.updateZones(zones); // Gọi hàm updateZones từ model
         if (status) {
+            req.result = data;
             res.status(200).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -120,12 +134,14 @@ export async function updateZones(req: Request, res: Response) {
 }
 
 
-export async function deleteZones(req: Request, res: Response) {
+export async function deleteZones(req: Request, res: Response, next: Function) {
     try {
         const zones = req.body; // Lấy dữ liệu từ body của request
         const { data, status, errorCode } = await zoneModel.deleteZones(zones);
         if (status) {
+            req.result = data;
             res.status(202).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
