@@ -21,7 +21,7 @@ export interface AuthResult {
 
 
 async function authentication(username: string, password: string): Promise<AuthResult> {
-    const Sqlstring = "SELECT id, username, password FROM users WHERE username = ?";
+    const Sqlstring = "SELECT id, username, password FROM users WHERE username = ? AND isActive = TRUE";
     const userResult = await executeQuery(Sqlstring, [username]);
     if (userResult.status && Array.isArray(userResult.data) && userResult.data.length > 0) {
         const user = userResult.data[0];

@@ -89,6 +89,7 @@ const checkUserPermission = async ({ userId, rightCodes, zoneId, isChildZone }: 
             JOIN roles_rights ON roles.id = roles_rights.roleId
             JOIN rights ON roles_rights.rightId = rights.id
             WHERE roles_rights.isactive = TRUE
+              AND users.isActive = TRUE
               AND users_zones_roles.isactive = TRUE
               AND users.id = ?
               AND users_zones_roles.zoneId IN (SELECT id FROM zone_tree)
@@ -101,7 +102,7 @@ const checkUserPermission = async ({ userId, rightCodes, zoneId, isChildZone }: 
                 JOIN roles ON users_zones_roles.roleId = roles.id
                 JOIN roles_rights ON roles.id = roles_rights.roleId
                 JOIN rights ON roles_rights.rightId = rights.id
-                WHERE roles_rights.isactive = TRUE AND users_zones_roles.isactive = TRUE AND users.id = ? AND users_zones_roles.zoneId = ? AND rights.code IN (${placeholders})
+                WHERE users.isActive = TRUE AND roles_rights.isactive = TRUE AND users_zones_roles.isactive = TRUE AND users.id = ? AND users_zones_roles.zoneId = ? AND rights.code IN (${placeholders})
             `;
   }
 

@@ -8,6 +8,6 @@ router.get('/:username', getActivityLogsByUsername);
 //chú ý route cha phải được đặt sau route con
 router.get('/',authorization,checkPermission({rightCodes: ["GetActivityLogs"], isAllowChildZone: true}), getActivityLogs);
 router.post('/',authorization,checkPermission({rightCodes: ["PostActivityLogs"], isAllowChildZone: false}), insertActivityLogs);
-router.delete('/',authorization,checkPermission({rightCodes: ["DeleteActivityLogs"], isAllowChildZone: false}), deleteActivityLogs);
+router.delete('/',authorization,checkPermission({rightCodes: ["DeleteActivityLogs"], isAllowChildZone: true}), deleteActivityLogs);
 
 export default router;
