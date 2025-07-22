@@ -15,11 +15,11 @@ export type userIdZoneIdRoleId = {
 };
 
 export async function getUserZoneRole(userZoneRoleId: userIdZoneIdRoleId) {
-    const sqlQuery = "SELECT * FROM users_roles_zones WHERE userId = ? And zoneId = ? And roleId = ?";
+    const sqlQuery = "SELECT * FROM users_zones_roles WHERE userId = ? And zoneId = ? And roleId = ?";
     return await executeQuery(sqlQuery, [userZoneRoleId.userId,userZoneRoleId.zoneId,userZoneRoleId.roleId]);
 }
 export async function getUserZoneRoles() {
-    const Sqlstring = "Select * from users_roles_zones";
+    const Sqlstring = "Select * from users_zones_roles";
     const data = await executeQuery(Sqlstring);
     return data;
 
@@ -27,29 +27,29 @@ export async function getUserZoneRoles() {
 
 
 export async function insertUserZoneRole(userZoneRole: userZoneRole): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    return await insertObject("users_roles_zones", userZoneRole);
+    return await insertObject("users_zones_roles", userZoneRole);
 }
 
 
 export async function updateUserZoneRole( userZoneRole: userZoneRole, userZoneRoleId: userIdZoneIdRoleId): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    return await updateObject("users_roles_zones", userZoneRole, userZoneRoleId);
+    return await updateObject("users_zones_roles", userZoneRole, userZoneRoleId);
 }
 
 
 export async function deleteUserZoneRole( userZoneRoleId: userIdZoneIdRoleId): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    return await deleteObject("users_roles_zones", userZoneRoleId);
+    return await deleteObject("users_zones_roles", userZoneRoleId);
 }
 
 
 export async function insertUserZoneRoles(userZoneRoles:Array<userZoneRole>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-        return await insertObjects("users_roles_zones", userZoneRoles);
+        return await insertObjects("users_zones_roles", userZoneRoles);
 }
 
 
 export async function updateUserZoneRoles(userZoneRoles:Array<userZoneRole>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-        return await updateObjects("users_roles_zones", userZoneRoles, ["userId", "zoneId", "roleId"]);
+        return await updateObjects("users_zones_roles", userZoneRoles, ["userId", "zoneId", "roleId"]);
 }
 
 export async function deleteUserZoneRoles(userZoneRoles: Array<userZoneRole>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    return await deleteObjects("users_roles_zones", userZoneRoles);
+    return await deleteObjects("users_zones_roles", userZoneRoles);
 }

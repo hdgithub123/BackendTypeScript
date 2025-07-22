@@ -5,16 +5,16 @@ import {insertActivityLogsInfo, authorization, checkPermission} from '../middlew
 
 
 //chú ý route cha phải được đặt sau route con
-router.get('/detail/:code', getRight);
-router.post('/detail/insert', insertRight,insertActivityLogsInfo({action: 'insertRight', tableName: 'right', description:"insert right"}));
-router.put('/detail/:id', updateRight,insertActivityLogsInfo({action: 'updateRight', tableName: 'right', description:"update right"}));
-router.delete('/detail/:id', deleteRight,insertActivityLogsInfo({action: 'deleteRight', tableName: 'right', description:"delete right"}));
+router.get('/detail/:code',authorization,checkPermission({rightCodes: ["GetRight"], isAllowChildZone: true}), getRight);
+router.post('/detail/insert',authorization,checkPermission({rightCodes: ["PostRight"], isAllowChildZone: false}), insertRight,insertActivityLogsInfo({action: 'insertRight', tableName: 'right', description:"insert right"}));
+router.put('/detail/:id',authorization,checkPermission({rightCodes: ["PostRight"], isAllowChildZone: false}), updateRight,insertActivityLogsInfo({action: 'updateRight', tableName: 'right', description:"update right"}));
+router.delete('/detail/:id',authorization,checkPermission({rightCodes: ["DeleteRight"], isAllowChildZone: false}), deleteRight,insertActivityLogsInfo({action: 'deleteRight', tableName: 'right', description:"delete right"}));
 
 // router cha
-router.get('/list',getRights);
-router.post('/list', insertRights,insertActivityLogsInfo({action: 'insertRights', tableName: 'right', description:"insert rights"}));
-router.put('/list', updateRights,insertActivityLogsInfo({action: 'updateRights', tableName: 'right', description:"update rights"}));
-router.delete('/list', deleteRights,insertActivityLogsInfo({action: 'deleteRights', tableName: 'right', description:"delete rights"}));
+router.get('/list',authorization,checkPermission({rightCodes: ["GetRights"], isAllowChildZone: true}),getRights);
+router.post('/list',authorization,checkPermission({rightCodes: ["PostRights"], isAllowChildZone: false}), insertRights,insertActivityLogsInfo({action: 'insertRights', tableName: 'right', description:"insert rights"}));
+router.put('/list',authorization,checkPermission({rightCodes: ["PutRights"], isAllowChildZone: false}), updateRights,insertActivityLogsInfo({action: 'updateRights', tableName: 'right', description:"update rights"}));
+router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteRights"], isAllowChildZone: false}), deleteRights,insertActivityLogsInfo({action: 'deleteRights', tableName: 'right', description:"delete rights"}));
 
 
 

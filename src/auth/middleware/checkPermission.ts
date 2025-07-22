@@ -84,24 +84,24 @@ const checkUserPermission = async ({ userId, rightCodes, zoneId, isChildZone }: 
               )
             SELECT rights.id
             FROM users
-            JOIN users_roles_zones ON users.id = users_roles_zones.userId
-            JOIN roles ON users_roles_zones.roleId = roles.id
+            JOIN users_zones_roles ON users.id = users_zones_roles.userId
+            JOIN roles ON users_zones_roles.roleId = roles.id
             JOIN roles_rights ON roles.id = roles_rights.roleId
             JOIN rights ON roles_rights.rightId = rights.id
             WHERE roles_rights.isactive = TRUE
-              AND users_roles_zones.isactive = TRUE
+              AND users_zones_roles.isactive = TRUE
               AND users.id = ?
-              AND users_roles_zones.zoneId IN (SELECT id FROM zone_tree)
+              AND users_zones_roles.zoneId IN (SELECT id FROM zone_tree)
               AND rights.code IN (${placeholders})
             `;
   } else {
     query = `
                 SELECT rights.id FROM users
-                JOIN users_roles_zones ON users.id = users_roles_zones.userId
-                JOIN roles ON users_roles_zones.roleId = roles.id
+                JOIN users_zones_roles ON users.id = users_zones_roles.userId
+                JOIN roles ON users_zones_roles.roleId = roles.id
                 JOIN roles_rights ON roles.id = roles_rights.roleId
                 JOIN rights ON roles_rights.rightId = rights.id
-                WHERE roles_rights.isactive = TRUE AND users_roles_zones.isactive = TRUE AND users.id = ? AND users_roles_zones.zoneId = ? AND rights.code IN (${placeholders})
+                WHERE roles_rights.isactive = TRUE AND users_zones_roles.isactive = TRUE AND users.id = ? AND users_zones_roles.zoneId = ? AND rights.code IN (${placeholders})
             `;
   }
 

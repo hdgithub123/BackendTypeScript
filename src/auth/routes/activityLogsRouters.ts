@@ -1,13 +1,13 @@
 import express from 'express';
 const router = express.Router();
-import authorization from '../middleware/authorization';
+import { authorization, checkPermission} from '../middleware';
 import {insertActivityLogs, getActivityLogs,getActivityLogsByUsername,deleteActivityLogs} from '../controllers/activityLogControllers';
 // Định tuyến cho trang activity logs
 router.get('/:username', getActivityLogsByUsername);
 
 //chú ý route cha phải được đặt sau route con
-router.get('/',authorization, getActivityLogs);
-router.post('/',authorization, insertActivityLogs);
-router.delete('/',authorization, deleteActivityLogs);
+router.get('/',authorization,checkPermission({rightCodes: ["GetActivityLogs"], isAllowChildZone: true}), getActivityLogs);
+router.post('/',authorization,checkPermission({rightCodes: ["PostActivityLogs"], isAllowChildZone: true}), insertActivityLogs);
+router.delete('/',authorization,checkPermission({rightCodes: ["DeleteActivityLogs"], isAllowChildZone: true}), deleteActivityLogs);
 
 export default router;

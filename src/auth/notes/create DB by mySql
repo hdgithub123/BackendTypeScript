@@ -56,7 +56,7 @@ CREATE TABLE roles_rights (
 -- );
 
 
-CREATE TABLE users_roles_zones (
+CREATE TABLE users_zones_roles (
     userId CHAR(36),
     roleId CHAR(36),
     zoneId CHAR(36),
@@ -128,19 +128,11 @@ SET @Manager = (SELECT id FROM roles WHERE code = 'MANAGER_ROLE');
 SET @Support = (SELECT id FROM roles WHERE code = 'SUPPORT_ROLE');
 
 
-SET @Create = (SELECT id FROM rights WHERE code = 'CREATE_USER');
-SET @Edit = (SELECT id FROM rights WHERE code = 'EDIT_USER');
-SET @Delete = (SELECT id FROM rights WHERE code = 'DELETE_USER');
-SET @View = (SELECT id FROM rights WHERE code = 'VIEW_REPORTS');
-SET @Manage = (SELECT id FROM rights WHERE code = 'MANAGE_PERMISSIONS');
 
+-- gán tất cả quyền vào Administrator
+SET @Administrator = (SELECT id FROM roles WHERE code = 'ADMIN_ROLE');
 INSERT INTO roles_rights (roleId, rightId, isActive)
-VALUES
-    (@Administrator, @Create, TRUE), -- Administrator có quyền Tạo người dùng
-    (@Administrator, @Edit, TRUE), -- Administrator có quyền Chỉnh sửa người dùng
-    (@Editor, @Edit, TRUE), -- Editor có quyền Chỉnh sửa người dùng
-    (@Manager, @Manage, TRUE), -- Viewer chỉ có quyền Xem báo cáo
-    (@Support, @Manage, TRUE); -- Manager có quyền Quản lý quyền
+SELECT @Administrator, id,TRUE FROM rights;
 
 
 -- SET @admin = (SELECT id FROM users WHERE username = 'admin');
@@ -204,7 +196,7 @@ SET @user1 = (SELECT id FROM users WHERE username = 'user1');
 SET @user2 = (SELECT id FROM users WHERE username = 'user2');
 SET @user3 = (SELECT id FROM users WHERE username = 'user3');
 
-INSERT INTO users_roles_zones (userId, roleId, zoneId,isActive)
+INSERT INTO users_zones_roles (userId, roleId, zoneId,isActive)
 VALUES
     (@user1, @Administrator, @parent_hcm, TRUE), -- User1 là Administrator
     (@user1, @Support, @parent_hcm, TRUE), -- User2 là Editor
@@ -251,24 +243,28 @@ INSERT INTO rights (rightName, code, description, createdBy) VALUES
 ('Delete zones', 'DeleteZones', 'Xóa nhiều khu vực', 'System'),
 
 -- RoleVsRight
-('view RoleVsRight', 'GetRoleVsRight', 'Xem quyền gán cho vai trò', 'System'),
-('add RoleVsRight', 'PostRoleVsRight', 'Thêm quyền vào vai trò', 'System'),
-('update RoleVsRight', 'PutRoleVsRight', 'Cập nhật quyền của vai trò', 'System'),
-('Delete RoleVsRight', 'DeleteRoleVsRight', 'Xóa quyền khỏi vai trò', 'System'),
-('view RoleVsRights', 'GetRoleVsRights', 'Xem danh sách quyền theo vai trò', 'System'),
-('add RoleVsRights', 'PostRoleVsRights', 'Gán nhiều quyền cho vai trò', 'System'),
-('update RoleVsRights', 'PutRoleVsRights', 'Cập nhật nhiều quyền cho vai trò', 'System'),
-('Delete RoleVsRights', 'DeleteRoleVsRights', 'Xóa nhiều quyền khỏi vai trò', 'System'),
+('view RoleVsRight', 'GetRoleRight', 'Xem quyền gán cho vai trò', 'System'),
+('add RoleRight', 'PostRoleRight', 'Thêm quyền vào vai trò', 'System'),
+('update RoleRight', 'PutRoleRight', 'Cập nhật quyền của vai trò', 'System'),
+('Delete RoleRight', 'DeleteRoleRight', 'Xóa quyền khỏi vai trò', 'System'),
+('view RoleRights', 'GetRoleRights', 'Xem danh sách quyền theo vai trò', 'System'),
+('add RoleRights', 'PostRoleRights', 'Gán nhiều quyền cho vai trò', 'System'),
+('update RoleRights', 'PutRoleRights', 'Cập nhật nhiều quyền cho vai trò', 'System'),
+('Delete RoleRights', 'DeleteRoleRights', 'Xóa nhiều quyền khỏi vai trò', 'System'),
 
--- UserVsZoneVsRole
-('view UserVsZoneVsRole', 'GetUserVsZoneVsRole', 'Xem vai trò của người dùng theo khu vực', 'System'),
-('add UserVsZoneVsRole', 'PostUserVsZoneVsRole', 'Gán vai trò cho người dùng theo khu vực', 'System'),
-('update UserVsZoneVsRole', 'PutUserVsZoneVsRole', 'Cập nhật vai trò của người dùng theo khu vực', 'System'),
-('Delete UserVsZoneVsRole', 'DeleteUserVsZoneVsRole', 'Xóa vai trò khỏi người dùng theo khu vực', 'System'),
-('view UserVsZoneVsRoles', 'GetUserVsZoneVsRoles', 'Xem nhiều vai trò của người dùng theo khu vực', 'System'),
-('add UserVsZoneVsRoles', 'PostUserVsZoneVsRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System'),
-('update UserVsZoneVsRoles', 'PutUserVsZoneVsRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System'),
-('Delete UserVsZoneVsRoles', 'DeleteUserVsZoneVsRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System');
+-- UserZoneRole
+('view UserZoneRole', 'GetUserZoneRole', 'Xem vai trò của người dùng theo khu vực', 'System'),
+('add UserZoneRole', 'PostUserZoneRole', 'Gán vai trò cho người dùng theo khu vực', 'System'),
+('update UserZoneRole', 'PutUserZoneRole', 'Cập nhật vai trò của người dùng theo khu vực', 'System'),
+('Delete UserZoneRole', 'DeleteUserZoneRole', 'Xóa vai trò khỏi người dùng theo khu vực', 'System'),
+('view UserZoneRoles', 'GetUserZoneRoles', 'Xem nhiều vai trò của người dùng theo khu vực', 'System'),
+('add UserZoneRoles', 'PostUserZoneRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System'),
+('update UserZoneRoles', 'PutUserZoneRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System'),
+('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System'),
+-- activitylog
+('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System'),
+('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System'),
+('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System');
 
 CREATE TABLE activityLogs (
     id INT AUTO_INCREMENT PRIMARY KEY,
