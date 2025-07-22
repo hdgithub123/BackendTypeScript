@@ -131,8 +131,8 @@ SET @Support = (SELECT id FROM roles WHERE code = 'SUPPORT_ROLE');
 
 -- gán tất cả quyền vào Administrator
 SET @Administrator = (SELECT id FROM roles WHERE code = 'ADMIN_ROLE');
-INSERT INTO roles_rights (roleId, rightId, isActive)
-SELECT @Administrator, id,TRUE FROM rights;
+INSERT IGNORE INTO roles_rights (roleId, rightId, isActive)
+SELECT @Administrator, id, TRUE FROM rights;
 
 
 -- SET @admin = (SELECT id FROM users WHERE username = 'admin');
