@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-//import {getRight,getRights,insertRight,insertRights,updateRight,updateRights} from "../models/rightModels";
 import * as activityLogsModels from "../models/activityLogsModels";
 const UAParser = require("ua-parser-js");
 
@@ -33,8 +32,6 @@ export default function insertActivityLogsInfo(
             const secure = req.secure; // true nếu HTTPS
 
             const activeLogs: any[] = [];
-
-            console.log("resultsData", resultsData);
             // Kiểm tra nếu resultsData là một mảng hoặc là mảng rỗng
             if (!resultsData || !Array.isArray(resultsData) || resultsData.length === 0) {
                 activeLogs.push({
