@@ -25,12 +25,11 @@ export async function getRole(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function getRoles(req: Request, res: Response, next: Function) {
+export async function getRoles(req: Request, res: Response) {
     try {
         const { data, status, errorCode } = await roleModel.getRoles();
         if (status) {
             res.status(200).json({ data, status, errorCode });
-            next();
         } else {
             res.status(404).json({ data, status, errorCode });
         }
@@ -40,12 +39,14 @@ export async function getRoles(req: Request, res: Response, next: Function) {
     }
 }
 
-export async function insertRole(req: Request, res: Response) {
+export async function insertRole(req: Request, res: Response, next: Function) {
     try {
         const user = req.body;
         const { data, status, errorCode } = await roleModel.insertRole(user);
         if (status) {
+            req.result = data;
             res.status(201).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -73,13 +74,15 @@ export async function insertRoles(req: Request, res: Response, next: Function) {
 
 }
 
-export async function updateRole(req: Request, res: Response) {
+export async function updateRole(req: Request, res: Response, next: Function) {
     try {
         const roleId: string = req.params.id;
         const role = req.body;
         const { data, status, errorCode } = await roleModel.updateRole(roleId, role);
         if (status) {
+            req.result = data;
             res.status(200).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }
@@ -93,7 +96,7 @@ export async function updateRoles(req: Request, res: Response, next: Function) {
         const roles = req.body; // Lấy dữ liệu từ body của request
         const { data, status, errorCode } = await roleModel.updateRoles(roles); // Gọi hàm updateRoles từ model
         if (status) {
-            req.result = data; // Lưu kết quả vào req.result để có thể sử dụng trong middleware khác nếu cần
+            req.result = data;
             res.status(200).json({ data, status, errorCode });
             next();
         } else {
@@ -107,12 +110,14 @@ export async function updateRoles(req: Request, res: Response, next: Function) {
 
 
 
-export async function deleteRole(req: Request, res: Response) {
+export async function deleteRole(req: Request, res: Response, next: Function) {
     try {
         const roleId = req.params.id;
         const { data, status, errorCode } = await roleModel.deleteRole(roleId);
         if (status) {
+            req.result = data;
             res.status(200).json({ data, status, errorCode });
+            next();
         } else {
             res.status(400).json({ data, status, errorCode });
         }

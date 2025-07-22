@@ -30,12 +30,14 @@ export async function getUsers(req: Request, res: Response) {
     }
 }
 
-export async function insertUser(req: Request, res: Response) {
+export async function insertUser(req: Request, res: Response, next: Function) {
     try {
         const user = req.body;
         const { data, status,errorCode } = await userModel.insertUser(user);
         if (status) {
+            req.result = data;
             res.status(201).json({ data, status,errorCode});
+            next();
         } else {
             res.status(400).json({ data, status,errorCode });
         }
@@ -45,24 +47,32 @@ export async function insertUser(req: Request, res: Response) {
     }
 }
 
-export async function insertUsers(req: Request, res: Response) {
+export async function insertUsers(req: Request, res: Response, next: Function) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
        const { data, status,errorCode } = await userModel.insertUsers(users); // Gọi hàm insertUsers từ model
-        res.status(201).json({  data, status,errorCode });
+        if (status) {
+            req.result = data;
+            res.status(200).json({ data, status,errorCode });
+            next();
+        } else {
+            res.status(400).json({ data, status,errorCode });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
 
-export async function updateUser(req: Request, res: Response) {
+export async function updateUser(req: Request, res: Response, next: Function) {
     try {
         const userId:string = req.params.id;
         const user = req.body;
         const { data, status,errorCode } = await userModel.updateUser(userId, user);
         if (status) {
+            req.result = data;
             res.status(200).json({ data, status,errorCode});
+            next();
         } else {
             res.status(400).json({ data, status,errorCode });
         }
@@ -71,12 +81,14 @@ export async function updateUser(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function updateUsers(req: Request, res: Response) {
+export async function updateUsers(req: Request, res: Response, next: Function) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
         const { data, status,errorCode } =  await userModel.updateUsers(users); // Gọi hàm updateUsers từ model
          if (status) {
+            req.result = data;
             res.status(200).json({ data, status,errorCode});
+            next();
         } else {
             res.status(400).json({ data, status,errorCode });
         }
@@ -88,12 +100,14 @@ export async function updateUsers(req: Request, res: Response) {
 
 
 
-export async function deleteUser(req: Request, res: Response) {
+export async function deleteUser(req: Request, res: Response, next: Function) {
     try {
         const userId = req.params.id;
         const {data, status,errorCode } = await userModel.deleteUser(userId);
         if (status) {
+            req.result = data;
             res.status(204).json({ data, status,errorCode});
+            next();
         } else {
             res.status(400).json({ data, status,errorCode });
         }
@@ -102,12 +116,14 @@ export async function deleteUser(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
-export async function deleteUsers(req: Request, res: Response) {
+export async function deleteUsers(req: Request, res: Response, next: Function) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
         const { data, status,errorCode } = await userModel.deleteUsers(users);
         if (status) {
+            req.result = data;
             res.status(202).json({ data, status,errorCode });
+            next();
         } else {
             res.status(400).json({ data, status,errorCode });
         }
