@@ -17,7 +17,7 @@ CREATE TABLE users (
 
 CREATE TABLE roles (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    roleName VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     code VARCHAR(50) UNIQUE NOT NULL, -- Mã tùy chỉnh có thể thay đổi
     description TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,7 +27,7 @@ CREATE TABLE roles (
 
 CREATE TABLE rights (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    rightName VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
     description TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ CREATE TABLE users_zones_roles (
 
 CREATE TABLE zones (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    zoneName VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
     address TEXT,
     description TEXT,
@@ -102,7 +102,7 @@ SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
 WHERE username = 'user1';
 
 
-INSERT INTO roles (roleName, code, description)
+INSERT INTO roles (name, code, description)
 VALUES
     ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống'),
     ('Editor', 'EDITOR_ROLE', 'Có quyền chỉnh sửa nội dung'),
@@ -112,7 +112,7 @@ VALUES
 
 
 
-INSERT INTO rights (rightName, code, description)
+INSERT INTO rights (name, code, description)
 VALUES
     ('Create User', 'CREATE_USER', 'Tạo người dùng mới'),
     ('Edit User', 'EDIT_USER', 'Chỉnh sửa thông tin người dùng'),
@@ -153,7 +153,7 @@ SELECT @Administrator, id, TRUE FROM rights;
 
 -- Lấy danh sách quyền của người dùng có id = 'user1-uuid-here'
 -- Lấy danh sách quyền của người dùng có id = 'e80df218-3228-11f0-b25f-0242ac110003'
-SELECT  rights.id, rights.rightName, rights.code, rights.description
+SELECT  rights.id, rights.name, rights.code, rights.description
 FROM users
 JOIN users_roles ON users.id = users_roles.userId
 JOIN roles ON users_roles.roleId = roles.id
@@ -169,21 +169,21 @@ Select * from users;
 
 
 
-INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
+INSERT INTO zones (id, name, code, address, description, parentId, createdBy) VALUES
 (UUID(), 'Tổng Công Ty', 'TC001', 'Hà Nội', 'Trụ sở chính', NULL, 'admin');
 
-SET @parent_tct = (SELECT id FROM zones WHERE zoneName = 'Tổng Công Ty');
-INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
+SET @parent_tct = (SELECT id FROM zones WHERE name = 'Tổng Công Ty');
+INSERT INTO zones (id, name, code, address, description, parentId, createdBy) VALUES
 (UUID(), 'Chi Nhánh TP HCM', 'CN001', 'TP HCM', 'Chi nhánh miền Nam', @parent_tct, 'admin'),
 (UUID(), 'Văn Phòng Đại Diện Hà Nội', 'VP001', 'Hà Nội', 'VP miền Bắc', @parent_tct, 'admin'),
 (UUID(), 'Chi Nhánh Đà Nẵng', 'CN002', 'Đà Nẵng', 'Chi nhánh miền Trung', @parent_tct, 'admin');
 
 
 
-SET @parent_hcm = (SELECT id FROM zones WHERE zoneName = 'Chi Nhánh TP HCM');
-SET @parent_dn = (SELECT id FROM zones WHERE zoneName = 'Chi Nhánh Đà Nẵng');
+SET @parent_hcm = (SELECT id FROM zones WHERE name = 'Chi Nhánh TP HCM');
+SET @parent_dn = (SELECT id FROM zones WHERE name = 'Chi Nhánh Đà Nẵng');
 
-INSERT INTO zones (id, zoneName, code, address, description, parentId, createdBy) VALUES
+INSERT INTO zones (id, name, code, address, description, parentId, createdBy) VALUES
 (UUID(), 'Phòng Kinh Doanh HCM', 'PKD001', 'TP HCM', 'Kinh doanh miền Nam', @parent_hcm, 'admin'),
 (UUID(), 'Phòng Nhân Sự HCM', 'PNS001', 'TP HCM', 'Nhân sự miền Nam', @parent_hcm, 'admin'),
 (UUID(), 'Phòng Kinh Doanh Đà Nẵng', 'PKD002', 'Đà Nẵng', 'Kinh doanh miền Trung', @parent_dn, 'admin'),
@@ -204,7 +204,7 @@ VALUES
     (@user2, @Editor, @parent_dn, TRUE), -- User4 là Manager
     (@user3, @Manager, @parent_dn, FALSE); -- User5 là Support
 
-INSERT INTO rights (rightName, code, description, createdBy) VALUES
+INSERT INTO rights (name, code, description, createdBy) VALUES
 ('Login', 'Login', 'Quyền đăng nhập hệ thống', 'System'),
 ('Loguot', 'Loguot', 'Quyền đăng xuất khỏi hệ thống', 'System'),
 
