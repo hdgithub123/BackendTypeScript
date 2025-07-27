@@ -3,7 +3,7 @@ import executeQuery, { insertObject, insertObjects, updateObject, updateObjects,
 
 //Tạo type cho zone
 export type zone = {
-    zoneName: string; 
+    name: string; 
     code: string; 
     address?: string; 
     description?: string; 

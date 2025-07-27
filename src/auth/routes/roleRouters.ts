@@ -6,7 +6,8 @@ import {getRoles,insertRoles,updateRoles,deleteRoles,getRole,insertRole,updateRo
 
 //chú ý route cha phải được đặt sau route con
 router.get('/detail/:code',authorization,checkPermission({rightCodes: ["GetRole"], isAllowChildZone: true}), getRole);
-router.post('/detail/insert',authorization,checkPermission({rightCodes: ["PostRole"], isAllowChildZone: false}), insertRole,insertActivityLogsInfo({action: 'insertRole',tableName: 'role',description:"insert role"}));
+// router.post('/detail/insert',authorization,checkPermission({rightCodes: ["PostRole"], isAllowChildZone: false}), insertRole,insertActivityLogsInfo({action: 'insertRole',tableName: 'role',description:"insert role"}));
+router.post('/detail/insert', insertRole,insertActivityLogsInfo({action: 'insertRole',tableName: 'role',description:"insert role"}));
 router.put('/detail/:id',authorization,checkPermission({rightCodes: ["PutRole"], isAllowChildZone: false}), updateRole,insertActivityLogsInfo({action: 'updateRole',tableName: 'role',description:"update role"}));
 router.delete('/detail/:id',authorization,checkPermission({rightCodes: ["DeleteRole"], isAllowChildZone: false}), deleteRole,insertActivityLogsInfo({action: 'deleteRole',tableName: 'role',description:"delete role"}));
 

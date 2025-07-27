@@ -3,7 +3,7 @@ import executeQuery, { insertObject, insertObjects, updateObject, updateObjects,
 
 //Tạo type cho user
 export type right = {
-    rightName: string;
+    name: string;
     code: string;
     description?: string;
 };
