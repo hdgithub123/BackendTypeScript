@@ -2,7 +2,69 @@ import bcrypt from 'bcrypt';
 import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../../connectSql'
 //import { validateDataArray } from '../utilities/valadation/validateDataArray'
 //import { RuleSchema } from '../utilities/valadation/validate'
-import { validateDataArray, RuleSchema, CustomMessageRules } from '../utilities/valadation/validators'
+import { validateDataArray, RuleSchema, CustomMessageRules,MessageFieldRules } from '../utilities/valadation/validators'
+
+
+function capitalize(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function autoGenVietnameseMessageRulesSmart(schema: RuleSchema): CustomMessageRules {
+  const messages: CustomMessageRules = {};
+
+  for (const [field, props] of Object.entries(schema)) {
+    const label = capitalize(field); // Có thể dùng labelMap nếu muốn tiếng Việt đẹp hơn
+    const ruleMessages: Partial<MessageFieldRules> = {};
+
+    if (props.required)
+      ruleMessages.required = `${label} là bắt buộc phải nhập.`;
+
+    if (props.format)
+      ruleMessages.type = `${label} phải đúng định dạng ${props.format}.`; // Ưu tiên định dạng
+
+    else if (props.type)
+      ruleMessages.type = `${label} phải có kiểu dữ liệu là ${props.type}.`;
+
+    if (props.min !== undefined)
+      ruleMessages.min = `${label} cần tối thiểu ${props.min} ký tự.`;
+
+    if (props.max !== undefined)
+      ruleMessages.max = `${label} không được vượt quá ${props.max} ký tự.`;
+
+    if (props.enum)
+      ruleMessages.enum = `${label} phải là một trong các giá trị: ${props.enum.join(', ')}.`;
+
+    if (props.regex)
+      ruleMessages.regex = `${label} phải đúng với biểu thức quy định.`;
+
+    if (props.hasUpperCase)
+      ruleMessages.hasUpperCase = `${label} cần có ít nhất một chữ in hoa.`;
+
+    if (props.hasLowerCase)
+      ruleMessages.hasLowerCase = `${label} cần có ít nhất một chữ thường.`;
+
+    if (props.hasNumber)
+      ruleMessages.hasNumber = `${label} cần chứa ít nhất một chữ số.`;
+
+    if (props.hasSpecialChar)
+      ruleMessages.hasSpecialChar = `${label} cần có ít nhất một ký tự đặc biệt.`;
+
+    if (props.noCheckXSS !== true)
+      ruleMessages.noCheckXSS = `${label} không được chứa nội dung HTML hoặc mã nguy hiểm.`;
+
+    if (props.custom)
+      ruleMessages.custom = `${label} không đạt kiểm tra tùy chỉnh.`;
+
+    messages[field] = ruleMessages;
+  }
+
+  return messages;
+}
+
+
+
+
 
 
 //Tạo type cho user
@@ -15,12 +77,16 @@ export type role = {
 
 const customMessages: CustomMessageRules = {
     name: {
-        required: 'Rolename is required',
-        min: 'Rolename must be at least 1 characters',
-        max: 'Rolename cannot exceed 50 characters',
-        type: 'phai la kieu chu'
+        required: "Name là bắt buộc phải nhập.",
+        type: "Name phải có kiểu dữ liệu là date.",
+        min: "Name cần tối thiểu 2 ký tự hoặc giá trị.",
+        max: "Name không được vượt quá 50 ký tự hoặc giá trị.",
+        hasUpperCase: "Name cần có ít nhất một chữ in hoa."
     }
 }
+
+
+
 
 export async function getRole(code: string) {
     const sqlQuery = "SELECT * FROM roles WHERE code = ?";
@@ -52,7 +118,7 @@ export async function insertRole(role: role): Promise<{ data: Object | null, sta
             required: true,
             max: 50,
             min: 2,
-            noXSS: true
+            noCheckXSS: true
         },
         code: {
             type: 'string',
@@ -62,6 +128,7 @@ export async function insertRole(role: role): Promise<{ data: Object | null, sta
         description: {
             type: 'string',
             required: false,
+            noCheckXSS: false
         },
         createdAt: {
             type: 'string',
@@ -75,7 +142,9 @@ export async function insertRole(role: role): Promise<{ data: Object | null, sta
         }
     }
 
-    const { status, results } = validateDataArray([role], roleRule, customMessages);
+const customVnMessages:CustomMessageRules = autoGenVietnameseMessageRulesSmart(roleRule)
+
+    const { status, results } = validateDataArray([role], roleRule, customVnMessages);
     if (status) {
         return await insertObject("roles", role);
     }
@@ -94,7 +163,7 @@ export async function updateRole(rolesId: string, role: role): Promise<{ data: O
             type: 'string',
             required: false,
             max: 50,
-            noXSS: true
+            noCheckXSS: true
         },
         code: {
             type: 'string',

@@ -5,7 +5,7 @@ export type RuleSchema = Record<string, SchemaField>;
 export interface SchemaField {
   type: 'string' | 'number' | 'boolean' | 'array' | 'object';
   required?: boolean;
-  format?: 'email' | 'url' | 'date' |'datetime' | 'json' | 'uuid';
+  format?: 'email' | 'url' | 'date' |'datetime' | 'json' | 'uuid'| 'hexColor'|'creditCard'|'phone'|'ip'|'base64'|'jwt';
   min?: number;
   max?: number;
   enum?: string[];
@@ -14,7 +14,7 @@ export interface SchemaField {
   hasLowerCase?: boolean;
   hasNumber?: boolean;
   hasSpecialChar?: boolean;
-  noXSS?: boolean;
+  noCheckXSS?: boolean;
   custom?: (value: any) => boolean;
 }
 
@@ -32,7 +32,7 @@ export interface MessageFieldRules {
   hasLowerCase: string;
   hasNumber: string;
   hasSpecialChar: string;
-  noXSS: string;
+  noCheckXSS: string;
   custom: string;
 }
 
@@ -83,7 +83,8 @@ function validateFormat(value: unknown, format?: string): boolean {
     // ISO date format (YYYY-MM-DD)
     date: /^\d{4}-\d{2}-\d{2}$/,
     // ISO date time format (YYYY-MM-DDTHH:mm:ss)
-    datetime: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/,
+    datetime: /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+    //datetime:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, //-- chua dung duoc
 
     // JSON format (basic check)
     json: /^[\{\[].*[}\]]$/,
@@ -155,8 +156,8 @@ export function validateField(
     const strVal = value;
 
     // XSS check — đưa lên đầu cho rõ
-    if (!schema.noXSS && containsXSS(strVal)) {
-      errors.push(messages.noXSS || 'Possible XSS content detected.');
+    if (schema.noCheckXSS !== true && containsXSS(strVal)) {
+      errors.push(messages.noCheckXSS || 'Possible XSS content detected.');
     }
 
     if (schema.format && !validateFormat(strVal, schema.format)) {
