@@ -1,62 +1,5 @@
 // validators.ts ✅ Full validation system
-
-export type RuleSchema = Record<string, SchemaField>;
-
-export interface SchemaField {
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object';
-  required?: boolean;
-  format?: 'email' | 'url' | 'date' |'datetime' | 'json' | 'uuid'| 'hexColor'|'creditCard'|'phone'|'ip'|'base64'|'jwt';
-  min?: number;
-  max?: number;
-  enum?: string[];
-  regex?: string;
-  hasUpperCase?: boolean;
-  hasLowerCase?: boolean;
-  hasNumber?: boolean;
-  hasSpecialChar?: boolean;
-  noCheckXSS?: boolean;
-  custom?: (value: any) => boolean;
-}
-
-export type CustomMessageRules = Record<string, Partial<MessageFieldRules>>;
-
-export interface MessageFieldRules {
-  required: string;
-  type: string;
-  format: string;
-  min: string;
-  max: string;
-  enum: string;
-  regex: string;
-  hasUpperCase: string;
-  hasLowerCase: string;
-  hasNumber: string;
-  hasSpecialChar: string;
-  noCheckXSS: string;
-  custom: string;
-}
-
-export interface ValidationResult<T> {
-  index: number;
-  valid: boolean;
-  errors: Record<string, string>;
-}
-
-// 🔍 Helper: format validation
-// function validateFormat(value: string, format?: string): boolean {
-//   const formats: Record<string, RegExp> = {
-//     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-//     url: /^(https?:\/\/)?[\w\-]+(\.[\w\-]+)+[/#?]?.*$/,
-//     date: /^\d{4}-\d{2}-\d{2}$/,
-//     json: /^(\{.*\}|
-
-// \[.*\]
-
-// )$/,
-//     uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-//   };
-//   return format ? formats[format]?.test(value) ?? true : true;
-// }
+import { SchemaField,CustomMessageRules,MessageFieldRules} from './dataType'
 
 
 /**
@@ -152,7 +95,8 @@ export function validateField(
 
   if (!typeValid) errors.push(messages.type || `Expected type ${type}.`);
 
-  if (type === 'string' && typeof value === 'string') {
+  // if (type === 'string' && typeof value === 'string') {
+   if (type === 'string') {
     const strVal = value;
 
     // XSS check — đưa lên đầu cho rõ
@@ -205,71 +149,3 @@ export function validateField(
   return errors;
 }
 
-// 🔁 Array-level validation
-export function validateDataArray<T extends Record<string, any>>(
-  data: T[],
-  schema: RuleSchema,
-  customMessages: CustomMessageRules = {}
-): {
-  status: boolean;
-  results: ValidationResult<T>[];
-} {
-  const results = data.map((item, index): ValidationResult<T> => {
-    const errors: Record<string, string> = {};
-    let valid = true;
-
-    for (const key in schema) {
-      const fieldSchema = schema[key];
-      const messages = customMessages[key] || {};
-      const value = item[key as keyof T];
-
-      const isRequired = fieldSchema.required === true;
-      const hasValue = !(value === undefined || value === null || value === '');
-
-      if (isRequired || hasValue) {
-        const fieldErrors = validateField(value, fieldSchema, messages);
-        if (fieldErrors.length > 0) {
-          valid = false;
-          errors[key] = fieldErrors.join(', ');
-        }
-      }
-    }
-
-    return {
-      index,
-      valid,
-      errors,
-    };
-  });
-
-  const status = results.every(r => r.valid);
-  return { status, results };
-}
-
-// 🧮 Multi-table validation
-export function validateTablesDataArray<T extends Record<string, any>>(
-  tables: Record<string, T[]>,
-  schemasPerTable: Record<string, RuleSchema>,
-  messagesPerTable: Record<string, CustomMessageRules> = {}
-): {
-  status: boolean;
-  results: Record<string, ValidationResult<T>[]>;
-} {
-  const results: Record<string, ValidationResult<T>[]> = {};
-  let allValid = true;
-
-  for (const tableName in tables) {
-    const data = tables[tableName];
-    const schema = schemasPerTable[tableName];
-    const customMessages = messagesPerTable[tableName] || {};
-
-    const tableResults = validateDataArray(data, schema, customMessages);
-    results[tableName] = tableResults.results;
-
-    if (!tableResults.status) {
-      allValid = false;
-    }
-  }
-
-  return { status: allValid, results };
-}
