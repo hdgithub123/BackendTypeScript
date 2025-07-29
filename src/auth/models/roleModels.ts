@@ -21,7 +21,6 @@ const roleInsertRule: RuleSchema = {
         type: 'string',
         required: true,
         max: 50,
-        noCheckXSS: false
     },
     code: {
         type: 'string',
@@ -31,7 +30,6 @@ const roleInsertRule: RuleSchema = {
     description: {
         type: 'string',
         required: false,
-        noCheckXSS: false
     },
     createdAt: {
         type: 'string',
@@ -55,7 +53,6 @@ const roleUpdateAndDeleteRule: RuleSchema = {
         type: 'string',
         required: false,
         max: 50,
-        noCheckXSS: false
     },
     code: {
         type: 'string',
