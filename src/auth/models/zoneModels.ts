@@ -278,7 +278,7 @@ export async function insertZonesByCode(zones: Array<zone>): Promise<{ data: Obj
 
         parentId: {
             type: "string",
-            required: true
+            required: false
         },
 
         createdAt: {
