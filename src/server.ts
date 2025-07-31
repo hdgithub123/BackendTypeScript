@@ -33,7 +33,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: 'http://localhost:4001', // Thay bằng domain của client
+  origin: 'http://localhost:4000', // Thay bằng domain của client
   credentials: true
 }));
 

@@ -19,7 +19,7 @@ router.use('/logout', logoutRouter);
 router.use('/refresh-token', refreshTokenRoute);
 router.use('/right', rightRouters);
 router.use('/role', roleRouters);
-router.use('/role-rights', roleRightRouters);
+router.use('/role-right', roleRightRouters);
 router.use('/zone', zoneRouters);
 router.use('/user-zone-role', UserZoneRoleRoute);
 

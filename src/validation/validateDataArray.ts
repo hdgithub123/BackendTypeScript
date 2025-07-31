@@ -1,7 +1,7 @@
 // 🔁 Array-level validation
-import {  validateField } from './validateField'
-import { autoGenMessageRulesMultiLang  } from './autoGenMessageRulesMultiLang';
-import {RuleSchema,TranslateMessageMap,CustomMessageRules,ValidationResult,} from './dataType'
+import { validateField } from './validateField'
+import { autoGenMessageRulesMultiLang } from './autoGenMessageRulesMultiLang';
+import { RuleSchema, TranslateMessageMap, CustomMessageRules, ValidationResult, } from './dataType'
 
 
 export function validateDataArray<T extends Record<string, any>>(
@@ -12,36 +12,41 @@ export function validateDataArray<T extends Record<string, any>>(
   status: boolean;
   results: ValidationResult<T>[];
 } {
-    const customMessages: CustomMessageRules = autoGenMessageRulesMultiLang(schema,translateMessages)
+  const customMessages: CustomMessageRules = autoGenMessageRulesMultiLang(schema, translateMessages)
+  // dùng try catch phòng trường hợp data không đúng kiểu
+  try {
+    const results = data.map((item, index): ValidationResult<T> => {
+      const errors: Record<string, string> = {};
+      let valid = true;
 
-  const results = data.map((item, index): ValidationResult<T> => {
-    const errors: Record<string, string> = {};
-    let valid = true;
+      for (const key in schema) {
+        const fieldSchema = schema[key];
+        const messages = customMessages[key] || {};
+        const value = item[key as keyof T];
 
-    for (const key in schema) {
-      const fieldSchema = schema[key];
-      const messages = customMessages[key] || {};
-      const value = item[key as keyof T];
+        const isRequired = fieldSchema.required === true;
+        const hasValue = !(value === undefined || value === null || value === '');
 
-      const isRequired = fieldSchema.required === true;
-      const hasValue = !(value === undefined || value === null || value === '');
-
-      if (isRequired || hasValue) {
-        const fieldErrors = validateField(value, fieldSchema, messages);
-        if (fieldErrors.length > 0) {
-          valid = false;
-          errors[key] = fieldErrors.join(' ');
+        if (isRequired || hasValue) {
+          const fieldErrors = validateField(value, fieldSchema, messages);
+          if (fieldErrors.length > 0) {
+            valid = false;
+            errors[key] = fieldErrors.join(' ');
+          }
         }
       }
-    }
 
-    return {
-      index,
-      valid,
-      errors,
-    };
-  });
+      return {
+        index,
+        valid,
+        errors,
+      };
+    });
 
-  const status = results.every(r => r.valid);
-  return { status, results };
+    const status = results.every(r => r.valid);
+    return { status, results };
+  } catch (error) {
+    // Nếu có lỗi (ví dụ data không phải mảng), trả về kết quả không hợp lệ
+    return { status: false, results: [] };
+  }
 }
