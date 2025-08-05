@@ -34,7 +34,8 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: 'http://localhost:4000', // Thay bằng domain của client
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'is_child_zone', 'zone'],
 }));
 
 // khai báo con truoc cha
