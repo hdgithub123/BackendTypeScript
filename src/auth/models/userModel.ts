@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,checkUniqueFieldsObject } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
 dotenv.config();
@@ -121,6 +121,16 @@ const userUpdateAnDeleteRule: RuleSchema = {
 };
 
 
+export type userUniqueCheck = {
+    fields: {
+    id?: string;
+    username?: string;
+    email?: string;
+    }
+    excludeField: string;
+};
+
+
 
 export async function getUser(userName: string) {
     const sqlQuery = "SELECT * FROM users WHERE userName = ?";
@@ -132,6 +142,19 @@ export async function getUsers() {
     return data;
 
 }
+
+
+export async function checkUniqueUser(userCheck: userUniqueCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    console.log("userCheck",userCheck)
+    const { status, results } = validateDataArray([userCheck.fields], userUpdateAnDeleteRule, messagesEn);
+    if (status) {
+        console.log("status",status)
+         console.log("results",results)
+        return await checkUniqueFieldsObject({tableName:"users",...userCheck});
+    }
+    return { data: null, status: status, errorCode: { failData: results } };
+}
+
 
 
 export async function insertUser(user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {

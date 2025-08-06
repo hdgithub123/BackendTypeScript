@@ -2,6 +2,23 @@ import { Request, Response } from "express";
 //import {getUser,getUsers,insertUser,insertUsers,updateUser,updateUsers} from "../models/userModel";
 import * as userModel from "../models/userModel";
 
+
+export async function checkUniqueUser(req: Request, res: Response) {
+    try {
+        const user = req.body;
+        const { data, status,errorCode } = await userModel.checkUniqueUser(user);
+        if (status && Array.isArray(data) && data.length > 0) {
+            res.status(200).json({ data, status,errorCode });
+        } else {
+            res.status(404).json({ data, status,errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
+
 export async function getUser(req: Request, res: Response) {
     try {
         const username:string = req.params.username;
@@ -16,6 +33,8 @@ export async function getUser(req: Request, res: Response) {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
+
+
 export async function getUsers(req: Request, res: Response) {
     try {
         const { data, status,errorCode } = await userModel.getUsers();
