@@ -3,9 +3,9 @@ import { insertObject, insertObjects, updateObject, updateObjects, deleteObject,
 import insertObjectsTables from './mySql/ObjectsNomal/insertObjectsTables';
 import updateObjectsTables from './mySql/ObjectsNomal/updateObjectsTables';
 import deleteObjectsTables from './mySql/ObjectsNomal/deleteObjectsTables';
-import checkUniqueFieldsObject from './mySql/ObjectsNomal/checkUniqueFieldsObject';
-import checkUniqueFieldsObjects from './mySql/ObjectsNomal/checkUniqueFieldsObjects';
-import checkUniqueFieldsObjectsTables from './mySql/ObjectsNomal/checkUniqueFieldsObjectsTables';
+import checkExistenceOfFieldsObject from './mySql/ObjectsNomal/checkExistenceOfFieldsObject';
+import checkExistenceOfFieldsObjects from './mySql/ObjectsNomal/checkExistenceOfFieldsObjects';
+import checkExistenceOfFieldsObjectsTables from './mySql/ObjectsNomal/checkExistenceOfFieldsObjectsTables';
 import {insertObjectsTreeTables} from './mySql/ObjectsTree/insertObjectsTreeTables'
 import {insertObjectsTreeTablesUniqueField} from './mySql/ObjectsTree/insertObjectsTreeTablesUniqueField'
 import {updateObjectsTreeTables} from './mySql/ObjectsTree/updateObjectsTreeTables'
@@ -27,7 +27,7 @@ export {
     updateObjectsTreeTables,
     deleteObjectsTreeTables,
     insertObjectsTreeTablesUniqueField,
-    checkUniqueFieldsObject,
-    checkUniqueFieldsObjects,
-    checkUniqueFieldsObjectsTables,
+    checkExistenceOfFieldsObject,
+    checkExistenceOfFieldsObjects,
+    checkExistenceOfFieldsObjectsTables,
 }

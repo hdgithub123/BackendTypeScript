@@ -1,6 +1,6 @@
 import executeTransaction from '../executeTransaction';
 
-interface UniqueCheckInput {
+interface ExistenceCheckInput {
   tableName: string;
   excludeField?: string;
   fields: Array<{
@@ -10,24 +10,26 @@ interface UniqueCheckInput {
 
 export type RowResult = Record<string, boolean>;
 
-export interface GroupedUniqueCheckResult {
+export interface GroupedExistenceCheckResult {
   [tableName: string]: {
     [rowIndex: string]: RowResult;
   };
 }
 
-
-export default async function checkUniqueFieldsObjectsTables(
-  checks: UniqueCheckInput[]
+/**
+ * Kiểm tra sự tồn tại của từng giá trị trong danh sách fields.
+ * Trả về true nếu giá trị TỒN TẠI trong DB (đã được sử dụng), false nếu KHÔNG tồn tại.
+ */
+export default async function checkExistenceOfFieldsObjectsTables(
+  checks: ExistenceCheckInput[]
 ): Promise<{
-  data: GroupedUniqueCheckResult;
+  data: GroupedExistenceCheckResult;
   status: boolean;
   errorCode: string | object;
 }> {
-   const groupedResult: GroupedUniqueCheckResult = {};
-  const { data, status, errorCode } = await executeTransaction(async (connection) => {
-   
+  const groupedResult: GroupedExistenceCheckResult = {};
 
+  const { data: _ignored, status, errorCode } = await executeTransaction(async (connection) => {
     for (const check of checks) {
       const { tableName, fields, excludeField } = check;
 
@@ -44,7 +46,7 @@ export default async function checkUniqueFieldsObjectsTables(
 
         for (const [field, value] of Object.entries(fieldValues)) {
           if (value === undefined || value === null) {
-            rowResult[field] = true;
+            rowResult[field] = false; // Không tồn tại vì giá trị undefined/null
             continue;
           }
 
@@ -63,14 +65,13 @@ export default async function checkUniqueFieldsObjectsTables(
 
           const [rows] = await connection.execute(query, params);
           const count = Number((rows as any)[0]?.count ?? 0);
-          rowResult[field] = count === 0;
+
+          rowResult[field] = count > 0; // CHUYỂN ĐỔI Ở ĐÂY: tồn tại => true
         }
 
         groupedResult[tableName][String(i)] = rowResult;
       }
     }
-
-    // return { data: groupedResult, status: true, errorCode: null };
   });
 
   return {

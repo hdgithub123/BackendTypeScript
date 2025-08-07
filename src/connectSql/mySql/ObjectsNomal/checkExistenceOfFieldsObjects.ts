@@ -1,10 +1,10 @@
-// checkUniqueFieldsObjects.ts
-import checkUniqueFieldsObjectsTables from './checkUniqueFieldsObjectsTables';
+// checkExistenceOfFieldsObjects.ts
+import checkExistenceOfFieldsObjectsTables from './checkExistenceOfFieldsObjectsTables';
 
 // Reuse RowResult type (nếu module kia export thì import thay vì redeclare)
 export type RowResult = Record<string, boolean>;
 
-export interface GroupedUniqueCheckResult {
+export interface GroupedExistenceCheckResult {
   [tableName: string]: {
     [rowIndex: string]: RowResult;
   };
@@ -20,18 +20,17 @@ export interface MultiFieldsInput {
 
 /**
  * Kiểm tra nhiều object (mảng fields) cho 1 table.
- * Trả trực tiếp phần `data` của checkUniqueFieldsObjectsTables.
+ * Trả trực tiếp phần `data` của checkExistenceOfFieldsObjectsTables.
  */
-export default async function checkUniqueFieldsObjects(
+export default async function checkExistenceOfFieldsObjects(
   input: MultiFieldsInput
 ): Promise<{
-  data: GroupedUniqueCheckResult;
-    status: boolean;
-    errorCode: string | object;
+  data: GroupedExistenceCheckResult;
+  status: boolean;
+  errorCode: string | object;
 }> {
   const { tableName, fields, excludeField } = input;
 
-  // build input cho hàm lớn (truyền excludeField xuống)
   const checksForTables = [
     {
       tableName,
@@ -41,7 +40,7 @@ export default async function checkUniqueFieldsObjects(
   ];
 
   try {
-    return  await checkUniqueFieldsObjectsTables(checksForTables);
+    return await checkExistenceOfFieldsObjectsTables(checksForTables);
   } catch (err) {
     return {
       data: {},

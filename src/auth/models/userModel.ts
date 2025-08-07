@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,checkUniqueFieldsObject } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,checkExistenceOfFieldsObject,checkExistenceOfFieldsObjects } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
 dotenv.config();
@@ -171,12 +171,22 @@ const userCheckRule: RuleSchema = {
 };
 
 
-export type userUniqueCheck = {
+export type userExistanceCheck = {
     fields: {
     id?: string;
     username?: string;
     email?: string;
     }
+    excludeField?: string;
+};
+
+
+export type usersExistanceCheck = {
+    fields: Array<{
+    id?: string;
+    username?: string;
+    email?: string;
+    }>
     excludeField?: string;
 };
 
@@ -194,11 +204,20 @@ export async function getUsers() {
 }
 
 
-export async function checkUniqueUser(userCheck: userUniqueCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function checkExistenceUser(userCheck: userExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([userCheck.fields], userCheckRule, messagesEn);
     if (status) {         
-        const { data, status, errorCode} = await checkUniqueFieldsObject({tableName:"users",...userCheck});
+        const { data, status, errorCode} = await checkExistenceOfFieldsObject({tableName:"users",...userCheck});
         return { data: data.users[0], status: status, errorCode };
+    }
+    return { data: null, status: status, errorCode: { failData: results } };
+}
+
+export async function checkExistenceUsers(usersCheck: usersExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    const { status, results } = validateDataArray(usersCheck.fields, userCheckRule, messagesEn);
+    if (status) {         
+        const { data, status, errorCode} = await checkExistenceOfFieldsObjects({tableName:"users",...usersCheck});
+        return { data: data.users, status: status, errorCode };
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }

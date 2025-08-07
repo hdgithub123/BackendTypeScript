@@ -3,11 +3,26 @@ import { Request, Response } from "express";
 import * as userModel from "../models/userModel";
 
 
-export async function checkUniqueUser(req: Request, res: Response) {
+export async function checkExistenceUser(req: Request, res: Response) {
     try {
         const user = req.body;
-        const { data, status,errorCode } = await userModel.checkUniqueUser(user);
-        console.log("data",data)
+        const { data, status,errorCode } = await userModel.checkExistenceUser(user);
+        if (status) {
+            res.status(200).json({ data, status,errorCode });
+        } else {
+            res.status(404).json({ data, status,errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
+
+export async function checkExistenceUsers(req: Request, res: Response) {
+    try {
+        const users = req.body;
+        const { data, status,errorCode } = await userModel.checkExistenceUsers(users);
         if (status) {
             res.status(200).json({ data, status,errorCode });
         } else {
