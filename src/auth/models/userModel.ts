@@ -120,6 +120,56 @@ const userUpdateAnDeleteRule: RuleSchema = {
     }
 };
 
+const userCheckRule: RuleSchema = {
+    id: {
+        type: "string",
+        format: "uuid",
+        required: false
+    },
+    username: {
+        type: "string",
+        required: false,
+        min: 3,
+        max: 50
+    },
+    password: {
+        type: "string",
+        required: false,
+        max: 255
+    },
+    fullName: {
+        type: "string",
+        required: false,
+        max: 100
+    },
+    email: {
+        type: "string",
+        format: "email",
+        required: false,
+        max: 100
+    },
+    phone: {
+        type: "string",
+        required: false,
+        format: "phone",
+        max: 20
+    },
+    isActive: {
+        type: "boolean",
+        required: false
+    },
+    createdAt: {
+        type: "string",
+        format: "datetime",
+        required: false
+    },
+    createdBy: {
+        type: "string",
+        required: false,
+        max: 100
+    }
+};
+
 
 export type userUniqueCheck = {
     fields: {
@@ -127,7 +177,7 @@ export type userUniqueCheck = {
     username?: string;
     email?: string;
     }
-    excludeField: string;
+    excludeField?: string;
 };
 
 
@@ -145,12 +195,10 @@ export async function getUsers() {
 
 
 export async function checkUniqueUser(userCheck: userUniqueCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    console.log("userCheck",userCheck)
-    const { status, results } = validateDataArray([userCheck.fields], userUpdateAnDeleteRule, messagesEn);
-    if (status) {
-        console.log("status",status)
-         console.log("results",results)
-        return await checkUniqueFieldsObject({tableName:"users",...userCheck});
+    const { status, results } = validateDataArray([userCheck.fields], userCheckRule, messagesEn);
+    if (status) {         
+        const { data, status, errorCode} = await checkUniqueFieldsObject({tableName:"users",...userCheck});
+        return { data: data.users[0], status: status, errorCode };
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }

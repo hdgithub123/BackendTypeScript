@@ -7,7 +7,8 @@ export async function checkUniqueUser(req: Request, res: Response) {
     try {
         const user = req.body;
         const { data, status,errorCode } = await userModel.checkUniqueUser(user);
-        if (status && Array.isArray(data) && data.length > 0) {
+        console.log("data",data)
+        if (status) {
             res.status(200).json({ data, status,errorCode });
         } else {
             res.status(404).json({ data, status,errorCode });

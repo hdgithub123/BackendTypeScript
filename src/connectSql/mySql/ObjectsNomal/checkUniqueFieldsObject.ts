@@ -3,11 +3,12 @@ import checkUniqueFieldsObjectsTables from './checkUniqueFieldsObjectsTables';
 
 // Reuse the RowResult type used by the other function.
 // Nếu RowResult được export ở module kia, import thay vì định nghĩa lại.
-export type RowResult = { _rowIndex: number } & Record<string, boolean>;
+export type RowResult = Record<string, boolean>;
 
-// GroupedUniqueCheckResult giống kiểu trả về từ checkUniqueFieldsObjectsTables
 export interface GroupedUniqueCheckResult {
-  [tableName: string]: RowResult[];
+  [tableName: string]: {
+    [rowIndex: string]: RowResult;
+  };
 }
 
 // Input type for single-object checker (updated)
@@ -26,9 +27,9 @@ export interface UniqueCheckInputSingle {
 export default async function checkUniqueFieldsObject(
   input: UniqueCheckInputSingle
 ): Promise<{
-  data: GroupedUniqueCheckResult[];
-  status: boolean;
-  errorCode: string | object;
+ data: GroupedUniqueCheckResult;
+     status: boolean;
+     errorCode: string | object;
 }> {
   // Build the input shape expected by checkUniqueFieldsObjectsTables:
   const checksForTables = [
@@ -44,7 +45,7 @@ export default async function checkUniqueFieldsObject(
   } catch (err) {
     // normalize error shape like other functions
     return {
-      data: [],
+      data: {},
       status: false,
       errorCode: err ?? {}
     };

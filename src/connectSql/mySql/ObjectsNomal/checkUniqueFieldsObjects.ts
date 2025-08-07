@@ -2,11 +2,12 @@
 import checkUniqueFieldsObjectsTables from './checkUniqueFieldsObjectsTables';
 
 // Reuse RowResult type (nếu module kia export thì import thay vì redeclare)
-export type RowResult = { _rowIndex: number } & Record<string, boolean>;
+export type RowResult = Record<string, boolean>;
 
-// GroupedUniqueCheckResult same shape as in checkUniqueFieldsObjectsTables
 export interface GroupedUniqueCheckResult {
-  [tableName: string]: RowResult[];
+  [tableName: string]: {
+    [rowIndex: string]: RowResult;
+  };
 }
 
 export interface MultiFieldsInput {
@@ -24,9 +25,9 @@ export interface MultiFieldsInput {
 export default async function checkUniqueFieldsObjects(
   input: MultiFieldsInput
 ): Promise<{
-  data: GroupedUniqueCheckResult[]; // TRẢ NGUYÊN phần data của hàm lớn
-  status: boolean;
-  errorCode: string | object;
+  data: GroupedUniqueCheckResult;
+    status: boolean;
+    errorCode: string | object;
 }> {
   const { tableName, fields, excludeField } = input;
 
@@ -43,7 +44,7 @@ export default async function checkUniqueFieldsObjects(
     return  await checkUniqueFieldsObjectsTables(checksForTables);
   } catch (err) {
     return {
-      data: [],
+      data: {},
       status: false,
       errorCode: err ?? {}
     };
