@@ -6,11 +6,11 @@ import * as userModel from "../models/userModel";
 export async function checkExistenceUser(req: Request, res: Response) {
     try {
         const user = req.body;
-        const { data, status,errorCode } = await userModel.checkExistenceUser(user);
+        const { data, status, errorCode } = await userModel.checkExistenceUser(user);
         if (status) {
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
         } else {
-            res.status(404).json({ data, status,errorCode });
+            res.status(404).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -22,11 +22,11 @@ export async function checkExistenceUser(req: Request, res: Response) {
 export async function checkExistenceUsers(req: Request, res: Response) {
     try {
         const users = req.body;
-        const { data, status,errorCode } = await userModel.checkExistenceUsers(users);
+        const { data, status, errorCode } = await userModel.checkExistenceUsers(users);
         if (status) {
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
         } else {
-            res.status(404).json({ data, status,errorCode });
+            res.status(404).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -37,12 +37,12 @@ export async function checkExistenceUsers(req: Request, res: Response) {
 
 export async function getUser(req: Request, res: Response) {
     try {
-        const username:string = req.params.username;
-        const { data, status,errorCode } = await userModel.getUser(username);
+        const username: string = req.params.username;
+        const { data, status, errorCode } = await userModel.getUser(username);
         if (status && Array.isArray(data) && data.length > 0) {
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
         } else {
-            res.status(404).json({ data, status,errorCode });
+            res.status(404).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -53,11 +53,11 @@ export async function getUser(req: Request, res: Response) {
 
 export async function getUsers(req: Request, res: Response) {
     try {
-        const { data, status,errorCode } = await userModel.getUsers();
+        const { data, status, errorCode } = await userModel.getUsers();
         if (status) {
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
         } else {
-            res.status(500).json({ data, status,errorCode });
+            res.status(500).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -67,14 +67,23 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function insertUser(req: Request, res: Response, next: Function) {
     try {
-        const user = req.body;
-        const { data, status,errorCode } = await userModel.insertUser(user);
+        // Ép kiểu string sang boolean
+        const user = {
+            ...req.body,
+            isActive:
+                req.body.isActive === true ||
+                req.body.isActive === "true" ||
+                req.body.isActive === 1 ||
+                req.body.isActive === "1",
+        };
+
+        const { data, status, errorCode } = await userModel.insertUser(user);
         if (status) {
             req.result = data;
-            res.status(201).json({ data, status,errorCode});
+            res.status(201).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -85,13 +94,13 @@ export async function insertUser(req: Request, res: Response, next: Function) {
 export async function insertUsers(req: Request, res: Response, next: Function) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
-       const { data, status,errorCode } = await userModel.insertUsers(users); // Gọi hàm insertUsers từ model
+        const { data, status, errorCode } = await userModel.insertUsers(users); // Gọi hàm insertUsers từ model
         if (status) {
             req.result = data;
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -101,15 +110,15 @@ export async function insertUsers(req: Request, res: Response, next: Function) {
 
 export async function updateUser(req: Request, res: Response, next: Function) {
     try {
-        const userId:string = req.params.id;
+        const userId: string = req.params.id;
         const user = req.body;
-        const { data, status,errorCode } = await userModel.updateUser(userId, user);
+        const { data, status, errorCode } = await userModel.updateUser(userId, user);
         if (status) {
             req.result = data;
-            res.status(200).json({ data, status,errorCode});
+            res.status(200).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -119,13 +128,13 @@ export async function updateUser(req: Request, res: Response, next: Function) {
 export async function updateUsers(req: Request, res: Response, next: Function) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
-        const { data, status,errorCode } =  await userModel.updateUsers(users); // Gọi hàm updateUsers từ model
-         if (status) {
+        const { data, status, errorCode } = await userModel.updateUsers(users); // Gọi hàm updateUsers từ model
+        if (status) {
             req.result = data;
-            res.status(200).json({ data, status,errorCode});
+            res.status(200).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -138,13 +147,13 @@ export async function updateUsers(req: Request, res: Response, next: Function) {
 export async function deleteUser(req: Request, res: Response, next: Function) {
     try {
         const userId = req.params.id;
-        const {data, status,errorCode } = await userModel.deleteUser(userId);
+        const { data, status, errorCode } = await userModel.deleteUser(userId);
         if (status) {
             req.result = data;
-            res.status(204).json({ data, status,errorCode});
+            res.status(204).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -154,13 +163,13 @@ export async function deleteUser(req: Request, res: Response, next: Function) {
 export async function deleteUsers(req: Request, res: Response, next: Function) {
     try {
         const users = req.body; // Lấy dữ liệu từ body của request
-        const { data, status,errorCode } = await userModel.deleteUsers(users);
+        const { data, status, errorCode } = await userModel.deleteUsers(users);
         if (status) {
             req.result = data;
-            res.status(202).json({ data, status,errorCode });
+            res.status(202).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
