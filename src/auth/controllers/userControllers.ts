@@ -67,16 +67,7 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function insertUser(req: Request, res: Response, next: Function) {
     try {
-        // Ép kiểu string sang boolean
-        const user = {
-            ...req.body,
-            isActive:
-                req.body.isActive === true ||
-                req.body.isActive === "true" ||
-                req.body.isActive === 1 ||
-                req.body.isActive === "1",
-        };
-
+        const user = req.body;
         const { data, status, errorCode } = await userModel.insertUser(user);
         if (status) {
             req.result = data;
