@@ -148,6 +148,13 @@ export async function insertActivityLogs(activeLogs: Array<activeLogs>): Promise
     return { data: null, status: status, errorCode: { failData: results } };
 }
 
+export async function insertAutoActivityLogs(activeLogs: Array<activeLogs>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    if (!Array.isArray(activeLogs) || activeLogs.length === 0) {
+        return { data: null, status: false, errorCode: "Invalid input" };
+    }
+    return await insertObjects("activityLogs", activeLogs);
+}
+
 export async function deleteActivityLogs() {
     const Sqlstring = "DELETE FROM activityLogs";
     const data = await executeQuery(Sqlstring);

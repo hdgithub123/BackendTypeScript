@@ -83,7 +83,7 @@ export default function insertActivityLogsInfo(
                 }
             }
 
-            await activityLogsModels.insertActivityLogs(activeLogs);
+            await activityLogsModels.insertAutoActivityLogs(activeLogs);
             if (isNext) {
                 next();
             }
