@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,checkExistenceOfFieldsObject,checkExistenceOfFieldsObjects } from '../../connectSql'
+import  { deleteObjectsTables } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
 dotenv.config();
@@ -264,7 +265,11 @@ export async function deleteUser(userId: string | number): Promise<{ data: Objec
         const columKey = { id: userId }; // Use userId as the columKey
         const { status, results } = validateDataArray([columKey], userUpdateAnDeleteRule, messagesEn);
         if (status) {
-            return await deleteObject("users", { id: userId });
+            // return await deleteObject("users", { id: userId });
+            return await deleteObjectsTables([
+                { table: "users_zones_roles", columKey: [ { userId: userId } ] },
+                { table: "users", columKey: [ { id: userId } ] }
+            ]);
         }
         return { data: null, status: status, errorCode: { failData: results } };
 
