@@ -6,8 +6,10 @@ import {insertActivityLogs, getActivityLogs,getActivityLogsByUsername,deleteActi
 router.get('/:username', getActivityLogsByUsername);
 //DeleteActivityLogs
 //chú ý route cha phải được đặt sau route con
-router.get('/',authorization,checkPermission({rightCodes: ["GetActivityLogs"], isAllowChildZone: true}), getActivityLogs);
+// router.get('/',authorization,checkPermission({rightCodes: ["GetActivityLogs"], isAllowChildZone: true}), getActivityLogs);
 router.post('/',authorization,checkPermission({rightCodes: ["PostActivityLogs"], isAllowChildZone: false}), insertActivityLogs);
 router.delete('/',authorization,checkPermission({rightCodes: ["DeleteActivityLogs"], isAllowChildZone: true}), deleteActivityLogs);
+
+router.get('/', getActivityLogs);
 
 export default router;

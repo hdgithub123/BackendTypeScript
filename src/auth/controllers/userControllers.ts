@@ -68,6 +68,11 @@ export async function getUsers(req: Request, res: Response) {
 export async function insertUser(req: Request, res: Response, next: Function) {
     try {
         const user = req.body;
+        if (req.user && req.user.username) {
+            user.createdBy = req.user.username;
+        } else {
+            user.createdBy = 'Register';
+        }
         const { data, status, errorCode } = await userModel.insertUser(user);
         if (status) {
             req.result = data;

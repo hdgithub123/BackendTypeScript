@@ -17,6 +17,7 @@ export type user = {
     email?: string;
     phone?: string;
     isActive?: boolean;
+    createdBy?: string;
 };
 
 
