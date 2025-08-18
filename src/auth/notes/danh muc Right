@@ -52,6 +52,19 @@ update UserVsZoneVsRoles             PutUserVsZoneVsRoles
 Delete UserVsZoneVsRoles             DeleteUserVsZoneVsRoles
 
 
+view TemplateContent               GetTemplateContent
+add TemplateContent                PostTemplateContent
+update TemplateContent             PutTemplateContent
+Delete TemplateContent             DeleteTemplateContent
+view TemplateContents               GetTemplateContents
+add TemplateContents                PostTemplateContents
+update TemplateContents             PutTemplateContents
+Delete TemplateContents             DeleteTemplateContents
+
+
+
+
+
 
 
 

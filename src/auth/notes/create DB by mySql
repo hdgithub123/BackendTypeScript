@@ -261,7 +261,19 @@ INSERT INTO rights (name, code, description, createdBy) VALUES
 -- activitylog
 ('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System'),
 ('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System'),
-('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System');
+('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System'),
+
+-- template contents
+('view TemplateContent', 'GetTemplateContent', 'Xem nội dung mẫu', 'System'),
+('add TemplateContent', 'PostTemplateContent', 'Thêm nội dung mẫu', 'System'),
+('update TemplateContent', 'PutTemplateContent', 'Cập nhật nội dung mẫu', 'System'),
+('Delete TemplateContent', 'DeleteTemplateContent', 'Xóa nội dung mẫu', 'System'),
+('view TemplateContents', 'GetTemplateContents', 'Xem nhiều nội dung mẫu', 'System'),
+('add TemplateContents', 'PostTemplateContents', 'Thêm nhiều nội dung mẫu', 'System'),
+('update TemplateContents', 'PutTemplateContents', 'Cập nhật nhiều nội dung mẫu', 'System'),
+('Delete TemplateContents', 'DeleteTemplateContents', 'Xóa nhiều nội dung mẫu', 'System');
+
+
 
 CREATE TABLE activityLogs (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -283,3 +295,16 @@ CREATE TABLE activityLogs (
     secure BOOLEAN                               -- Có dùng HTTPS không (true/false)
 )
 
+
+
+CREATE TABLE template_contents (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  code VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  content JSON,
+  description VARCHAR(255),
+  createdBy VARCHAR(100),
+  updatedBy VARCHAR(100),
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
