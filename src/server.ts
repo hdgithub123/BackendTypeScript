@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 import authRouter from './auth/routes';
-import templateContentsRouters from './templateContents/routes/templateContentsRouters';
+import templateContentsRouter from './templateContents/routes/index';
 
 
 dotenv.config();
@@ -28,7 +28,7 @@ app.use(cors({
 
 // khai báo con truoc cha
 app.use('/auth', authRouter);
-app.use('/template-contents', templateContentsRouters);
+app.use('/template-contents', templateContentsRouter);
 app.use('/', (req, res) => {
   res.send('hello!');
 });

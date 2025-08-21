@@ -257,21 +257,10 @@ INSERT INTO rights (name, code, description, createdBy) VALUES
 ('view UserZoneRoles', 'GetUserZoneRoles', 'Xem nhiều vai trò của người dùng theo khu vực', 'System'),
 ('add UserZoneRoles', 'PostUserZoneRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System'),
 ('update UserZoneRoles', 'PutUserZoneRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System'),
-('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System'),
--- activitylog
-('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System'),
-('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System'),
-('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System'),
+('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System');
 
--- template contents
-('view TemplateContent', 'GetTemplateContent', 'Xem nội dung mẫu', 'System'),
-('add TemplateContent', 'PostTemplateContent', 'Thêm nội dung mẫu', 'System'),
-('update TemplateContent', 'PutTemplateContent', 'Cập nhật nội dung mẫu', 'System'),
-('Delete TemplateContent', 'DeleteTemplateContent', 'Xóa nội dung mẫu', 'System'),
-('view TemplateContents', 'GetTemplateContents', 'Xem nhiều nội dung mẫu', 'System'),
-('add TemplateContents', 'PostTemplateContents', 'Thêm nhiều nội dung mẫu', 'System'),
-('update TemplateContents', 'PutTemplateContents', 'Cập nhật nhiều nội dung mẫu', 'System'),
-('Delete TemplateContents', 'DeleteTemplateContents', 'Xóa nhiều nội dung mẫu', 'System');
+
+
 
 
 
@@ -295,16 +284,49 @@ CREATE TABLE activityLogs (
     secure BOOLEAN                               -- Có dùng HTTPS không (true/false)
 )
 
+INSERT INTO rights (name, code, description, createdBy) VALUES
+-- activitylog
+('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System'),
+('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System'),
+('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System');
+
+
+
 
 
 CREATE TABLE template_contents (
   id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
   code VARCHAR(50) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
+  scopeName VARCHAR(255) UNIQUE NOT NULL,
   content JSON,
   description VARCHAR(255),
+  isActive TINYINT(1) NOT NULL DEFAULT 1,
   createdBy VARCHAR(100),
   updatedBy VARCHAR(100),
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CHECK (id <> '')
 );
+
+
+INSERT INTO rights (name, code, description, createdBy) VALUES
+-- template contents
+('view TemplateContent', 'GetTemplateContent', 'Xem nội dung mẫu', 'System'),
+('add TemplateContent', 'PostTemplateContent', 'Thêm nội dung mẫu', 'System'),
+('update TemplateContent', 'PutTemplateContent', 'Cập nhật nội dung mẫu', 'System'),
+('Delete TemplateContent', 'DeleteTemplateContent', 'Xóa nội dung mẫu', 'System'),
+('view TemplateContents', 'GetTemplateContents', 'Xem nhiều nội dung mẫu', 'System'),
+('add TemplateContents', 'PostTemplateContents', 'Thêm nhiều nội dung mẫu', 'System'),
+('update TemplateContents', 'PutTemplateContents', 'Cập nhật nhiều nội dung mẫu', 'System'),
+('Delete TemplateContents', 'DeleteTemplateContents', 'Xóa nhiều nội dung mẫu', 'System');
+
+
+INSERT INTO rights (name, code, description, createdBy) VALUES
+-- user template contents
+('view UserTemplateContent', 'GetUserTemplateContent', 'Xem nội dung mẫu của người dùng', 'System'),
+('add UserTemplateContent', 'PostUserTemplateContent', 'Thêm nội dung mẫu của người dùng', 'System'),
+('update UserTemplateContent', 'PutUserTemplateContent', 'Cập nhật nội dung mẫu của người dùng', 'System'),
+('Delete UserTemplateContent', 'DeleteUserTemplateContent', 'Xóa nội dung mẫu của người dùng', 'System');
+
