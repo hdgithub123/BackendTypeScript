@@ -17,6 +17,19 @@ export async function getUserTemplateContent(req: Request, res: Response) {
     }
 }
 
+export async function getUserTemplateContents(req: Request, res: Response) {
+    try {
+        const { data, status, errorCode } = await templateContentModel.getUserTemplateContents();
+        if (status && Array.isArray(data) && data.length > 0) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(404).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
 
 export async function insertUserTemplateContent(req: Request, res: Response, next: Function) {
     try {

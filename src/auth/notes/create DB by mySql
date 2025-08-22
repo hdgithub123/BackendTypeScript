@@ -298,7 +298,7 @@ CREATE TABLE template_contents (
   id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
   code VARCHAR(50) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
-  scopeName VARCHAR(255) UNIQUE NOT NULL,
+  scopeName VARCHAR(255) NOT NULL,
   content JSON,
   description VARCHAR(255),
   isActive TINYINT(1) NOT NULL DEFAULT 1,

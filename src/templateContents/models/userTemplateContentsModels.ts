@@ -22,7 +22,7 @@ const templateContentsInsertSchema: RuleSchema = {
     id: {
         type: "string",
         format: "uuid",
-        required: true
+        required: false
     },
 
     name: {
@@ -38,7 +38,7 @@ const templateContentsInsertSchema: RuleSchema = {
     },
     scopeName: {
         type: "string",
-        required: true,
+        required: false,
         max: 255
     },
     content: {
@@ -137,12 +137,18 @@ export async function getUserTemplateContent(id: string) {
     return await executeQuery(sqlQuery, [id]);
 }
 
+export async function getUserTemplateContents() {
+    const sqlQuery = "SELECT * FROM template_contents WHERE scopeName = 'user'";
+    return await executeQuery(sqlQuery);
+}
+
 
 
 export async function insertUserTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([templateContent], templateContentsInsertSchema, messagesEn);
-    if (status && templateContent.scopeName === 'user') {
-        return await insertObject("template_contents", templateContent);
+   const newTemplateContent = { ...templateContent, scopeName: 'user' };
+    if (status) {
+        return await insertObject("template_contents", newTemplateContent);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
