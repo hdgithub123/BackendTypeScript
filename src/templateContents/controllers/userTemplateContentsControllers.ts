@@ -4,8 +4,8 @@ import * as templateContentModel from "../models/userTemplateContentsModels";
 
 export async function getUserTemplateContent(req: Request, res: Response) {
     try {
-        const code:string = req.params.code;
-        const { data, status, errorCode } = await templateContentModel.getUserTemplateContent(code);
+        const id:string = req.params.id;
+        const { data, status, errorCode } = await templateContentModel.getUserTemplateContent(id);
         if (status && Array.isArray(data) && data.length > 0) {
             res.status(200).json({ data, status, errorCode });
         } else {
