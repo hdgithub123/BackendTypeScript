@@ -333,7 +333,7 @@ INSERT INTO rights (name, code, description, createdBy) VALUES
 
 INSERT INTO rights (name, code, description, createdBy) VALUES
 -- user template contents
-('view UsersTemplateContent', 'GetUsersTemplateContent', 'Xem nội dung mẫu của người dùng', 'System'),
-('add UsersTemplateContent', 'PostUsersTemplateContent', 'Thêm nội dung mẫu của người dùng', 'System'),
-('update UsersTemplateContent', 'PutUsersTemplateContent', 'Cập nhật nội dung mẫu của người dùng', 'System'),
-('Delete UsersTemplateContent', 'DeleteUsersTemplateContent', 'Xóa nội dung mẫu của người dùng', 'System');
+('view UsersTemplateContent', 'GetUsersTemplateContent', 'Xem nội dung mẫu của danh sách người dùng', 'System'),
+('add UsersTemplateContent', 'PostUsersTemplateContent', 'Thêm nội dung mẫu của danh sách người dùng', 'System'),
+('update UsersTemplateContent', 'PutUsersTemplateContent', 'Cập nhật nội dung mẫu của danh sách người dùng', 'System'),
+('Delete UsersTemplateContent', 'DeleteUsersTemplateContent', 'Xóa nội dung mẫu của danh sách người dùng', 'System');
