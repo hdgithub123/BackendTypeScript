@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import {getTemplateContents,insertTemplateContents,updateTemplateContents,deleteTemplateContents,getTemplateContent,insertTemplateContent,updateTemplateContent,deleteTemplateContent} from '../controllers/TemplateContentsControllers';
+import {getTemplateContents,insertTemplateContents,updateTemplateContents,deleteTemplateContents,getTemplateContent,insertTemplateContent,updateTemplateContent,deleteTemplateContent,checkExistenceTemplateContent,checkExistenceTemplateContents} from '../controllers/TemplateContentsControllers';
 import {insertActivityLogsInfo, authorization, checkPermission} from '../../auth/middleware';
 
 
@@ -15,5 +15,10 @@ router.get('/list',authorization,checkPermission({rightCodes: ["GetTemplateConte
 router.post('/list',authorization,checkPermission({rightCodes: ["PostTemplateContents"], isAllowChildZone: false}), insertTemplateContents,insertActivityLogsInfo({action: 'insertTemplateContents', tableName: 'template_contents', description:"insert template contents"}));
 router.put('/list',authorization,checkPermission({rightCodes: ["PutTemplateContents"], isAllowChildZone: false}), updateTemplateContents,insertActivityLogsInfo({action: 'updateTemplateContents', tableName: 'template_contents', description:"update template contents"}));
 router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteTemplateContents"], isAllowChildZone: false}), deleteTemplateContents,insertActivityLogsInfo({action: 'deleteTemplateContents', tableName: 'template_contents', description:"delete template contents"}));
+
+
+router.post('/check',authorization,checkPermission({rightCodes: ["PostTemplateContent","PutTemplateContent"], isAllowChildZone: false}),checkExistenceTemplateContent);
+router.post('/checks',authorization,checkPermission({rightCodes: ["PostTemplateContents","PutTemplateContents"], isAllowChildZone: false}),checkExistenceTemplateContents);
+
 
 export default router;

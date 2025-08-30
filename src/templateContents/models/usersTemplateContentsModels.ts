@@ -132,21 +132,21 @@ const templateContentsUpdateAndDeleteSchema: RuleSchema = {
 
 
 
-export async function getUserTemplateContent(id: string) {
-    const sqlQuery = "SELECT * FROM template_contents WHERE id = ? AND scopeName = 'user'";
+export async function getUsersTemplateContent(id: string) {
+    const sqlQuery = "SELECT * FROM template_contents WHERE id = ? AND scopeName = 'users'";
     return await executeQuery(sqlQuery, [id]);
 }
 
-export async function getUserTemplateContents() {
-    const sqlQuery = "SELECT * FROM template_contents WHERE scopeName = 'user'";
+export async function getUsersTemplateContents() {
+    const sqlQuery = "SELECT * FROM template_contents WHERE scopeName = 'users'";
     return await executeQuery(sqlQuery);
 }
 
 
 
-export async function insertUserTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function insertUsersTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([templateContent], templateContentsInsertSchema, messagesEn);
-    const newTemplateContent = { ...templateContent, scopeName: 'user' };
+    const newTemplateContent = { ...templateContent, scopeName: 'users' };
     if (status) {
         return await insertObject("template_contents", newTemplateContent);
     }
@@ -154,21 +154,21 @@ export async function insertUserTemplateContent(templateContent: templateContent
 }
 
 
-export async function updateUserTemplateContent(templateContentId: string, templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function updateUsersTemplateContent(templateContentId: string, templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([templateContent], templateContentsUpdateAndDeleteSchema, messagesEn);
     if (status) {
-        const columKey = { id: templateContentId, scopeName: 'user'}; // Use userId as the columKey
+        const columKey = { id: templateContentId, scopeName: 'users'}; // Use userId as the columKey
         return await updateObject("template_contents", templateContent, columKey);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
 
 
-export async function deleteUserTemplateContent(templateContentId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function deleteUsersTemplateContent(templateContentId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const columKey = { id: templateContentId }; // Use userId as the columKey
     const { status, results } = validateDataArray([columKey], templateContentsUpdateAndDeleteSchema, messagesEn);
     if (status) {
-        return await deleteObject("template_contents", { id: templateContentId, scopeName: 'user'});
+        return await deleteObject("template_contents", { id: templateContentId, scopeName: 'users'});
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }

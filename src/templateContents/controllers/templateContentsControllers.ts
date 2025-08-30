@@ -2,6 +2,39 @@ import { Request, Response } from "express";
 //import {getRight,getRights,insertRight,insertRights,updateRight,updateRights} from "../models/rightModels";
 import * as templateContentModel from "../models/templateContentsModels";
 
+
+export async function checkExistenceTemplateContent(req: Request, res: Response) {
+    try {
+        const templateContent = req.body;
+        const { data, status, errorCode } = await templateContentModel.checkExistenceTemplateContent(templateContent);
+        if (status) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(404).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
+
+export async function checkExistenceTemplateContents(req: Request, res: Response) {
+    try {
+        const templateContents = req.body;
+        const { data, status, errorCode } = await templateContentModel.checkExistenceTemplateContents(templateContents);
+        if (status) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(404).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
+
 export async function getTemplateContent(req: Request, res: Response) {
     try {
         const code:string = req.params.code;
@@ -132,3 +165,5 @@ export async function deleteTemplateContents(req: Request, res: Response, next: 
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
+
+
