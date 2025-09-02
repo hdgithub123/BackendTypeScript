@@ -1,0 +1,361 @@
+CREATE DATABASE MYDATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+use MYDATABASE;
+-- Các quy ước
+-- các bẳng được lấy theo:
+-- id: id CHAR(36) PRIMARY KEY DEFAULT (UUID()), CHECK (id <> ''),
+-- code: code VARCHAR(100) NOT NULL, -- mã do người dùng đặt
+-- name: name VARCHAR(255) NOT NULL,
+-- các khác không đặc biệt như address, image,.. thì lưu VARCHAR(255),
+
+CREATE TABLE organizations (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    CHECK (id <> ''),
+    code VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255),
+    isActive TINYINT(1) NOT NULL,
+    isSystem TINYINT(1) DEFAULT 0, 
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO organizations 
+VALUES 
+('00000000-0000-0000-0000-000000000001', 'supperOrganization', 'System Org', '', 1, 1, 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO organizations (
+    code, name, address, isActive, isSystem, createdBy, updatedBy
+) VALUES
+    ('ORG001', 'Công ty TNHH ABC', '123 Đường Láng, Hà Nội', 1, 0, 'admin', 'admin'),
+    ('ORG002', 'Công ty B', 'Trụ sở chính - Tầng 5', 0, 1, 'system', 'system'),
+    ('ORG003', 'Công ty C', '', 1, 0, 'user01', 'user01');
+
+
+
+SET @SupperOrganization = (SELECT id FROM organizations WHERE code = 'supperOrganization');
+SET @Organizations1 = (SELECT id FROM organizations WHERE code = 'ORG001');
+SET @Organizations2 = (SELECT id FROM organizations WHERE code = 'ORG002');
+SET @Organizations3 = (SELECT id FROM organizations WHERE code = 'ORG003');
+
+
+CREATE TABLE users (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    CHECK (id <> ''),
+    code VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    address VARCHAR(255),
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    image VARCHAR(255),
+    organizationId CHAR(36) NOT NULL,
+    FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
+    UNIQUE (organizationId, code),
+	UNIQUE (organizationId, email),
+    isActive TINYINT(1) NOT NULL,
+    isSystem TINYINT(1) DEFAULT 0, 
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO users (
+    code, password, name, address, email, phone, image, organizationId,
+    isActive, isSystem, createdBy, updatedBy
+) VALUES
+('supperAmin', 'hashed_password_1', 'Nguyễn Văn A', '12 Lê Lợi, Hà Nội', 'a.nguyen@example.com', '0901234567', 'avatar1.jpg', @SupperOrganization, 1, 0, 'admin', 'admin'),
+('admin', 'hashed_password_2', 'System Admin', 'Trụ sở chính', 'sys.admin@example.com', '0987654321', 'sys_avatar.jpg', @Organizations1, 1, 1, 'system', 'system'),
+('admin', 'hashed_password_3', 'Trần Thị B', '45 Nguyễn Trãi, TP.HCM', 'b.tran@example.com', '0912345678', 'avatar2.jpg', @Organizations2, 1, 0, 'user01', 'user01'),
+('admin', 'hashed_password_3', 'Trần Thị B', '45 Nguyễn Trãi, TP.HCM', 'b.tran@example.com', '0912345678', 'avatar2.jpg', @Organizations3, 1, 0, 'user01', 'user01'),
+('user1', 'hashed_password_4', 'Phạm Văn C', '88 Trần Hưng Đạo, Đà Nẵng', 'c.pham@example.com', '0934567890', 'avatar3.jpg', @Organizations1, 0, 0, 'admin', 'admin'),
+('user2', 'hashed_password_5', 'System Bot', 'Nội bộ', 'bot@example.com', '0976543210', 'bot_avatar.jpg', @Organizations1, 0, 1, 'system', 'system');
+
+SET SQL_SAFE_UPDATES = 0;
+UPDATE users 
+SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
+WHERE code = 'admin';
+
+UPDATE users 
+SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
+WHERE code = 'user1';
+
+
+SET @supperAmin = (SELECT id FROM users WHERE code = 'supperAmin');
+SET @admin1 = (SELECT id FROM users WHERE code = 'admin' AND organizationId = @Organizations1);
+SET @user1 = (SELECT id FROM users WHERE code = 'user1' AND organizationId = @Organizations1);
+SET @user2 = (SELECT id FROM users WHERE code = 'user2' AND organizationId = @Organizations1);
+SET @admin2 = (SELECT id FROM users WHERE code = 'admin' AND organizationId = @Organizations2);
+SET @admin3 = (SELECT id FROM users WHERE code = 'admin' AND organizationId = @Organizations3);
+
+
+CREATE TABLE roles (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(50) NOT NULL,
+    code VARCHAR(50) NOT NULL, -- Mã tùy chỉnh có thể thay đổi theo organizationsId
+    description TEXT,
+    organizationId CHAR(36) NOT NULL,
+    FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
+    UNIQUE (organizationId, code),
+    isSystem TINYINT(1) DEFAULT 0,
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (id <> '')
+);
+
+
+INSERT INTO roles (name, code, description,organizationId,isSystem)
+VALUES
+    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống', @Organizations1, FALSE),
+    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống', @Organizations2,FALSE),
+    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống', @Organizations3,FALSE),
+    ('Editor', 'EDITOR_ROLE', 'Có quyền chỉnh sửa nội dung', @Organizations1,FALSE),
+    ('Viewer', 'VIEWER_ROLE', 'Chỉ có quyền xem nội dung', @Organizations1, FALSE),
+    ('Manager', 'MANAGER_ROLE', 'Quản lý người dùng và phân quyền', @Organizations1,FALSE),
+    ('Support', 'SUPPORT_ROLE', 'Hỗ trợ kỹ thuật và người dùng', @Organizations1, FALSE);
+
+
+
+SET @Administrator1 = (SELECT id FROM roles WHERE code = 'ADMIN_ROLE' AND organizationId = @Organizations1 );
+
+CREATE TABLE rights (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(50) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    description TEXT,
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    isSystem TINYINT(1) DEFAULT 0,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (id <> '')
+);
+
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+('Login', 'Login', 'Quyền đăng nhập hệ thống', 'System', TRUE),
+('Loguot', 'Loguot', 'Quyền đăng xuất khỏi hệ thống', 'System', TRUE),
+
+-- User
+('view user', 'GetUser', 'Xem thông tin một người dùng', 'System', TRUE),
+('add user', 'PostUser', 'Thêm một người dùng mới', 'System', TRUE),
+('update user', 'PutUser', 'Cập nhật thông tin người dùng', 'System', TRUE),
+('Delete user', 'DeleteUser', 'Xóa một người dùng', 'System', TRUE),
+('view users', 'GetUsers', 'Xem danh sách người dùng', 'System', TRUE),
+('add users', 'PostUsers', 'Thêm nhiều người dùng', 'System', TRUE),
+('update users', 'PutUsers', 'Cập nhật danh sách người dùng', 'System', TRUE),
+('Delete users', 'DeleteUsers', 'Xóa nhiều người dùng', 'System', TRUE),
+
+-- Right
+('view Right', 'GetRight', 'Xem thông tin một quyền', 'System', TRUE),
+('view Rights', 'GetRights', 'Xem danh sách quyền hệ thống', 'System', TRUE),
+
+-- Role
+('view role', 'GetRole', 'Xem một vai trò cụ thể', 'System', TRUE),
+('add role', 'PostRole', 'Thêm một vai trò mới', 'System', TRUE),
+('update role', 'PutRole', 'Cập nhật vai trò', 'System', TRUE),
+('Delete role', 'DeleteRole', 'Xóa một vai trò', 'System', TRUE),
+('view Roles', 'GetRoles', 'Xem danh sách vai trò', 'System', TRUE),
+('add Roles', 'PostRoles', 'Thêm nhiều vai trò', 'System', TRUE),
+('update Roles', 'PutRoles', 'Cập nhật nhiều vai trò', 'System', TRUE),
+('Delete Roles', 'DeleteRoles', 'Xóa nhiều vai trò', 'System', TRUE),
+
+-- Zone
+('view zone', 'GetZone', 'Xem một khu vực', 'System', TRUE),
+('add zone', 'PostZone', 'Thêm khu vực mới', 'System', TRUE),
+('update zone', 'PutZone', 'Cập nhật khu vực', 'System', TRUE),
+('Delete zone', 'DeleteZone', 'Xóa khu vực', 'System', TRUE),
+('view zones', 'GetZones', 'Xem danh sách khu vực', 'System', TRUE),
+('add zones', 'PostZones', 'Thêm nhiều khu vực', 'System', TRUE),
+('update zones', 'PutZones', 'Cập nhật nhiều khu vực', 'System', TRUE),
+('Delete zones', 'DeleteZones', 'Xóa nhiều khu vực', 'System', TRUE),
+
+-- RoleVsRight
+('view RoleVsRight', 'GetRoleRight', 'Xem quyền gán cho vai trò', 'System', TRUE),
+('add RoleRight', 'PostRoleRight', 'Thêm quyền vào vai trò', 'System', TRUE),
+('update RoleRight', 'PutRoleRight', 'Cập nhật quyền của vai trò', 'System', TRUE),
+('Delete RoleRight', 'DeleteRoleRight', 'Xóa quyền khỏi vai trò', 'System', TRUE),
+('view RoleRights', 'GetRoleRights', 'Xem danh sách quyền theo vai trò', 'System', TRUE),
+('add RoleRights', 'PostRoleRights', 'Gán nhiều quyền cho vai trò', 'System', TRUE),
+('update RoleRights', 'PutRoleRights', 'Cập nhật nhiều quyền cho vai trò', 'System', TRUE),
+('Delete RoleRights', 'DeleteRoleRights', 'Xóa nhiều quyền khỏi vai trò', 'System', TRUE),
+
+-- UserZoneRole
+('view UserZoneRole', 'GetUserZoneRole', 'Xem vai trò của người dùng theo khu vực', 'System', TRUE),
+('add UserZoneRole', 'PostUserZoneRole', 'Gán vai trò cho người dùng theo khu vực', 'System', TRUE),
+('update UserZoneRole', 'PutUserZoneRole', 'Cập nhật vai trò của người dùng theo khu vực', 'System', TRUE),
+('Delete UserZoneRole', 'DeleteUserZoneRole', 'Xóa vai trò khỏi người dùng theo khu vực', 'System', TRUE),
+('view UserZoneRoles', 'GetUserZoneRoles', 'Xem nhiều vai trò của người dùng theo khu vực', 'System', TRUE),
+('add UserZoneRoles', 'PostUserZoneRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System', TRUE),
+('update UserZoneRoles', 'PutUserZoneRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System', TRUE),
+('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System', TRUE);
+
+
+
+CREATE TABLE roles_rights (
+    roleId CHAR(36),
+    rightId CHAR(36),
+    isActive TINYINT(1) NOT NULL,
+    isSystem TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (roleId, rightId),
+    FOREIGN KEY (roleId) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (rightId) REFERENCES rights(id) ON DELETE CASCADE,
+    CHECK (roleId <> '' AND rightId <> '')
+);
+
+
+-- gán tất cả quyền vào Administrator
+INSERT IGNORE INTO roles_rights (roleId, rightId, isActive)
+SELECT r.id, rt.id, TRUE
+FROM roles r
+JOIN rights rt ON 1=1
+WHERE r.code = 'ADMIN_ROLE';
+
+
+CREATE TABLE zones (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(100) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    address TEXT,
+    description TEXT,
+    parentId CHAR(36) NULL,
+    organizationId CHAR(36) NOT NULL,
+    FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
+    UNIQUE (organizationId, code),
+    isSystem TINYINT(1) DEFAULT 0,
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parentId) REFERENCES zones(id),
+    CHECK (id <> '')
+);
+
+
+
+INSERT INTO zones (id, name, code, address, description, parentId, createdBy,organizationId) VALUES
+(UUID(), 'Tổng Công Ty', 'TC001', 'Hà Nội', 'Trụ sở chính', NULL, 'admin',@Organizations1);
+
+SET @parent_tct = (SELECT id FROM zones WHERE code = 'TC001'AND organizationId = @Organizations1);
+
+INSERT INTO zones (id, name, code, address, description, parentId, createdBy,organizationId) VALUES
+(UUID(), 'Chi Nhánh 1', 'CN001', 'TP HCM', 'Chi nhánh miền Nam', @parent_tct, 'admin',@Organizations1),
+(UUID(), 'Chi Nhánh 2', 'CN002', 'Hà Nội', 'VP miền Bắc', @parent_tct, 'admin',@Organizations1),
+(UUID(), 'Chi nhánh 3', 'CN003', 'Đà Nẵng', 'Chi nhánh miền Trung', @parent_tct, 'admin',@Organizations1);
+
+
+
+SET @cn1 = (SELECT id FROM zones WHERE code = 'CN001' AND organizationId = @Organizations1);
+SET @cn2 = (SELECT id FROM zones WHERE code = 'CN002' AND organizationId = @Organizations1);
+
+INSERT INTO zones (id, name, code, address, description, parentId, createdBy,organizationId) VALUES
+(UUID(), 'Phòng Kinh Doanh HCM', 'P11', 'TP HCM', 'Kinh doanh miền Nam', @cn1, 'admin',@Organizations1),
+(UUID(), 'Phòng Nhân Sự HCM', 'P12', 'TP HCM', 'Nhân sự miền Nam', @cn1, 'admin',@Organizations1),
+(UUID(), 'Phòng Kinh Doanh Đà Nẵng', 'PCN21', 'Đà Nẵng', 'Kinh doanh miền Trung', @cn2, 'admin',@Organizations1),
+(UUID(), 'Phòng Nhân Sự Đà Nẵng', 'PCN22', 'Đà Nẵng', 'Nhân sự miền Trung', @cn2, 'admin',@Organizations1);
+
+
+CREATE TABLE users_zones_roles (
+    userId CHAR(36),
+    roleId CHAR(36),
+    zoneId CHAR(36),
+    isActive BOOLEAN,
+    isSystem TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (userId, roleId, zoneId),
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (roleId) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (zoneId) REFERENCES zones(id) ON DELETE CASCADE,
+    CHECK (userId <> '' AND roleId <> '' AND zoneId <> '')
+);
+
+
+
+INSERT INTO users_zones_roles (userId, roleId, zoneId,isActive)
+VALUES
+    (@admin1, @Administrator1, @parent_tct, TRUE); -- ad admin cho toan bo 
+
+
+
+CREATE TABLE activityLogs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    organizationId CHAR(36) NOT NULL,
+    userId CHAR(36),              -- ID người dùng thực hiện hành động
+    username VARCHAR(100),              -- Tên người dùng thực hiện hành động
+    time DATETIME DEFAULT CURRENT_TIMESTAMP,     -- Thời gian ghi log
+    action VARCHAR(50),                 -- Loại hành động: INSERT, UPDATE, DELETE, ACCESS...
+    tableName VARCHAR(100),                     -- Tên bảng bị tác động
+    description TEXT,                            -- Mô tả chi tiết hành động
+    ip VARCHAR(45),                              -- Địa chỉ IP của client
+    oldData JSON,                               -- Dữ liệu cũ (trước khi thay đổi)
+    activeData JSON,                               -- Dữ liệu mới (sau khi thay đổi)
+    browserInfo JSON,                           -- Thông tin trình duyệt (user-agent, OS, device...)
+    protocol VARCHAR(10),                        -- Giao thức: http hoặc https
+    hostname VARCHAR(255),                       -- Tên miền hoặc host truy cập
+    originalUrl TEXT,                           -- URL đầy đủ được truy cập
+    method VARCHAR(10),                          -- Phương thức HTTP: GET, POST, PUT...
+    port INT,                                    -- Cổng kết nối
+    secure BOOLEAN                               -- Có dùng HTTPS không (true/false)
+);
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+-- activitylog
+('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System' , TRUE),
+('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System', TRUE),
+('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System', TRUE);
+
+
+
+
+
+CREATE TABLE template_contents (
+  id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+  code VARCHAR(50) UNIQUE NOT NULL,
+  organizationId CHAR(36) NOT NULL,
+  FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
+  UNIQUE (organizationId, code),
+  name VARCHAR(255) NOT NULL,
+  scopeName VARCHAR(255) NOT NULL,
+  content JSON,
+  description VARCHAR(255),
+  isActive TINYINT(1) NOT NULL DEFAULT 1,
+  createdBy VARCHAR(100),
+  updatedBy VARCHAR(100),
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CHECK (id <> '')
+);
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+-- template contents
+('view TemplateContent', 'GetTemplateContent', 'Xem nội dung mẫu', 'System', TRUE),
+('add TemplateContent', 'PostTemplateContent', 'Thêm nội dung mẫu', 'System', TRUE),
+('update TemplateContent', 'PutTemplateContent', 'Cập nhật nội dung mẫu', 'System', TRUE),
+('Delete TemplateContent', 'DeleteTemplateContent', 'Xóa nội dung mẫu', 'System', TRUE),
+('view TemplateContents', 'GetTemplateContents', 'Xem nhiều nội dung mẫu', 'System', TRUE),
+('add TemplateContents', 'PostTemplateContents', 'Thêm nhiều nội dung mẫu', 'System', TRUE),
+('update TemplateContents', 'PutTemplateContents', 'Cập nhật nhiều nội dung mẫu', 'System', TRUE),
+('Delete TemplateContents', 'DeleteTemplateContents', 'Xóa nhiều nội dung mẫu', 'System', TRUE);
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+-- user template contents
+('view UserTemplateContent', 'GetUserTemplateContent', 'Xem nội dung mẫu của người dùng', 'System', TRUE),
+('add UserTemplateContent', 'PostUserTemplateContent', 'Thêm nội dung mẫu của người dùng', 'System', TRUE),
+('update UserTemplateContent', 'PutUserTemplateContent', 'Cập nhật nội dung mẫu của người dùng', 'System', TRUE),
+('Delete UserTemplateContent', 'DeleteUserTemplateContent', 'Xóa nội dung mẫu của người dùng', 'System', TRUE);
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+-- user template contents
+('view UsersTemplateContent', 'GetUsersTemplateContent', 'Xem nội dung mẫu của danh sách người dùng', 'System', TRUE),
+('add UsersTemplateContent', 'PostUsersTemplateContent', 'Thêm nội dung mẫu của danh sách người dùng', 'System', TRUE),
+('update UsersTemplateContent', 'PutUsersTemplateContent', 'Cập nhật nội dung mẫu của danh sách người dùng', 'System', TRUE),
+('Delete UsersTemplateContent', 'DeleteUsersTemplateContent', 'Xóa nội dung mẫu của danh sách người dùng', 'System', TRUE);
