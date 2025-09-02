@@ -1,10 +1,11 @@
-import { Request, Response,NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import authentication from '../services/authentication'
 
-const loginController = async (req: Request, res: Response,next: NextFunction) => {
+const loginController = async (req: Request, res: Response, next: NextFunction) => {
     const username = req.body.username
     const password = req.body.password
-    const result = await authentication(username, password);
+    let organizationCode = req.body.organization
+    const result = await authentication(username, password, organizationCode);
     const cookieOptions = {
         httpOnly: true,
         secure: false, // Chỉ gửi cookie qua HTTPS

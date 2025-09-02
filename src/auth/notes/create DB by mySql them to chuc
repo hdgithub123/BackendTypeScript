@@ -284,7 +284,8 @@ VALUES
 
 CREATE TABLE activityLogs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    organizationId CHAR(36) NOT NULL,
+    organizationId CHAR(36),
+    zoneId CHAR(36),
     userId CHAR(36),              -- ID người dùng thực hiện hành động
     username VARCHAR(100),              -- Tên người dùng thực hiện hành động
     time DATETIME DEFAULT CURRENT_TIMESTAMP,     -- Thời gian ghi log
