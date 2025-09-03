@@ -184,6 +184,9 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
     } else {
         userData = { ...user };
     }
+    console.log("userData", userData)
+
+
 
     const { status, results } = validateDataArray([userData], userUpdateAndDeleteRule, messagesEn);
     if (status) {
@@ -192,16 +195,15 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
         const { data, status: queryStatus, errorCode } = await executeQuery(Sqlstring, [userData.id, userData.organizationId]);
         if (queryStatus && Array.isArray(data) && data.length > 0) {
             console.log("data",data)
-                            console.log("currentUser",currentUser)
-                console.log("userData.id",userData.id)
-             if (currentUser.id === userData.id) {
-
-
+            if (currentUser.id === userData.id) {
+                if (userData.code) {
+                    return { data: null, status: false, errorCode: { messenger: 'not allow edit admin code' } };
+                }
                 return await updateObject("users", userData, columKey);
             } else {
                 return { data: null, status: false, errorCode: { messenger: 'not allow edit admin' } };
             }
-        }else {
+        } else {
             return await updateObject("users", userData, columKey);
         }
 
