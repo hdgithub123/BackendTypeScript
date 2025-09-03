@@ -41,9 +41,9 @@ async function authentication(username: string, password: string, organizationCo
         const user = userResult.data[0];
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
-            const token = jwt.sign({ userId: user.id, username: user.code, organizationId: user.organizationId }, secretKey, { expiresIn: tokenExpiresIn });
-            const refreshToken = jwt.sign({ userId: user.id, username: user.code,organizationId: user.organizationId }, secretKey, { expiresIn: refreshTokenExpiresIn });
-            return { user: { userId: user.id, username: user.code, organizationId: user.organizationId }, status: true, token, refreshToken, message: null };
+            const token = jwt.sign({ id: user.id, code: user.code, organizationId: user.organizationId }, secretKey, { expiresIn: tokenExpiresIn });
+            const refreshToken = jwt.sign({ id: user.id, code: user.code,organizationId: user.organizationId }, secretKey, { expiresIn: refreshTokenExpiresIn });
+            return { user: { id: user.id, code: user.code, organizationId: user.organizationId }, status: true, token, refreshToken, message: null };
         } else {
             return { status: false, token: null, refreshToken: null, message: 'Invalid username or password' };
         }

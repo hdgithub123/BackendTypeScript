@@ -316,7 +316,7 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 
 CREATE TABLE template_contents (
   id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-  code VARCHAR(50) UNIQUE NOT NULL,
+  code VARCHAR(100) UNIQUE NOT NULL, --chua sua lai
   organizationId CHAR(36) NOT NULL,
   FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
   UNIQUE (organizationId, code),
@@ -325,6 +325,7 @@ CREATE TABLE template_contents (
   content JSON,
   description VARCHAR(255),
   isActive TINYINT(1) NOT NULL DEFAULT 1,
+  isSystem TINYINT(1) DEFAULT 0,
   createdBy VARCHAR(100),
   updatedBy VARCHAR(100),
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

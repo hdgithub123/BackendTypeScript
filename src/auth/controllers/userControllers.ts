@@ -72,9 +72,9 @@ export async function getUsers(req: Request, res: Response) {
 export async function insertUser(req: Request, res: Response, next: Function) {
     try {
         const user = req.body;
-        if (req.user && req.user.username) {
-            user.createdBy = req.user.username;
-            user.updatedBy = req.user.username;
+        if (req.user && req.user.code) {
+            user.createdBy = req.user.code;
+            user.updatedBy = req.user.code;
         } else {
             user.createdBy = 'Register';
         }
@@ -132,7 +132,7 @@ export async function updateUser(req: Request, res: Response, next: Function) {
             user.organizationId = req.user.organizationId;
         }
 
-        const { data, status, errorCode } = await userModel.updateUser(user);
+        const { data, status, errorCode } = await userModel.updateUser(user,req.user);
         if (status) {
             req.result = data;
             res.status(200).json({ data, status, errorCode });
@@ -178,8 +178,7 @@ export async function updateUsers(req: Request, res: Response, next: Function) {
 export async function deleteUser(req: Request, res: Response, next: Function) {
     try {
         const user = { id: req.params.id, organizationId: req.user.organizationId }
-        console.log("user",user)
-        const { data, status, errorCode } = await userModel.deleteUser(user);
+        const { data, status, errorCode } = await userModel.deleteUser(user,req.user);
         if (status) {
             req.result = data;
             res.status(204).json({ data, status, errorCode });

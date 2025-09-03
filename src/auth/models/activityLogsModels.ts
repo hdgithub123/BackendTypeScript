@@ -4,6 +4,8 @@ import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../val
 //Tạo type cho user
 type activeLogs = {
     userId?: string;
+    organizationId?: string;
+    zoneId?:string;
     userName?: string;
     fullName?: string;
     time?: Date;
@@ -11,9 +13,8 @@ type activeLogs = {
     tableName: string;
     description?: string;
     ip?: string;
-    computerName?: string;
     oldData?: object;
-    newData?: object;
+    activeData?: object;
     browserInfo?: object;
     protocol?: string;
     hostname?: string;
@@ -124,15 +125,15 @@ const activityLogsRule: RuleSchema = {
 };
 
 
-export async function getActivityLogs() {
-    const Sqlstring = "Select * from activityLogs";
-    const data = await executeQuery(Sqlstring);
+export async function getActivityLogs(organizationId: string) {
+    const Sqlstring = "Select * from activityLogs where organizationId = ?";
+    const data = await executeQuery(Sqlstring,[organizationId]);
     return data;
 }
 
-export async function getActivityLogsByUsername(username: string) {
-    const Sqlstring = "Select * from activityLogs where userName = ?";
-    const data = await executeQuery(Sqlstring, [username]);
+export async function getActivityLogsByUsername(username: string, organizationId: string) {
+    const Sqlstring = "Select * from activityLogs where userName = ? AND organizationId = ?";
+    const data = await executeQuery(Sqlstring, [username,organizationId]);
     return data;
 }
 

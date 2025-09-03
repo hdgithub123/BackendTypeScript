@@ -4,14 +4,12 @@ import executeQuery from "../../connectSql/mySql/executeQuery";
 import dotenv from 'dotenv';
 dotenv.config();
 
-// const defaultUserID = process.env.ADMIN_ID;
-
 
 const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes: string[] | number[], isAllowChildZone?: boolean }): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Kiểm tra req.user tồn tại và có userId
-      if (!req.user || !('userId' in req.user)) {
+      if (!req.user || !('id' in req.user)) {
         res.status(401).json({ message: "Người dùng chưa đăng nhập!" });
         return; // Dùng return để kết thúc hàm
       }
@@ -39,7 +37,7 @@ const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes:
 
 
 
-      const userId = (req.user as { userId: string }).userId;
+      const userId = (req.user as { id: string }).id;
       // const zoneId = (req.user as { zoneId: string }).zoneId;
       const result = await checkUserPermission({ userId, rightCodes, zoneId, isChildZone });
 

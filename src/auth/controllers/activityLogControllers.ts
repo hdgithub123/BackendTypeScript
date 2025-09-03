@@ -7,7 +7,8 @@ const UAParser = require("ua-parser-js");
 export async function getActivityLogsByUsername(req: Request, res: Response) {
     try {
         const username: string = req.params.username;
-        const { data, status, errorCode } = await activityLogsModels.getActivityLogsByUsername(username);
+        const organizationId = req.user.organizationId
+        const { data, status, errorCode } = await activityLogsModels.getActivityLogsByUsername(username,organizationId);
         if (status && Array.isArray(data) && data.length > 0) {
             res.status(200).json({ data, status, errorCode });
         } else {
@@ -21,7 +22,8 @@ export async function getActivityLogsByUsername(req: Request, res: Response) {
 
 export async function getActivityLogs(req: Request, res: Response) {
     try {
-        const { data, status, errorCode } = await activityLogsModels.getActivityLogs();
+        const organizationId = req.user.organizationId
+        const { data, status, errorCode } = await activityLogsModels.getActivityLogs(organizationId);
         if (status) {
             res.status(200).json({ data, status, errorCode });
         } else {

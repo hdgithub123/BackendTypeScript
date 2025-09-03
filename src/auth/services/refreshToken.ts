@@ -40,7 +40,7 @@ const refreshToken = async (req: Request, res: Response, next: NextFunction) => 
         }
 
         const newAccessToken = jwt.sign(
-          { userId: refreshDecoded.userId, username: refreshDecoded.username, organizationId: refreshDecoded.organizationId },
+          { id: refreshDecoded.id, code: refreshDecoded.code, organizationId: refreshDecoded.organizationId },
           secretKey,
           { expiresIn: tokenExpiresIn }
         );

@@ -10,8 +10,8 @@ export default function insertActivityLogsInfo(
 
         try {
             const resultsData = req.result || [];
-            const userId = req.user?.userId || "unknown";
-            const userName = req.user?.username || 'unknown';
+            const userId = req.user?.id || "unknown";
+            const userName = req.user?.code || 'unknown';
             const action = info?.action ?? "unknown";
             const description = info?.description ?? "unknown";
             const zoneId = req.headers['zone'] ?? "unknown";
