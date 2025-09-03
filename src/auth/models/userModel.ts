@@ -184,9 +184,6 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
     } else {
         userData = { ...user };
     }
-    console.log("userData", userData)
-
-
 
     const { status, results } = validateDataArray([userData], userUpdateAndDeleteRule, messagesEn);
     if (status) {
@@ -194,7 +191,6 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
         const Sqlstring = "Select code from users WHERE id =? AND  organizationId = ? AND code = 'admin'";
         const { data, status: queryStatus, errorCode } = await executeQuery(Sqlstring, [userData.id, userData.organizationId]);
         if (queryStatus && Array.isArray(data) && data.length > 0) {
-            console.log("data",data)
             if (currentUser.id === userData.id) {
                 if (userData.code) {
                     return { data: null, status: false, errorCode: { messenger: 'not allow edit admin code' } };
