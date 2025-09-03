@@ -13,6 +13,7 @@ export interface GroupedExistenceCheckResult {
 export interface MultiFieldsInput {
   tableName: string;
   excludeField?: string; // tên cột dùng để exclude cho tất cả rows (nếu có)
+  whereField?:{[field: string]: string | number | undefined};
   fields: Array<{
     [field: string]: string | number | undefined;
   }>;
@@ -29,12 +30,13 @@ export default async function checkExistenceOfFieldsObjects(
   status: boolean;
   errorCode: string | object;
 }> {
-  const { tableName, fields, excludeField } = input;
+  const { tableName, fields,whereField, excludeField } = input;
 
   const checksForTables = [
     {
       tableName,
       excludeField,
+      whereField,
       fields
     }
   ];

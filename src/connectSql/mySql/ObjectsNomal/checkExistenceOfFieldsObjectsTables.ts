@@ -3,6 +3,7 @@ import executeTransaction from '../executeTransaction';
 interface ExistenceCheckInput {
   tableName: string;
   excludeField?: string;
+  whereField?:{[field: string]: string | number | undefined};
   fields: Array<{
     [field: string]: string | number | undefined;
   }>;
@@ -20,6 +21,7 @@ export interface GroupedExistenceCheckResult {
  * Kiểm tra sự tồn tại của từng giá trị trong danh sách fields.
  * Trả về true nếu giá trị TỒN TẠI trong DB (đã được sử dụng), false nếu KHÔNG tồn tại.
  */
+
 export default async function checkExistenceOfFieldsObjectsTables(
   checks: ExistenceCheckInput[]
 ): Promise<{
@@ -31,7 +33,7 @@ export default async function checkExistenceOfFieldsObjectsTables(
 
   const { data: _ignored, status, errorCode } = await executeTransaction(async (connection) => {
     for (const check of checks) {
-      const { tableName, fields, excludeField } = check;
+      const { tableName, fields, excludeField, whereField } = check;
 
       if (!groupedResult[tableName]) {
         groupedResult[tableName] = {};
@@ -46,13 +48,24 @@ export default async function checkExistenceOfFieldsObjectsTables(
 
         for (const [field, value] of Object.entries(fieldValues)) {
           if (value === undefined || value === null) {
-            rowResult[field] = false; // Không tồn tại vì giá trị undefined/null
+            rowResult[field] = false;
             continue;
           }
 
           let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE ${field} = ?`;
           const params: (string | number)[] = [value];
 
+          // Thêm điều kiện whereField nếu có
+          if (whereField) {
+            for (const [whereKey, whereValue] of Object.entries(whereField)) {
+              if (whereValue !== undefined && whereValue !== null) {
+                query += ` AND ${whereKey} = ?`;
+                params.push(whereValue);
+              }
+            }
+          }
+
+          // Thêm điều kiện excludeField nếu hợp lệ
           if (
             excludeField &&
             excludeIdValue !== undefined &&
@@ -66,7 +79,7 @@ export default async function checkExistenceOfFieldsObjectsTables(
           const [rows] = await connection.execute(query, params);
           const count = Number((rows as any)[0]?.count ?? 0);
 
-          rowResult[field] = count > 0; // CHUYỂN ĐỔI Ở ĐÂY: tồn tại => true
+          rowResult[field] = count > 0;
         }
 
         groupedResult[tableName][String(i)] = rowResult;

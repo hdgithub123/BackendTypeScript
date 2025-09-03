@@ -14,6 +14,7 @@ export interface GroupedExistenceCheckResult {
 export interface ExistenceCheckInputSingle {
   tableName: string;
   excludeField?: string;
+  whereField?:{[field: string]: string | number | undefined};
   fields: {
     [field: string]: string | number | undefined;
   };
@@ -34,6 +35,7 @@ export default async function checkExistenceOfFieldsObject(
     {
       tableName: input.tableName,
       excludeField: input.excludeField,
+      whereField: input.whereField,
       fields: [input.fields],
     }
   ];

@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,checkExistenceOfFieldsObject,checkExistenceOfFieldsObjects } from '../../connectSql'
-import  { deleteObjectsTables } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
+import { deleteObjectsTables } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
 dotenv.config();
@@ -11,196 +11,112 @@ const defaultUserID = process.env.ADMIN_ID;
 
 //Tạo type cho user
 export type user = {
-    username: string;
-    password: string;
-    fullName?: string;
+    id?: string;
+    code?: string;
+    password?: string;
+    name?: string;
+    address?: string;
     email?: string;
     phone?: string;
+    image?: string;
+    organizationId: string;
     isActive?: boolean;
+    isSystem?: boolean;
     createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
 };
 
 
 const userInsertRule: RuleSchema = {
-    id: {
-        type: "string",
-        format: "uuid",
-        required: false
-    },
-    username: {
-        type: "string",
-        required: true,
-        min: 3,
-        max: 50
-    },
-    password: {
-        type: "string",
-        required: true,
-        max: 255
-    },
-    fullName: {
-        type: "string",
-        required: false,
-        max: 100
-    },
-    email: {
-        type: "string",
-        format: "email",
-        required: true,
-        max: 100
-    },
-    phone: {
-        type: "string",
-        required: false,
-        format: "phone",
-        max: 20
-    },
-    isActive: {
-        type: "boolean",
-        required: true
-    },
-    createdAt: {
-        type: "string",
-        format: "datetime",
-        required: false
-    },
-    createdBy: {
-        type: "string",
-        required: false,
-        max: 100
-    }
+  id: { type: "string", format: "uuid", required: false },
+  code: { type: "string", required: true, min: 2, max: 100 },
+  password: { type: "string", required: true, max: 255 },
+  name: { type: "string", required: true, min: 2, max: 255 },
+  address: { type: "string", required: false, max: 255 },
+  email: { type: "string", format: "email", required: true, max: 100 },
+  phone: { type: "string", required: false, format: "phone", max: 20 },
+  image: { type: "string", required: false, max: 255 },
+  organizationId: { type: "string", format: "uuid", required: true },
+  isActive: { type: "boolean", required: true },
+  isSystem: { type: "boolean", required: false },
+  createdBy: { type: "string", required: false, max: 100 },
+  updatedBy: { type: "string", required: false, max: 100 },
+  createdAt: { type: "string", format: "datetime", required: false },
+  updatedAt: { type: "string", format: "datetime", required: false }
 };
 
 
-const userUpdateAnDeleteRule: RuleSchema = {
-    id: {
-        type: "string",
-        format: "uuid",
-        required: true
-    },
-    username: {
-        type: "string",
-        required: false,
-        min: 3,
-        max: 50
-    },
-    password: {
-        type: "string",
-        required: false,
-        max: 255
-    },
-    fullName: {
-        type: "string",
-        required: false,
-        max: 100
-    },
-    email: {
-        type: "string",
-        format: "email",
-        required: false,
-        max: 100
-    },
-    phone: {
-        type: "string",
-        required: false,
-        format: "phone",
-        max: 20
-    },
-    isActive: {
-        type: "boolean",
-        required: false
-    },
-    createdAt: {
-        type: "string",
-        format: "datetime",
-        required: false
-    },
-    createdBy: {
-        type: "string",
-        required: false,
-        max: 100
-    }
+const userUpdateAndDeleteRule: RuleSchema = {
+  id: { type: "string", format: "uuid", required: true },
+  code: { type: "string", required: false, min: 2, max: 100 },
+  password: { type: "string", required: false, max: 255 },
+  name: { type: "string", required: false, min: 2, max: 255 },
+  address: { type: "string", required: false, max: 255 },
+  email: { type: "string", format: "email", required: false, max: 100 },
+  phone: { type: "string", required: false, format: "phone", max: 20 },
+  image: { type: "string", required: false, max: 255 },
+  organizationId: { type: "string", format: "uuid", required: true },
+  isActive: { type: "boolean", required: false },
+  isSystem: { type: "boolean", required: false },
+  createdBy: { type: "string", required: false, max: 100 },
+  updatedBy: { type: "string", required: false, max: 100 },
+  createdAt: { type: "string", format: "datetime", required: false },
+  updatedAt: { type: "string", format: "datetime", required: false }
 };
+
+
 
 const userCheckRule: RuleSchema = {
-    id: {
-        type: "string",
-        format: "uuid",
-        required: false
-    },
-    username: {
-        type: "string",
-        required: false,
-        min: 3,
-        max: 50
-    },
-    password: {
-        type: "string",
-        required: false,
-        max: 255
-    },
-    fullName: {
-        type: "string",
-        required: false,
-        max: 100
-    },
-    email: {
-        type: "string",
-        format: "email",
-        required: false,
-        max: 100
-    },
-    phone: {
-        type: "string",
-        required: false,
-        format: "phone",
-        max: 20
-    },
-    isActive: {
-        type: "boolean",
-        required: false
-    },
-    createdAt: {
-        type: "string",
-        format: "datetime",
-        required: false
-    },
-    createdBy: {
-        type: "string",
-        required: false,
-        max: 100
-    }
+  id: { type: "string", format: "uuid", required: false },
+  code: { type: "string", required: false, min: 2, max: 100 },
+  password: { type: "string", required: false, max: 255 },
+  name: { type: "string", required: false, min: 2, max: 255 },
+  address: { type: "string", required: false, max: 255 },
+  email: { type: "string", format: "email", required: false, max: 100 },
+  phone: { type: "string", required: false, format: "phone", max: 20 },
+  image: { type: "string", required: false, max: 255 },
+  organizationId: { type: "string", format: "uuid", required: false },
+  isActive: { type: "boolean", required: false },
+  isSystem: { type: "boolean", required: false },
+  createdBy: { type: "string", required: false, max: 100 },
+  updatedBy: { type: "string", required: false, max: 100 },
+  createdAt: { type: "string", format: "datetime", required: false },
+  updatedAt: { type: "string", format: "datetime", required: false }
 };
 
 
 export type userExistanceCheck = {
     fields: {
-    id?: string;
-    username?: string;
-    email?: string;
+        id?: string;
+        code?: string;
+        email?: string;
     }
     excludeField?: string;
+    whereField?: { [field: string]: string | number | undefined };
 };
 
 
 export type usersExistanceCheck = {
     fields: Array<{
-    id?: string;
-    username?: string;
-    email?: string;
+        id?: string;
+        code?: string;
+        email?: string;
     }>
     excludeField?: string;
+    whereField?: { [field: string]: string | number | undefined };
 };
 
 
 
-export async function getUser(userName: string) {
-    const sqlQuery = "SELECT * FROM users WHERE userName = ?";
-    return await executeQuery(sqlQuery, [userName]);
+export async function getUser(userName: string, organizationId: string) {
+    const sqlQuery = "SELECT * FROM users WHERE code = ? AND organizationId = ?";
+    return await executeQuery(sqlQuery, [userName, organizationId]);
 }
-export async function getUsers() {
-    const Sqlstring = "Select * from users";
-    const data = await executeQuery(Sqlstring);
+export async function getUsers(organizationId: string) {
+    const Sqlstring = "Select * from users WHERE organizationId = ?";
+    const data = await executeQuery(Sqlstring, [organizationId]);
     return data;
 
 }
@@ -208,8 +124,8 @@ export async function getUsers() {
 
 export async function checkExistenceUser(userCheck: userExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([userCheck.fields], userCheckRule, messagesEn);
-    if (status) {         
-        const { data, status, errorCode} = await checkExistenceOfFieldsObject({tableName:"users",...userCheck});
+    if (status) {
+        const { data, status, errorCode } = await checkExistenceOfFieldsObject({ tableName: "users", ...userCheck });
         return { data: data.users[0], status: status, errorCode };
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -217,8 +133,8 @@ export async function checkExistenceUser(userCheck: userExistanceCheck): Promise
 
 export async function checkExistenceUsers(usersCheck: usersExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(usersCheck.fields, userCheckRule, messagesEn);
-    if (status) {         
-        const { data, status, errorCode} = await checkExistenceOfFieldsObjects({tableName:"users",...usersCheck});
+    if (status) {
+        const { data, status, errorCode } = await checkExistenceOfFieldsObjects({ tableName: "users", ...usersCheck });
         return { data: data.users, status: status, errorCode };
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -231,17 +147,17 @@ export async function insertUser(user: user): Promise<{ data: Object | null, sta
     const hashedPassword = await bcrypt.hash(password, 10);
     const reuser = { ...user, password: hashedPassword }
     const { status, results } = validateDataArray([reuser], userInsertRule, messagesEn);
-    if (status) {
+    if (status) { 
         return await insertObject("users", reuser);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
 
 
-export async function updateUser(userId: string, user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function updateUser(user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { password } = user;
     let hashedPassword = null;
-    let userData = {}
+    let userData = user
     if (password) {
         hashedPassword = await bcrypt.hash(password, 10);
         userData = { ...user, password: hashedPassword };
@@ -249,28 +165,26 @@ export async function updateUser(userId: string, user: user): Promise<{ data: Ob
         userData = { ...user };
     }
 
-    const { status, results } = validateDataArray([userData], userUpdateAnDeleteRule, messagesEn);
+    const { status, results } = validateDataArray([userData], userUpdateAndDeleteRule, messagesEn);
     if (status) {
-        const columKey = { id: userId }; // Use userId as the columKey
+        const columKey = { id: userData.id, organizationId: userData.organizationId }; // Use userId as the columKey
         return await updateObject("users", userData, columKey);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
 
 
-export async function deleteUser(userId: string | number): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    if (userId === defaultUserID) {
-        return { data: null, status: false, errorCode: 'CANNOT_DELETE_ADMIN_USER' };
-    }
+export async function deleteUser(user: user): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
-        const columKey = { id: userId }; // Use userId as the columKey
-        const { status, results } = validateDataArray([columKey], userUpdateAnDeleteRule, messagesEn);
+        const columKey = { id: user.id, organizationId: user.organizationId }; // Use userId as the columKey
+        const { status, results } = validateDataArray([columKey], userUpdateAndDeleteRule, messagesEn);
+          console.log("results",results)
         if (status) {
-            // return await deleteObject("users", { id: userId });
-            return await deleteObjectsTables([
-                { table: "users_zones_roles", columKey: [ { userId: userId } ] },
-                { table: "users", columKey: [ { id: userId } ] }
+            const data = await deleteObjectsTables([
+                { table: "users", columKey: [columKey] }
             ]);
+                console.log("data",data)
+            return data
         }
         return { data: null, status: status, errorCode: { failData: results } };
 
@@ -296,8 +210,6 @@ export async function insertUsers(users: Array<user>): Promise<{ data: Object | 
         }
         return { data: null, status: status, errorCode: { failData: results } };
 
-
-
     } catch (error) {
         console.error(error);
         const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
@@ -306,7 +218,7 @@ export async function insertUsers(users: Array<user>): Promise<{ data: Object | 
 }
 
 
-export async function updateUsers(users: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function updateUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         const hashedUsers = await Promise.all(users.map(async user => {
             if (user.password) {
@@ -316,9 +228,9 @@ export async function updateUsers(users: Array<{ [key: string]: any }>): Promise
             return user;
         }));
 
-        const { status, results } = validateDataArray(hashedUsers, userUpdateAnDeleteRule, messagesEn);
+        const { status, results } = validateDataArray(hashedUsers, userUpdateAndDeleteRule, messagesEn);
         if (status) {
-            return await updateObjects("users", hashedUsers, ["id"]);
+            return await updateObjects("users", hashedUsers, ["id", "organizationId"]);
         }
         return { data: null, status: status, errorCode: { failData: results } };
 
@@ -329,15 +241,16 @@ export async function updateUsers(users: Array<{ [key: string]: any }>): Promise
     }
 }
 
-export async function deleteUsers(userIds: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    // Kiểm tra xem có cố gắng xóa người dùng quản trị hay không
-    if (userIds.some(user => user.id === defaultUserID)) {
-        return { data: null, status: false, errorCode: 'CANNOT_DELETE_ADMIN_USER' };
-    }
-
-    const { status, results } = validateDataArray(userIds, userUpdateAnDeleteRule, messagesEn);
+export async function deleteUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    const { status, results } = validateDataArray(users, userUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await deleteObjects("users", userIds);
+        // lặp qua user lấy ra id và organizationId
+        const deleteUsers = users.map(user => ({
+            id: user.id,
+            organizationId: user.organizationId
+        }));
+
+        return await deleteObjects("users", deleteUsers);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
