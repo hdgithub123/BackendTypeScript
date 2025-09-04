@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
 import { deleteObjectsTables } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
@@ -208,24 +208,6 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
 }
 
 
-// export async function deleteUser(user: user, currentUser: userUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-//     try {
-//         const columKey = { id: user.id, organizationId: user.organizationId }; // Use userId as the columKey
-//         const { status, results } = validateDataArray([columKey], userUpdateAndDeleteRule, messagesEn);
-//         if (status) {
-//             return await deleteObject("users", columKey);
-//         }
-//         return { data: null, status: status, errorCode: { failData: results } };
-
-//     } catch (error) {
-//         console.error(error);
-//         const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
-//         return { data: null, status: false, errorCode };
-//     }
-
-// }
-
-
 
 
 export async function deleteUser(user: userUpdateAndDelete, currentUser: userUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
@@ -244,11 +226,11 @@ export async function deleteUser(user: userUpdateAndDelete, currentUser: userUpd
 
         if (queryStatus && adminCheck && Array.isArray(adminCheck) && adminCheck.length > 0) {
             // User is admin → block deletion completely
-            return { data: null, status: false, errorCode: { messenger: 'Không được phép xóa tài khoản admin' } };
+            return { data: null, status: false, errorCode: { messenger: 'Not allow delete admin' } };
         }
 
         // Proceed to delete
-        return await deleteObject("users", columKey);
+        return await deleteObjectNotIsSystem("users", columKey);
 
     } catch (error) {
         console.error(error);
@@ -414,7 +396,7 @@ export async function deleteUsers(users: Array<user>): Promise<{ data: Object | 
         }));
 
         // Thực hiện xóa
-        return await deleteObjects("users", deleteTargets);
+        return await deleteObjectsNotIsSystem("users", deleteTargets);
 
     } catch (error) {
         console.error(error);
