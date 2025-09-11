@@ -51,18 +51,18 @@ export type userUpdateAndDelete = {
 
 const userInsertRule: RuleSchema = {
     id: { type: "string", format: "uuid", required: false },
-    code: { type: "string", required: true, min: 2, max: 100 },
-    password: { type: "string", required: true, max: 255 },
-    name: { type: "string", required: true, min: 2, max: 255 },
-    address: { type: "string", required: false, max: 255 },
-    email: { type: "string", format: "email", required: true, max: 100 },
-    phone: { type: "string", required: false, format: "phone", max: 20 },
-    image: { type: "string", required: false, max: 255 },
+    code: { type: "string", required: true, minLength: 2, maxLength: 100 },
+    password: { type: "string", required: true, maxLength: 255 },
+    name: { type: "string", required: true, minLength: 2, maxLength: 255 },
+    address: { type: "string", required: false, maxLength: 255 },
+    email: { type: "string", format: "email", required: true, maxLength: 100 },
+    phone: { type: "string", required: false, format: "phone", maxLength: 20 },
+    image: { type: "string", required: false, maxLength: 255 },
     organizationId: { type: "string", format: "uuid", required: true },
     isActive: { type: "boolean", required: true },
     isSystem: { type: "boolean", required: false },
-    createdBy: { type: "string", required: false, max: 100 },
-    updatedBy: { type: "string", required: false, max: 100 },
+    createdBy: { type: "string", required: false, maxLength: 100 },
+    updatedBy: { type: "string", required: false, maxLength: 100 },
     createdAt: { type: "string", format: "datetime", required: false },
     updatedAt: { type: "string", format: "datetime", required: false }
 };
@@ -70,18 +70,18 @@ const userInsertRule: RuleSchema = {
 
 const userUpdateAndDeleteRule: RuleSchema = {
     id: { type: "string", format: "uuid", required: true },
-    code: { type: "string", required: false, min: 2, max: 100 },
-    password: { type: "string", required: false, max: 255 },
-    name: { type: "string", required: false, min: 2, max: 255 },
-    address: { type: "string", required: false, max: 255 },
-    email: { type: "string", format: "email", required: false, max: 100 },
-    phone: { type: "string", required: false, format: "phone", max: 20 },
-    image: { type: "string", required: false, max: 255 },
+    code: { type: "string", required: false, minLength: 2, maxLength: 100 },
+    password: { type: "string", required: false, maxLength: 255 },
+    name: { type: "string", required: false, minLength: 2, maxLength: 255 },
+    address: { type: "string", required: false, maxLength: 255 },
+    email: { type: "string", format: "email", required: false, maxLength: 100 },
+    phone: { type: "string", required: false, format: "phone", maxLength: 20 },
+    image: { type: "string", required: false, maxLength: 255 },
     organizationId: { type: "string", format: "uuid", required: true },
     isActive: { type: "boolean", required: false },
     isSystem: { type: "boolean", required: false },
-    createdBy: { type: "string", required: false, max: 100 },
-    updatedBy: { type: "string", required: false, max: 100 },
+    createdBy: { type: "string", required: false, maxLength: 100 },
+    updatedBy: { type: "string", required: false, maxLength: 100 },
     createdAt: { type: "string", format: "datetime", required: false },
     updatedAt: { type: "string", format: "datetime", required: false }
 };
@@ -90,18 +90,18 @@ const userUpdateAndDeleteRule: RuleSchema = {
 
 const userCheckRule: RuleSchema = {
     id: { type: "string", format: "uuid", required: false },
-    code: { type: "string", required: false, min: 2, max: 100 },
-    password: { type: "string", required: false, max: 255 },
-    name: { type: "string", required: false, min: 2, max: 255 },
-    address: { type: "string", required: false, max: 255 },
-    email: { type: "string", format: "email", required: false, max: 100 },
-    phone: { type: "string", required: false, format: "phone", max: 20 },
-    image: { type: "string", required: false, max: 255 },
+    code: { type: "string", required: false, minLength: 2, maxLength: 100 },
+    password: { type: "string", required: false, maxLength: 255 },
+    name: { type: "string", required: false, minLength: 2, maxLength: 255 },
+    address: { type: "string", required: false, maxLength: 255 },
+    email: { type: "string", format: "email", required: false, maxLength: 100 },
+    phone: { type: "string", required: false, format: "phone", maxLength: 20 },
+    image: { type: "string", required: false, maxLength: 255 },
     organizationId: { type: "string", format: "uuid", required: false },
     isActive: { type: "boolean", required: false },
     isSystem: { type: "boolean", required: false },
-    createdBy: { type: "string", required: false, max: 100 },
-    updatedBy: { type: "string", required: false, max: 100 },
+    createdBy: { type: "string", required: false, maxLength: 100 },
+    updatedBy: { type: "string", required: false, maxLength: 100 },
     createdAt: { type: "string", format: "datetime", required: false },
     updatedAt: { type: "string", format: "datetime", required: false }
 };
@@ -140,6 +140,19 @@ export async function getUsers(organizationId: string) {
     return data;
 
 }
+
+
+export async function getIdUsersByCodes(organizationId: string, codes: string[]) {
+  if (!codes.length) return { data: [], status: true, errorCode: {} };
+
+  const placeholders = codes.map(() => '?').join(', ');
+  const query = `SELECT id, code FROM users WHERE organizationId = ? AND code IN (${placeholders})`;
+  const params = [organizationId, ...codes];
+
+  const result = await executeQuery(query, params);
+  return result;
+}
+
 
 
 export async function checkExistenceUser(userCheck: userExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
@@ -193,11 +206,11 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
         if (queryStatus && Array.isArray(data) && data.length > 0) {
             if (currentUser.id === userData.id) {
                 if (userData.code) {
-                    return { data: null, status: false, errorCode: { messenger: 'not allow edit admin code' } };
+                    return { data: null, status: false, errorCode: { failData: { code: 'not allow edit admin code' } } };
                 }
                 return await updateObject("users", userData, columKey);
             } else {
-                return { data: null, status: false, errorCode: { messenger: 'not allow edit admin' } };
+                return { data: null, status: false, errorCode: { failData: { code: 'not allow edit admin' } } };
             }
         } else {
             return await updateObject("users", userData, columKey);
@@ -226,7 +239,7 @@ export async function deleteUser(user: userUpdateAndDelete, currentUser: userUpd
 
         if (queryStatus && adminCheck && Array.isArray(adminCheck) && adminCheck.length > 0) {
             // User is admin → block deletion completely
-            return { data: null, status: false, errorCode: { messenger: 'Not allow delete admin' } };
+            return { data: null, status: false, errorCode: { failData: { code: 'Not allow delete admin' } } };
         }
 
         // Proceed to delete
@@ -263,30 +276,6 @@ export async function insertUsers(users: Array<user>): Promise<{ data: Object | 
 }
 
 
-// export async function updateUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-//     try {
-//         const hashedUsers = await Promise.all(users.map(async user => {
-//             if (user.password) {
-//                 const hashedPassword = await bcrypt.hash(user.password, 10);
-//                 return { ...user, password: hashedPassword };
-//             }
-//             return user;
-//         }));
-
-//         const { status, results } = validateDataArray(hashedUsers, userUpdateAndDeleteRule, messagesEn);
-//         if (status) {
-//             return await updateObjects("users", hashedUsers, ["id", "organizationId"]);
-//         }
-//         return { data: null, status: status, errorCode: { failData: results } };
-
-//     } catch (error) {
-//         console.error(error);
-//         const errorCode = typeof error === 'object' && error !== null && 'code' in error ? (error as any).code : 'UNKNOWN_ERROR';
-//         return { data: null, status: false, errorCode };
-//     }
-// }
-
-
 
 export async function updateUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
@@ -320,7 +309,7 @@ export async function updateUsers(users: Array<user>): Promise<{ data: Object | 
             return {
                 data: null,
                 status: false,
-                errorCode: { messenger: 'Không được phép sửa tài khoản admin' }
+                errorCode: { failData: { code: 'not edit admin account' } }
             };
         }
 
@@ -341,22 +330,6 @@ export async function updateUsers(users: Array<user>): Promise<{ data: Object | 
 }
 
 
-
-
-
-// export async function deleteUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-//     const { status, results } = validateDataArray(users, userUpdateAndDeleteRule, messagesEn);
-//     if (status) {
-//         // lặp qua user lấy ra id và organizationId
-//         const deleteUsers = users.map(user => ({
-//             id: user.id,
-//             organizationId: user.organizationId
-//         }));
-
-//         return await deleteObjects("users", deleteUsers);
-//     }
-//     return { data: null, status: status, errorCode: { failData: results } };
-// }
 
 export async function deleteUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
@@ -385,7 +358,7 @@ export async function deleteUsers(users: Array<user>): Promise<{ data: Object | 
             return {
                 data: null,
                 status: false,
-                errorCode: { messenger: 'Không được phép xóa tài khoản admin' }
+                errorCode: { failData: { code: 'not delete admin account' } }
             };
         }
 

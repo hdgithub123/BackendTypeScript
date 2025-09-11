@@ -40,7 +40,7 @@ const activityLogsRule: RuleSchema = {
     username: {
         type: "string",
         required: false,
-        max: 100
+        maxLength: 100
     },
 
     time: {
@@ -52,13 +52,13 @@ const activityLogsRule: RuleSchema = {
     action: {
         type: "string",
         required: false,
-        max: 50,
+        maxLength: 50,
     },
 
     tableName: {
         type: "string",
         required: false,
-        max: 100
+        maxLength: 100
     },
 
     description: {
@@ -70,7 +70,7 @@ const activityLogsRule: RuleSchema = {
         type: "string",
         format: "ip",
         required: false,
-        max: 45
+        maxLength: 45
     },
 
     oldData: {
@@ -91,14 +91,14 @@ const activityLogsRule: RuleSchema = {
     protocol: {
         type: "string",
         required: false,
-        max: 10,
+        maxLength: 10,
         enum: ["http", "https"]
     },
 
     hostname: {
         type: "string",
         required: false,
-        max: 255
+        maxLength: 255
     },
 
     originalUrl: {
@@ -109,7 +109,7 @@ const activityLogsRule: RuleSchema = {
     method: {
         type: "string",
         required: false,
-        max: 10,
+        maxLength: 10,
         enum: ["GET", "POST", "PUT", "DELETE", "PATCH"]
     },
 

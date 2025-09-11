@@ -21,13 +21,13 @@ const rightsInsertSchema: RuleSchema = {
     name: {
         type: "string",
         required: true,
-        max: 50
+        maxLength: 50
     },
 
     code: {
         type: "string",
         required: true,
-        max: 50
+        maxLength: 50
     },
 
     description: {
@@ -44,7 +44,7 @@ const rightsInsertSchema: RuleSchema = {
     createdBy: {
         type: "string",
         required: false,
-        max: 100
+        maxLength: 100
     }
 };
 

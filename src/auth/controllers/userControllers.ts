@@ -69,6 +69,24 @@ export async function getUsers(req: Request, res: Response) {
     }
 }
 
+
+export async function getIdUsersByCodes(req: Request, res: Response) {
+    try {
+        const organizationId = req.user.organizationId
+        const codes: string[] = req.body.data; // Giả sử bạn gửi mã người dùng trong body dưới dạng mảng
+        const { data, status, errorCode } = await userModel.getIdUsersByCodes(organizationId, codes);
+        if (status) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(500).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+
+}
+
 export async function insertUser(req: Request, res: Response, next: Function) {
     try {
         const user = req.body;
@@ -100,11 +118,12 @@ export async function insertUser(req: Request, res: Response, next: Function) {
 export async function insertUsers(req: Request, res: Response, next: Function) {
     try {
         let users = req.body; // Lấy dữ liệu từ body của request
-
         // Đi qua array users gán user.organizationId = req.user.organizationId
         if (Array.isArray(users) && req.user && req.user.organizationId) {
             users = users.map(user => ({
                 ...user,
+                createdBy: req.user.code ?? 'Register',
+                updatedBy: req.user.code ?? 'Register',
                 organizationId: req.user.organizationId
             }));
         }

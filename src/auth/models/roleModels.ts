@@ -20,12 +20,12 @@ const roleInsertRule: RuleSchema = {
     name: {
         type: 'string',
         required: true,
-        max: 50,
+        maxLength: 50,
     },
     code: {
         type: 'string',
         required: true,
-        max: 50
+        maxLength: 50
     },
     description: {
         type: 'string',
@@ -39,7 +39,7 @@ const roleInsertRule: RuleSchema = {
     createdBy: {
         type: 'string',
         required: false,
-        max: 100
+        maxLength: 100
     }
 }
 
@@ -52,12 +52,12 @@ const roleUpdateAndDeleteRule: RuleSchema = {
     name: {
         type: 'string',
         required: false,
-        max: 50,
+        maxLength: 50,
     },
     code: {
         type: 'string',
         required: false,
-        max: 50
+        maxLength: 50
     },
     description: {
         type: 'string',
@@ -71,7 +71,7 @@ const roleUpdateAndDeleteRule: RuleSchema = {
     createdBy: {
         type: 'string',
         required: false,
-        max: 100
+        maxLength: 100
     }
 }
 

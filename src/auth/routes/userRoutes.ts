@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-import {getUsers,insertUsers,updateUsers,deleteUsers,getUser,insertUser,updateUser,deleteUser,checkExistenceUser,checkExistenceUsers} from '../controllers/userControllers';
+import {getUsers,insertUsers,updateUsers,deleteUsers,getUser,insertUser,updateUser,deleteUser,checkExistenceUser,checkExistenceUsers,getIdUsersByCodes} from '../controllers/userControllers';
 import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
 
 
@@ -16,6 +16,8 @@ router.post('/list',authorization,checkPermission({rightCodes: ["PostUsers"], is
 router.put('/list',authorization,checkPermission({rightCodes: ["PutUsers"], isAllowChildZone: false}), updateUsers,insertActivityLogsInfo({action: 'updateUsers',tableName: 'user',description:"update users"}));
 router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteUsers"], isAllowChildZone: false}), deleteUsers,insertActivityLogsInfo({action: 'deleteUsers',tableName: 'user',description:"delete users"}));
 
+
+router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetUsers", "PutUsers"], isAllowChildZone: true}),getIdUsersByCodes);
 router.post('/check-user',authorization,checkPermission({rightCodes: ["PostUser","PutUser"], isAllowChildZone: false}),checkExistenceUser);
 //router.post('/check-user',checkExistenceUser);
 router.post('/check-users',authorization,checkPermission({rightCodes: ["PostUsers","PutUsers"], isAllowChildZone: false}),checkExistenceUsers);
