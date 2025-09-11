@@ -59,7 +59,7 @@ const userInsertRule: RuleSchema = {
     phone: { type: "string", required: false, format: "phone", maxLength: 20 },
     image: { type: "string", required: false, maxLength: 255 },
     organizationId: { type: "string", format: "uuid", required: true },
-    isActive: { type: "boolean", required: true },
+    isActive: { type: "boolean", required: false },
     isSystem: { type: "boolean", required: false },
     createdBy: { type: "string", required: false, maxLength: 100 },
     updatedBy: { type: "string", required: false, maxLength: 100 },

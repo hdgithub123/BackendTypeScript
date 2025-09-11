@@ -55,7 +55,7 @@ CREATE TABLE users (
     FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
     UNIQUE (organizationId, code),
 	UNIQUE (organizationId, email),
-    isActive TINYINT(1) NOT NULL,
+    isActive TINYINT(1) NOT NULL DEFAULT 0,
     isSystem TINYINT(1) DEFAULT 0, 
     createdBy VARCHAR(100),
     updatedBy VARCHAR(100),
