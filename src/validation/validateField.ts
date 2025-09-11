@@ -114,9 +114,9 @@ export function validateField(
       errors.push(messages.type || 'Invalid boolean value.');
     }
 
-    // if (schema.enum && !schema.enum.includes(value)) {
-    //   errors.push(messages.enum || `Must be one of: ${schema.enum.join(', ')}.`);
-    // }
+    if (schema.enum && !schema.enum.includes(value)) {
+      errors.push(messages.enum || `Must be one of: ${schema.enum.join(', ')}.`);
+    }
   }
 
   // 🔢 Number validation

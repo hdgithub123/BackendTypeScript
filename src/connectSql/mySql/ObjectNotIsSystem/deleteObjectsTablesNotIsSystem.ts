@@ -46,7 +46,7 @@ export default async function deleteObjectsTablesNotIsSystem(
                     throw {
                         data: [],
                         status: false,
-                        errorCode: { messenger: "Cannot delete system records" }
+                        errorCode: { failData:{isSystem: "Cannot delete system records" } }
                     }
                 }
 
