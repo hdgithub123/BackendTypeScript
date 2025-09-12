@@ -1,3 +1,4 @@
+import { fail } from 'assert';
 import executeTransaction from '../executeTransaction';
 require('dotenv').config();
 
@@ -63,13 +64,7 @@ export default async function updateObjectsTablesNotIsSystem(
                 if (setKeys.length === 0) continue; // ➡️ Bỏ qua nếu không có gì để cập nhật
                 if (setKeys.includes('isSystem')) {
                     throw {
-                        data: null,
-                        status: false,
-                        errorCode: {
-                            message: `not alow update 'isSystem' in '${table}'`,
-                            table,
-                            item
-                        }
+                        failData: {isSystem: `not alow update 'isSystem' in '${table}'` }
                     };
                 }
 

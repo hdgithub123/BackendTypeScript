@@ -309,7 +309,7 @@ export async function updateUsers(users: Array<user>): Promise<{ data: Object | 
             return {
                 data: null,
                 status: false,
-                errorCode: { failData: { code: 'not edit admin account' } }
+                errorCode: { failData: { code: 'Not allow delete admin' } }
             };
         }
 

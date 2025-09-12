@@ -44,9 +44,8 @@ export default async function deleteObjectsTablesNotIsSystem(
                 const hasSystemRecord = (rows as any[]).some(row => row.isSystem === true || row.isSystem === 1);
                 if (hasSystemRecord) {
                     throw {
-                        data: [],
-                        status: false,
-                        errorCode: { failData:{isSystem: "Cannot delete system records" } }
+
+                        failData: { isSystem: "Cannot delete system records" }
                     }
                 }
 

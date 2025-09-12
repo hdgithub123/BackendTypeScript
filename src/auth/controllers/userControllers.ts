@@ -147,6 +147,16 @@ export async function updateUser(req: Request, res: Response, next: Function) {
     try {
         const user = req.body;
         user.id = req.params.id;
+        // Gán updatedBy từ req.user.code
+        //gán updatedAt là thời gian hiện tại ép sang string
+        if (req.user && req.user.code) {
+            user.updatedBy = req.user.code;
+        } else {
+            user.updatedBy = 'Unknown';
+        }
+        const now = new Date();
+        user.updatedAt = now.toISOString().slice(0, 19).replace('T', ' ');
+
         if (req.user && req.user.organizationId) {
             user.organizationId = req.user.organizationId;
         }
@@ -174,7 +184,9 @@ export async function updateUsers(req: Request, res: Response, next: Function) {
         if (Array.isArray(users) && req.user && req.user.organizationId) {
             users = users.map(user => ({
                 ...user,
-                organizationId: req.user.organizationId
+                organizationId: req.user.organizationId,
+                updatedBy: req.user.code ?? 'Unknown',
+                updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
             }));
         }
 
