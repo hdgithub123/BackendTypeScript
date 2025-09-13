@@ -11,7 +11,6 @@ dotenv.config();
 export type organization = {
     id?: string;
     code?: string;
-    password?: string;
     name?: string;
     address?: string;
     isActive?: boolean;
@@ -28,7 +27,6 @@ export type organization = {
 export type organizationUpdateAndDelete = {
     id: string;
     code?: string;
-    password?: string;
     name?: string;
     address?: string;
     isActive?: boolean;
@@ -42,7 +40,6 @@ export type organizationUpdateAndDelete = {
 const organizationInsertRule: RuleSchema = {
     id: { type: "string", format: "uuid", required: false },
     code: { type: "string", required: true, minLength: 2, maxLength: 100 },
-    password: { type: "string", required: true, maxLength: 255 },
     name: { type: "string", required: true, minLength: 2, maxLength: 255 },
     address: { type: "string", required: false, maxLength: 255 },
     isActive: { type: "boolean", required: false },
@@ -57,7 +54,6 @@ const organizationInsertRule: RuleSchema = {
 const organizationUpdateAndDeleteRule: RuleSchema = {
     id: { type: "string", format: "uuid", required: true },
     code: { type: "string", required: false, minLength: 2, maxLength: 100 },
-    password: { type: "string", required: false, maxLength: 255 },
     name: { type: "string", required: false, minLength: 2, maxLength: 255 },
     address: { type: "string", required: false, maxLength: 255 },
     isActive: { type: "boolean", required: false },
@@ -73,7 +69,6 @@ const organizationUpdateAndDeleteRule: RuleSchema = {
 const organizationCheckRule: RuleSchema = {
     id: { type: "string", format: "uuid", required: false },
     code: { type: "string", required: false, minLength: 2, maxLength: 100 },
-    password: { type: "string", required: false, maxLength: 255 },
     name: { type: "string", required: false, minLength: 2, maxLength: 255 },
     address: { type: "string", required: false, maxLength: 255 },
     isActive: { type: "boolean", required: false },
