@@ -1,11 +1,9 @@
 const bcrypt = require('bcrypt');
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects,insertObjectNotIsSystem,insertObjectsNotIsSystem, updateObject, updateObjects,updateObjectNotIsSystem,updateObjectsNotIsSystem, deleteObject, deleteObjects,deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
 import { deleteObjectsTables } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
 dotenv.config();
-
-const defaultUserID = process.env.ADMIN_ID;
 
 
 
@@ -181,7 +179,7 @@ export async function insertUser(user: user): Promise<{ data: Object | null, sta
     const reuser = { ...user, password: hashedPassword }
     const { status, results } = validateDataArray([reuser], userInsertRule, messagesEn);
     if (status) {
-        return await insertObject("users", reuser);
+        return await insertObjectNotIsSystem("users", reuser);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -206,14 +204,14 @@ export async function updateUser(user: userUpdateAndDelete, currentUser: userUpd
         if (queryStatus && Array.isArray(data) && data.length > 0) {
             if (currentUser.id === userData.id) {
                 if (userData.code) {
-                    return { data: null, status: false, errorCode: { failData: { code: 'not allow edit admin code' } } };
+                    return { data: null, status: false, errorCode: { failData: { code: 'Not allow edit admin' } } };
                 }
-                return await updateObject("users", userData, columKey);
+                return await updateObjectNotIsSystem("users", userData, columKey);
             } else {
-                return { data: null, status: false, errorCode: { failData: { code: 'not allow edit admin' } } };
+                return { data: null, status: false, errorCode: { failData: { code: 'Not allow edit admin' } } };
             }
         } else {
-            return await updateObject("users", userData, columKey);
+            return await updateObjectNotIsSystem("users", userData, columKey);
         }
 
     }
@@ -264,7 +262,7 @@ export async function insertUsers(users: Array<user>): Promise<{ data: Object | 
 
         const { status, results } = validateDataArray(hashedUsers, userInsertRule, messagesEn);
         if (status) {
-            return await insertObjects("users", hashedUsers);
+            return await insertObjectsNotIsSystem("users", hashedUsers);
         }
         return { data: null, status: status, errorCode: { failData: results } };
 
@@ -309,7 +307,7 @@ export async function updateUsers(users: Array<user>): Promise<{ data: Object | 
             return {
                 data: null,
                 status: false,
-                errorCode: { failData: { code: 'Not allow delete admin' } }
+                errorCode: { failData: { code: 'Not allow edit admin' } }
             };
         }
 
@@ -320,7 +318,7 @@ export async function updateUsers(users: Array<user>): Promise<{ data: Object | 
         }
 
         // Cập nhật
-        return await updateObjects("users", hashedUsers, ["id", "organizationId"]);
+        return await updateObjectsNotIsSystem("users", hashedUsers, ["id", "organizationId"]);
 
     } catch (error) {
         console.error(error);
@@ -358,7 +356,7 @@ export async function deleteUsers(users: Array<user>): Promise<{ data: Object | 
             return {
                 data: null,
                 status: false,
-                errorCode: { failData: { code: 'not delete admin account' } }
+                errorCode: { failData: { code: 'Not allow delete admin' } }
             };
         }
 

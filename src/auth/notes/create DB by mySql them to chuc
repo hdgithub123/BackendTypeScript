@@ -11,10 +11,10 @@ use MYDATABASE;
 CREATE TABLE organizations (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     CHECK (id <> ''),
-    code VARCHAR(100) NOT NULL,
+    code VARCHAR(100) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     address VARCHAR(255),
-    isActive TINYINT(1) NOT NULL,
+    isActive TINYINT(1) NOT NULL DEFAULT 0,
     isSystem TINYINT(1) DEFAULT 0, 
     createdBy VARCHAR(100),
     updatedBy VARCHAR(100),
@@ -361,3 +361,16 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add UsersTemplateContent', 'PostUsersTemplateContent', 'Thêm nội dung mẫu của danh sách người dùng', 'System', TRUE),
 ('update UsersTemplateContent', 'PutUsersTemplateContent', 'Cập nhật nội dung mẫu của danh sách người dùng', 'System', TRUE),
 ('Delete UsersTemplateContent', 'DeleteUsersTemplateContent', 'Xóa nội dung mẫu của danh sách người dùng', 'System', TRUE);
+
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+-- organization
+('view Organization', 'GetOrganization', 'Xem thông tin một tổ chức', 'System', TRUE),
+('add Organization', 'PostOrganization', 'Thêm một tổ chức mới', 'System', TRUE),
+('update Organization', 'PutOrganization', 'Cập nhật thông tin tổ chức', 'System', TRUE),
+('Delete Organization', 'DeleteOrganization', 'Xóa một tổ chức', 'System', TRUE),
+('view Organizations', 'GetOrganizations', 'Xem danh sách tổ chức', 'System', TRUE),
+('add Organizations', 'PostOrganizations', 'Thêm nhiều tổ chức', 'System', TRUE),
+('update Organizations', 'PutOrganizations', 'Cập nhật danh sách tổ chức', 'System', TRUE),
+('Delete Organizations', 'DeleteOrganizations', 'Xóa nhiều tổ chức', 'System', TRUE);
