@@ -11,13 +11,15 @@ router.put('/detail/:id',authorization,checkPermission({rightCodes: ["PutOrganiz
 router.delete('/detail/:id',authorization,checkPermission({rightCodes: ["DeleteOrganization"], isAllowChildZone: false}), deleteOrganization,insertActivityLogsInfo({action: 'deleteOrganization', tableName: 'organizations', description:"delete organization"}));
 
 // router cha
-router.get('/list',authorization,checkPermission({rightCodes: ["GetOrganizations"], isAllowChildZone: true}),getOrganizations);
+//router.get('/list',authorization,checkPermission({rightCodes: ["GetOrganizations"], isAllowChildZone: true}),getOrganizations);
+router.get('/list',getOrganizations);
+
 router.post('/list',authorization,checkPermission({rightCodes: ["PostOrganizations"], isAllowChildZone: false}), insertOrganizations,insertActivityLogsInfo({action: 'insertOrganizations', tableName: 'organizations', description:"insert organizations"}));
 router.put('/list',authorization,checkPermission({rightCodes: ["PutOrganizations"], isAllowChildZone: false}), updateOrganizations,insertActivityLogsInfo({action: 'updateOrganizations', tableName: 'organizations', description:"update organizations"}));
 router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteOrganizations"], isAllowChildZone: false}), deleteOrganizations,insertActivityLogsInfo({action: 'deleteOrganizations', tableName: 'organizations', description:"delete organizations"}));
 
 router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetOrganization", "PutOrganizations"], isAllowChildZone: true}),getIdOrganizationsByCodes);
-router.post('/check-Organization',authorization,checkPermission({rightCodes: ["PostOrganization","PutOrganization"], isAllowChildZone: false}),checkExistenceOrganization);
+router.post('/check-organization',authorization,checkPermission({rightCodes: ["PostOrganization","PutOrganization"], isAllowChildZone: false}),checkExistenceOrganization);
 router.post('/check-organizations',authorization,checkPermission({rightCodes: ["PostOrganizations","PutOrganizations"], isAllowChildZone: false}),checkExistenceOrganizations);
 
 

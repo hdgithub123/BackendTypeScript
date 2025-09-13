@@ -102,11 +102,11 @@ export type organizationsExistanceCheck = {
 
 
 
-export async function getOrganizations(organizationId: string) {
+export async function getOrganization(organizationId: string) {
     const sqlQuery = "SELECT * FROM organizations WHERE id = ?";
     return await executeQuery(sqlQuery, [organizationId]);
 }
-export async function getOrganizationss() {
+export async function getOrganizations() {
     const Sqlstring = "Select * from organizations";
     const data = await executeQuery(Sqlstring);
     return data;
@@ -168,8 +168,8 @@ export async function updateOrganization(organization: organizationUpdateAndDele
 
 
 
-export async function deleteOrganization(organization: organizationUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-      const columKey = { id: organization.id }; // Use userId as the columKey
+export async function deleteOrganization(organizationid: string): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+      const columKey = { id: organizationid }; // Use userId as the columKey
       const { status, results } = validateDataArray([columKey], organizationUpdateAndDeleteRule, messagesEn);
       if (status) {
           return await deleteObject("organizations", columKey);
@@ -190,7 +190,7 @@ export async function insertOrganizations(organizations: Array<organization>): P
 
 
 
-export async function updateOrganizationss(organizations: Array<organization>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function updateOrganizations(organizations: Array<organization>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(organizations, organizationUpdateAndDeleteRule, messagesEn);
     if (status) {
         return await updateObjects("organizations", organizations, ["id"]);

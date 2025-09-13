@@ -374,3 +374,16 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add Organizations', 'PostOrganizations', 'Thêm nhiều tổ chức', 'System', TRUE),
 ('update Organizations', 'PutOrganizations', 'Cập nhật danh sách tổ chức', 'System', TRUE),
 ('Delete Organizations', 'DeleteOrganizations', 'Xóa nhiều tổ chức', 'System', TRUE);
+
+INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
+-- organizations template contents
+('view OrganizationsTemplateContent', 'GetOrganizationsTemplateContent', 'Xem nội dung mẫu của tổ chức', 'System', TRUE),
+('add OrganizationsTemplateContent', 'PostOrganizationsTemplateContent', 'Thêm nội dung mẫu của tổ chức', 'System', TRUE),
+('update OrganizationsTemplateContent', 'PutOrganizationsTemplateContent', 'Cập nhật nội dung mẫu của tổ chức', 'System', TRUE),
+('Delete OrganizationsTemplateContent', 'DeleteOrganizationsTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE);
+
+-- organization template contents
+('view OrganizationTemplateContent', 'GetOrganizationTemplateContent', 'Xem nội dung mẫu của tổ chức', 'System', TRUE),
+('add OrganizationTemplateContent', 'PostOrganizationTemplateContent', 'Thêm nội dung mẫu của tổ chức', 'System', TRUE),
+('update OrganizationTemplateContent', 'PutOrganizationTemplateContent', 'Cập nhật nội dung mẫu của tổ chức', 'System', TRUE),
+('Delete OrganizationTemplateContent', 'DeleteOrganizationTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE);

@@ -41,7 +41,7 @@ export async function getIdOrganizationsByCodes(req: Request, res: Response) {
     try {
         const organizationId = req.user.organizationId
         const codes: string[] = req.body.data; // Giả sử bạn gửi mã người dùng trong body dưới dạng mảng
-        const { data, status, errorCode } = await organizationModel.getIdOrganizationsByCodes(organizationId, codes);
+        const { data, status, errorCode } = await organizationModel.getIdOrganizationsByCodes(codes);
         if (status) {
             res.status(200).json({ data, status, errorCode });
         } else {
@@ -119,9 +119,9 @@ export async function insertOrganizations(req: Request, res: Response, next: Fun
 
 export async function updateOrganization(req: Request, res: Response, next: Function) {
     try {
-        const organizationId:string = req.params.id;
         const organization = req.body;
-        const { data, status,errorCode } = await organizationModel.updateOrganization(organizationId, organization);
+        organization.id = req.params.id;
+        const { data, status,errorCode } = await organizationModel.updateOrganization(organization);
         if (status) {
             req.result = data;
             res.status(200).json({ data, status,errorCode });
@@ -134,6 +134,7 @@ export async function updateOrganization(req: Request, res: Response, next: Func
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 }
+
 export async function updateOrganizations(req: Request, res: Response, next: Function) {
     try {
         const organizations = req.body; // Lấy dữ liệu từ body của request

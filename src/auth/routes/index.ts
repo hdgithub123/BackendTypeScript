@@ -9,10 +9,12 @@ import roleRightRouters from './roleRightRouters';
 import roleRouters from './roleRouters';
 import zoneRouters from './zoneRouters';
 import UserZoneRoleRoute from './userZoneRoleRouters';
+import organizationRouters from './organizationRouters';
 
 
 const router = express();
 router.use('/activity-logs', activityLogsRouters);
+router.use('/organizations', organizationRouters);
 router.use('/user', userRoutes);
 router.use('/login', loginRouters);
 router.use('/logout', logoutRouter);
@@ -22,5 +24,6 @@ router.use('/role', roleRouters);
 router.use('/role-right', roleRightRouters);
 router.use('/zone', zoneRouters);
 router.use('/user-zone-role', UserZoneRoleRoute);
+
 
 export default router;
