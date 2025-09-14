@@ -129,11 +129,11 @@ export type usersExistanceCheck = {
 
 
 export async function getUser(userName: string, organizationId: string) {
-    const sqlQuery = "SELECT * FROM users WHERE code = ? AND organizationId = ?";
+    const sqlQuery = "SELECT id, code, name, address, email, phone, image,isActive,isSystem,createdBy,updatedBy,createdAt,updatedAt  FROM users WHERE code = ? AND organizationId = ?";
     return await executeQuery(sqlQuery, [userName, organizationId]);
 }
 export async function getUsers(organizationId: string) {
-    const Sqlstring = "Select * from users WHERE organizationId = ?";
+    const Sqlstring = "Select id, code, name, address, email, phone, image,isActive,isSystem,createdBy,updatedBy,createdAt,updatedAt from users WHERE organizationId = ?";
     const data = await executeQuery(Sqlstring, [organizationId]);
     return data;
 

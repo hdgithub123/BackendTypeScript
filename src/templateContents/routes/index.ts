@@ -1,6 +1,8 @@
 import express from 'express';
 import userRoutes from './userTemplateContentsRouters';
 import usersRoutes from './usersTemplateContentsRouters';
+import organizationRoutes from './organizationTemplateContentsRouters'
+import organizationsRoutes from './organizationsTemplateContentsRouters'
 
 import templateContentsRouters from './templateContentsRouters';
 
@@ -8,8 +10,8 @@ const router = express();
 router.use('/', templateContentsRouters);
 router.use('/user', userRoutes);
 router.use('/users', usersRoutes);
-router.use('/organization', usersRoutes);
-router.use('/organizations', usersRoutes);
+router.use('/organization', organizationRoutes);
+router.use('/organizations', organizationsRoutes);
 
 // router.use('/login', loginRouters);
 // router.use('/logout', logoutRouter);

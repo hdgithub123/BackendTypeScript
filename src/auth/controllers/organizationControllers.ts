@@ -6,7 +6,6 @@ import * as organizationModel from "../models/organizationsModels";
 export async function checkExistenceOrganization(req: Request, res: Response) {
     try {
         const organization = req.body;
-        organization.whereField = { id: req.params.id }
         const { data, status, errorCode } = await organizationModel.checkExistenceOrganization(organization);
         if (status) {
             res.status(200).json({ data, status, errorCode });
@@ -23,7 +22,6 @@ export async function checkExistenceOrganization(req: Request, res: Response) {
 export async function checkExistenceOrganizations(req: Request, res: Response) {
     try {
         const organizations = req.body;
-        organizations.whereField = { organizationId: req.user.organizationId }
         const { data, status, errorCode } = await organizationModel.checkExistenceOrganizations(organizations);
         if (status) {
             res.status(200).json({ data, status, errorCode });
@@ -57,7 +55,7 @@ export async function getIdOrganizationsByCodes(req: Request, res: Response) {
 
 export async function getOrganization(req: Request, res: Response) {
     try {
-        const id:string = req.params.id;
+        const id: string = req.params.id;
         const { data, status, errorCode } = await organizationModel.getOrganization(id);
         if (status && Array.isArray(data) && data.length > 0) {
             res.status(200).json({ data, status, errorCode });
@@ -86,6 +84,12 @@ export async function getOrganizations(req: Request, res: Response) {
 export async function insertOrganization(req: Request, res: Response, next: Function) {
     try {
         const organization = req.body;
+        if (req.user && req.user.code) {
+            organization.createdBy = req.user.code;
+            organization.updatedBy = req.user.code;
+        } else {
+            organization.createdBy = 'Register';
+        }
         const { data, status, errorCode } = await organizationModel.insertOrganization(organization);
         if (status) {
             req.result = data;
@@ -102,9 +106,18 @@ export async function insertOrganization(req: Request, res: Response, next: Func
 
 export async function insertOrganizations(req: Request, res: Response, next: Function) {
     try {
-        const organizations = req.body; // Lấy dữ liệu từ body của request
-       const { data, status, errorCode } = await organizationModel.insertOrganizations(organizations); // Gọi hàm insertOrganizations từ model
-         if (status) {
+        let organizations = req.body; // Lấy dữ liệu từ body của request
+        if (Array.isArray(organizations) && req.user && req.user.organizationId) {
+            organizations = organizations.map(organization => ({
+                ...organization,
+                createdBy: req.user.code ?? 'Register',
+                updatedBy: req.user.code ?? 'Register',
+            }));
+        }
+
+
+        const { data, status, errorCode } = await organizationModel.insertOrganizations(organizations); // Gọi hàm insertOrganizations từ model
+        if (status) {
             req.result = data;
             res.status(201).json({ data, status, errorCode });
             next();
@@ -119,15 +132,24 @@ export async function insertOrganizations(req: Request, res: Response, next: Fun
 
 export async function updateOrganization(req: Request, res: Response, next: Function) {
     try {
-        const organization = req.body;
+        let organization = req.body;
         organization.id = req.params.id;
-        const { data, status,errorCode } = await organizationModel.updateOrganization(organization);
+
+        if (req.user && req.user.code) {
+            organization.updatedBy = req.user.code;
+        } else {
+            organization.updatedBy = 'Unknown';
+        }
+        const now = new Date();
+        organization.updatedAt = now.toISOString().slice(0, 19).replace('T', ' ');
+
+        const { data, status, errorCode } = await organizationModel.updateOrganization(organization);
         if (status) {
             req.result = data;
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -137,14 +159,22 @@ export async function updateOrganization(req: Request, res: Response, next: Func
 
 export async function updateOrganizations(req: Request, res: Response, next: Function) {
     try {
-        const organizations = req.body; // Lấy dữ liệu từ body của request
-        const { data, status,errorCode } = await organizationModel.updateOrganizations(organizations); // Gọi hàm updateOrganizations từ model
-         if (status) {
+        let organizations = req.body; // Lấy dữ liệu từ body của request
+        if (Array.isArray(organizations) && req.user && req.user.organizationId) {
+            organizations = organizations.map(organization => ({
+                ...organization,
+                updatedBy: req.user.code ?? 'Unknown',
+                updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            }));
+        }
+        
+        const { data, status, errorCode } = await organizationModel.updateOrganizations(organizations); // Gọi hàm updateOrganizations từ model
+        if (status) {
             req.result = data;
-            res.status(200).json({ data, status,errorCode });
+            res.status(200).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({ data, status,errorCode });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -157,13 +187,13 @@ export async function updateOrganizations(req: Request, res: Response, next: Fun
 export async function deleteOrganization(req: Request, res: Response, next: Function) {
     try {
         const organizationId = req.params.id;
-        const { data, status,errorCode } = await organizationModel.deleteOrganization(organizationId);
+        const { data, status, errorCode } = await organizationModel.deleteOrganization(organizationId);
         if (status) {
             req.result = data;
-            res.status(204).json({  data, status,errorCode  });
+            res.status(204).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({  data, status,errorCode  });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);
@@ -173,13 +203,13 @@ export async function deleteOrganization(req: Request, res: Response, next: Func
 export async function deleteOrganizations(req: Request, res: Response, next: Function) {
     try {
         const organizations = req.body; // Lấy dữ liệu từ body của request
-        const { data, status,errorCode  } = await organizationModel.deleteOrganizations(organizations);
+        const { data, status, errorCode } = await organizationModel.deleteOrganizations(organizations);
         if (status) {
             req.result = data;
-            res.status(202).json({  data, status,errorCode  });
+            res.status(202).json({ data, status, errorCode });
             next();
         } else {
-            res.status(400).json({  data, status,errorCode  });
+            res.status(400).json({ data, status, errorCode });
         }
     } catch (error) {
         console.error(error);

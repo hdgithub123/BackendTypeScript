@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects,deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects,insertObjectNotIsSystem,insertObjectsNotIsSystem, updateObject, updateObjects,updateObjectNotIsSystem,updateObjectsNotIsSystem, deleteObject, deleteObjects,deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
 import { deleteObjectsTables } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import dotenv from 'dotenv';
@@ -103,11 +103,11 @@ export type organizationsExistanceCheck = {
 
 
 export async function getOrganization(organizationId: string) {
-    const sqlQuery = "SELECT * FROM organizations WHERE id = ?";
+    const sqlQuery = "SELECT id,code,name,address,isActive,isSystem,createdBy,updatedBy,createdAt,updatedAt FROM organizations WHERE id = ?";
     return await executeQuery(sqlQuery, [organizationId]);
 }
 export async function getOrganizations() {
-    const Sqlstring = "Select * from organizations";
+    const Sqlstring = "Select id,code,name,address,isActive,isSystem,createdBy,updatedBy,createdAt,updatedAt from organizations";
     const data = await executeQuery(Sqlstring);
     return data;
 
@@ -150,7 +150,7 @@ export async function checkExistenceOrganizations(organizationsCheck: organizati
 export async function insertOrganization(organization: organization): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([organization], organizationInsertRule, messagesEn);
     if (status) {
-        return await insertObject("organizations", organization);
+        return await insertObjectNotIsSystem("organizations", organization);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -160,7 +160,7 @@ export async function updateOrganization(organization: organizationUpdateAndDele
     const columKey = { id: organization.id }; // Use userId as the columKey
         const { status, results } = validateDataArray([columKey], organizationUpdateAndDeleteRule, messagesEn);
         if (status) {
-            return await updateObject("organizations", organization, columKey);
+            return await updateObjectNotIsSystem("organizations", organization, columKey);
         }
         return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -172,7 +172,7 @@ export async function deleteOrganization(organizationid: string): Promise<{ data
       const columKey = { id: organizationid }; // Use userId as the columKey
       const { status, results } = validateDataArray([columKey], organizationUpdateAndDeleteRule, messagesEn);
       if (status) {
-          return await deleteObject("organizations", columKey);
+          return await deleteObjectNotIsSystem("organizations", columKey);
       }
       return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -183,7 +183,7 @@ export async function deleteOrganization(organizationid: string): Promise<{ data
 export async function insertOrganizations(organizations: Array<organization>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
         const { status, results } = validateDataArray(organizations, organizationInsertRule, messagesEn);
         if (status) {
-            return await insertObjects("organizations", organizations);
+            return await insertObjectsNotIsSystem("organizations", organizations);
         }
         return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -193,7 +193,7 @@ export async function insertOrganizations(organizations: Array<organization>): P
 export async function updateOrganizations(organizations: Array<organization>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(organizations, organizationUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await updateObjects("organizations", organizations, ["id"]);
+        return await updateObjectsNotIsSystem("organizations", organizations, ["id"]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -203,7 +203,7 @@ export async function updateOrganizations(organizations: Array<organization>): P
 export async function deleteOrganizations(organizations: Array<organization>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(organizations, organizationUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await deleteObjects("organizations", organizations);
+        return await deleteObjectsNotIsSystem("organizations", organizations);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }

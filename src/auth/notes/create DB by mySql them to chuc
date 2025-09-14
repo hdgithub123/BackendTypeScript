@@ -151,11 +151,11 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add users', 'PostUsers', 'Thêm nhiều người dùng', 'System', TRUE),
 ('update users', 'PutUsers', 'Cập nhật danh sách người dùng', 'System', TRUE),
 ('Delete users', 'DeleteUsers', 'Xóa nhiều người dùng', 'System', TRUE),
-
+('export Users', 'ExportUsers', 'Xuất khẩu danh sách excell', 'System', TRUE),
 -- Right
 ('view Right', 'GetRight', 'Xem thông tin một quyền', 'System', TRUE),
 ('view Rights', 'GetRights', 'Xem danh sách quyền hệ thống', 'System', TRUE),
-
+('export Rights', 'ExporRights', 'Xuất khẩu danh sách excell', 'System', TRUE),
 -- Role
 ('view role', 'GetRole', 'Xem một vai trò cụ thể', 'System', TRUE),
 ('add role', 'PostRole', 'Thêm một vai trò mới', 'System', TRUE),
@@ -165,6 +165,7 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add Roles', 'PostRoles', 'Thêm nhiều vai trò', 'System', TRUE),
 ('update Roles', 'PutRoles', 'Cập nhật nhiều vai trò', 'System', TRUE),
 ('Delete Roles', 'DeleteRoles', 'Xóa nhiều vai trò', 'System', TRUE),
+('export Roles', 'ExportRoles', 'Xuất khẩu danh sách excell', 'System', TRUE),
 
 -- Zone
 ('view zone', 'GetZone', 'Xem một khu vực', 'System', TRUE),
@@ -175,6 +176,7 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add zones', 'PostZones', 'Thêm nhiều khu vực', 'System', TRUE),
 ('update zones', 'PutZones', 'Cập nhật nhiều khu vực', 'System', TRUE),
 ('Delete zones', 'DeleteZones', 'Xóa nhiều khu vực', 'System', TRUE),
+('export Zones', 'ExportZones', 'Xuất khẩu danh sách excell', 'System', TRUE),
 
 -- RoleVsRight
 ('view RoleVsRight', 'GetRoleRight', 'Xem quyền gán cho vai trò', 'System', TRUE),
@@ -185,6 +187,7 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add RoleRights', 'PostRoleRights', 'Gán nhiều quyền cho vai trò', 'System', TRUE),
 ('update RoleRights', 'PutRoleRights', 'Cập nhật nhiều quyền cho vai trò', 'System', TRUE),
 ('Delete RoleRights', 'DeleteRoleRights', 'Xóa nhiều quyền khỏi vai trò', 'System', TRUE),
+('export RoleRights', 'ExportRoleRights', 'Xuất khẩu danh sách excell', 'System', TRUE),
 
 -- UserZoneRole
 ('view UserZoneRole', 'GetUserZoneRole', 'Xem vai trò của người dùng theo khu vực', 'System', TRUE),
@@ -195,6 +198,7 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('add UserZoneRoles', 'PostUserZoneRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System', TRUE),
 ('update UserZoneRoles', 'PutUserZoneRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System', TRUE),
 ('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System', TRUE);
+('export UserZoneRoles', 'ExportUserZoneRoles', 'Xuất khẩu danh sách excell', 'System', TRUE);
 
 
 
@@ -373,7 +377,8 @@ INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 ('view Organizations', 'GetOrganizations', 'Xem danh sách tổ chức', 'System', TRUE),
 ('add Organizations', 'PostOrganizations', 'Thêm nhiều tổ chức', 'System', TRUE),
 ('update Organizations', 'PutOrganizations', 'Cập nhật danh sách tổ chức', 'System', TRUE),
-('Delete Organizations', 'DeleteOrganizations', 'Xóa nhiều tổ chức', 'System', TRUE);
+('Delete Organizations', 'DeleteOrganizations', 'Xóa nhiều tổ chức', 'System', TRUE),
+('export Organizations', 'ExportOrganizations', 'Xuất khẩu danh sách excell', 'System', TRUE);
 
 INSERT INTO rights (name, code, description, createdBy,isSystem) VALUES
 -- organizations template contents

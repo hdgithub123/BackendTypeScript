@@ -14,7 +14,7 @@ import organizationRouters from './organizationRouters';
 
 const router = express();
 router.use('/activity-logs', activityLogsRouters);
-router.use('/organizations', organizationRouters);
+router.use('/organization', organizationRouters);
 router.use('/user', userRoutes);
 router.use('/login', loginRouters);
 router.use('/logout', logoutRouter);

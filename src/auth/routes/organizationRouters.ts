@@ -20,6 +20,9 @@ router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteOrganiz
 
 router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetOrganization", "PutOrganizations"], isAllowChildZone: true}),getIdOrganizationsByCodes);
 router.post('/check-organization',authorization,checkPermission({rightCodes: ["PostOrganization","PutOrganization"], isAllowChildZone: false}),checkExistenceOrganization);
+
+//router.post('/check-organization',checkExistenceOrganization);
+
 router.post('/check-organizations',authorization,checkPermission({rightCodes: ["PostOrganizations","PutOrganizations"], isAllowChildZone: false}),checkExistenceOrganizations);
 
 
