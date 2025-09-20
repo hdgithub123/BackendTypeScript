@@ -3,6 +3,10 @@ import userRoutes from './userTemplateContentsRouters';
 import usersRoutes from './usersTemplateContentsRouters';
 import organizationRoutes from './organizationTemplateContentsRouters'
 import organizationsRoutes from './organizationsTemplateContentsRouters'
+import rightRoutes from './rightTemplateContentsRouters'
+import rightsRoutes from './rightsTemplateContentsRouters'
+import rightOfOwnerRoutes from './rightOfOwnerTemplateContentsRouters' 
+import rightsOfOwnerRoutes from './rightsOfOwnerTemplateContentsRouters' 
 
 import templateContentsRouters from './templateContentsRouters';
 
@@ -12,6 +16,10 @@ router.use('/user', userRoutes);
 router.use('/users', usersRoutes);
 router.use('/organization', organizationRoutes);
 router.use('/organizations', organizationsRoutes);
+router.use('/right', rightRoutes);
+router.use('/rights', rightsRoutes);
+router.use('/right-of-owner', rightOfOwnerRoutes);
+router.use('/rights-of-owner', rightsOfOwnerRoutes);
 
 // router.use('/login', loginRouters);
 // router.use('/logout', logoutRouter);
