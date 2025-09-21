@@ -275,7 +275,7 @@ export async function insertUsers(users: Array<user>): Promise<{ data: Object | 
 
 
 
-export async function updateUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function updateUsers(users: Array<userUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         // Băm mật khẩu nếu có
         const hashedUsers: user[] = await Promise.all(
@@ -329,7 +329,7 @@ export async function updateUsers(users: Array<user>): Promise<{ data: Object | 
 
 
 
-export async function deleteUsers(users: Array<user>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function deleteUsers(users: Array<userUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     try {
         // Validate dữ liệu đầu vào
         const { status: isValid, results } = validateDataArray(users, userUpdateAndDeleteRule, messagesEn);

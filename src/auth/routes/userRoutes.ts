@@ -19,7 +19,6 @@ router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteUsers"]
 
 router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetUsers", "PutUsers"], isAllowChildZone: true}),getIdUsersByCodes);
 router.post('/check-user',authorization,checkPermission({rightCodes: ["PostUser","PutUser"], isAllowChildZone: false}),checkExistenceUser);
-//router.post('/check-user',checkExistenceUser);
 router.post('/check-users',authorization,checkPermission({rightCodes: ["PostUsers","PutUsers"], isAllowChildZone: false}),checkExistenceUsers);
 
 
