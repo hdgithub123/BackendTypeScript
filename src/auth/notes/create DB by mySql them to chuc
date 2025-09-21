@@ -426,6 +426,18 @@ INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 ('update RightsOfOwnerTemplateContent', 'PutRightsOfOwnerTemplateContent', 'Cập nhật nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
 ('Delete RightsOfOwnerTemplateContent', 'DeleteRightsOfOwnerTemplateContent', 'Xóa nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE);
 
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- role template contents
+('view RoleTemplateContent', 'GetRoleTemplateContent', 'Xem nội dung mẫu của vai trò', 'System', TRUE, FALSE),
+('add RoleTemplateContent', 'PostRoleTemplateContent', 'Thêm nội dung mẫu của vai trò', 'System', TRUE, FALSE),
+('update RoleTemplateContent', 'PutRoleTemplateContent', 'Cập nhật nội dung mẫu của vai trò', 'System', TRUE, FALSE),
+('Delete RoleTemplateContent', 'DeleteRoleTemplateContent', 'Xóa nội dung mẫu của vai trò', 'System', TRUE, FALSE),
+-- roles template contents
+('view RolesTemplateContent', 'GetRolesTemplateContent', 'Xem nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
+('add RolesTemplateContent', 'PostRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
+('update RolesTemplateContent', 'PutRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
+('Delete RolesTemplateContent', 'DeleteRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE);
+
 
 
 -- gán tất cả quyền vào Administrator không có vai trò isOwner

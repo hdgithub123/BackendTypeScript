@@ -6,7 +6,9 @@ import organizationsRoutes from './organizationsTemplateContentsRouters'
 import rightRoutes from './rightTemplateContentsRouters'
 import rightsRoutes from './rightsTemplateContentsRouters'
 import rightOfOwnerRoutes from './rightOfOwnerTemplateContentsRouters' 
-import rightsOfOwnerRoutes from './rightsOfOwnerTemplateContentsRouters' 
+import rightsOfOwnerRoutes from './rightsOfOwnerTemplateContentsRouters'
+import rolesRoutes from './rolesTemplateContentsRouters'
+import roleRoutes from './roleTemplateContentsRouters' 
 
 import templateContentsRouters from './templateContentsRouters';
 
@@ -20,6 +22,8 @@ router.use('/right', rightRoutes);
 router.use('/rights', rightsRoutes);
 router.use('/right-of-owner', rightOfOwnerRoutes);
 router.use('/rights-of-owner', rightsOfOwnerRoutes);
+router.use('/roles', rolesRoutes);
+router.use('/role', roleRoutes);
 
 // router.use('/login', loginRouters);
 // router.use('/logout', logoutRouter);
