@@ -57,10 +57,10 @@ const roleUpdateAndDeleteRule: RuleSchema = {
 
 const roleCheckRule: RuleSchema = {
     id: { type: 'string', required: false, format: 'uuid' },
-    code: { type: "string", required: true, minLength: 2, maxLength: 100 },
-    name: { type: 'string', required: true, minLength: 2, maxLength: 255 },
+    code: { type: "string", required: false, minLength: 2, maxLength: 100 },
+    name: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
-    organizationId: { type: "string", format: "uuid", required: true },
+    organizationId: { type: "string", format: "uuid", required: false },
     createdBy: { type: "string", required: false, maxLength: 100 },
     updatedBy: { type: "string", required: false, maxLength: 100 },
     createdAt: { type: "string", format: "datetime", required: false },
@@ -71,7 +71,6 @@ export type roleExistanceCheck = {
     fields: {
         id?: string;
         code?: string;
-        email?: string;
     }
     excludeField?: string;
     whereField?: { [field: string]: string | number | undefined };
@@ -82,7 +81,6 @@ export type rolesExistanceCheck = {
     fields: Array<{
         id?: string;
         code?: string;
-        email?: string;
     }>
     excludeField?: string;
     whereField?: { [field: string]: string | number | undefined };
@@ -112,6 +110,8 @@ export async function getIdRolesByCodes(organizationId: string, codes: string[])
 
 
 export async function checkExistenceRole(roleCheck: roleExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    
+    console.log("roleCheck", roleCheck);
     const { status, results } = validateDataArray([roleCheck.fields], roleCheckRule, messagesEn);
     if (status) {
         const { data, status, errorCode } = await checkExistenceOfFieldsObject({ tableName: "roles", ...roleCheck });
@@ -123,6 +123,7 @@ export async function checkExistenceRole(roleCheck: roleExistanceCheck): Promise
 
 
 export async function checkExistenceRoles(rolesCheck: rolesExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    console.log("rolesCheck", rolesCheck);
     const { status, results } = validateDataArray(rolesCheck.fields, roleCheckRule, messagesEn);
     if (status) {
         const { data, status, errorCode } = await checkExistenceOfFieldsObjects({ tableName: "roles", ...rolesCheck });
