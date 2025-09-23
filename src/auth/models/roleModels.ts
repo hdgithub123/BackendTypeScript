@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import executeQuery, { insertObject, insertObjects, insertObjectNotIsSystem, insertObjectsNotIsSystem, updateObject, updateObjects, updateObjectNotIsSystem, updateObjectsNotIsSystem, deleteObject, deleteObjects, deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
+import executeQuery, { insertObjectsTablesNotIsSystem, insertObject, insertObjects, insertObjectNotIsSystem, insertObjectsNotIsSystem, updateObject, updateObjects, updateObjectNotIsSystem, updateObjectsNotIsSystem, deleteObject, deleteObjects, deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
-
+import { v4 as uuidv4 } from 'uuid';
 //Tạo type cho user
 export type role = {
     id?: string;
@@ -110,8 +110,7 @@ export async function getIdRolesByCodes(organizationId: string, codes: string[])
 
 
 export async function checkExistenceRole(roleCheck: roleExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    
-    console.log("roleCheck", roleCheck);
+
     const { status, results } = validateDataArray([roleCheck.fields], roleCheckRule, messagesEn);
     if (status) {
         const { data, status, errorCode } = await checkExistenceOfFieldsObject({ tableName: "roles", ...roleCheck });
@@ -123,7 +122,6 @@ export async function checkExistenceRole(roleCheck: roleExistanceCheck): Promise
 
 
 export async function checkExistenceRoles(rolesCheck: rolesExistanceCheck): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    console.log("rolesCheck", rolesCheck);
     const { status, results } = validateDataArray(rolesCheck.fields, roleCheckRule, messagesEn);
     if (status) {
         const { data, status, errorCode } = await checkExistenceOfFieldsObjects({ tableName: "roles", ...rolesCheck });
@@ -136,7 +134,25 @@ export async function checkExistenceRoles(rolesCheck: rolesExistanceCheck): Prom
 export async function insertRole(role: role): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([role], roleInsertRule, messagesEn);
     if (status) {
-        return await insertObjectNotIsSystem("roles", role);
+        // lấy ra tất cả các rightId từ bảng rights với isOwner = 0
+        const sqlStringRights = "SELECT id FROM rights WHERE isOwner = 0";
+        const { data, status: statusRights, errorCode } = await executeQuery(sqlStringRights);
+        // đưa tất cả các rightId vào bảng roles_rights với isActive = 0, isSystem = 0
+        let roleRights: Array<any> = [];
+        if (statusRights && data && Array.isArray(data)) {
+            roleRights = data.map((right: any) => ({
+                roleId: role.id,
+                rightId: right.id,
+                isActive: 0,
+                isSystem: 0,
+            }));
+        }
+
+        if (roleRights.length) {
+            return await insertObjectsTablesNotIsSystem([{ table: "roles", dataIn: [role] }, { table: "roles_rights", dataIn: roleRights }]);
+        } else {
+            return await insertObjectNotIsSystem("roles", role);
+        }
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -166,7 +182,30 @@ export async function deleteRole(role: roleUpdateAndDelete): Promise<{ data: Obj
 export async function insertRoles(roles: Array<role>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(roles, roleInsertRule, messagesEn);
     if (status) {
-        return await insertObjectsNotIsSystem("roles", roles);
+        // thêm vào bảng roles giá trị id = uuid
+        roles = roles.map(role => ({ ...role, id: uuidv4() }));
+        // lấy ra tất cả các rightId từ bảng rights với isOwner = 0
+        const sqlStringRights = "SELECT id FROM rights WHERE isOwner = 0";
+        const { data, status: statusRights, errorCode } = await executeQuery(sqlStringRights);
+        // đưa tất cả các rightId vào bảng roles_rights với isActive = 0, isSystem = 0 của mối role thuộc roles
+        let roleRights: Array<any> = [];
+        if (statusRights && data && Array.isArray(data)) {
+            for (const role of roles) {
+                const rightsForRole = data.map((right: any) => ({
+                    roleId: role.id,
+                    rightId: right.id,
+                    isActive: 0,
+                    isSystem: 0,
+                }));
+                roleRights.push(...rightsForRole);
+            }
+        }
+
+        if (roleRights.length) {
+            return await insertObjectsTablesNotIsSystem([{ table: "roles", dataIn: roles }, { table: "roles_rights", dataIn: roleRights }]);
+        } else {
+            return await insertObjectsNotIsSystem("roles", roles);
+        }
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -193,3 +232,5 @@ export async function deleteRoles(roles: Array<roleUpdateAndDelete>): Promise<{ 
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
+
+
