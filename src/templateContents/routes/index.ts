@@ -3,6 +3,8 @@ import userRoutes from './userTemplateContentsRouters';
 import usersRoutes from './usersTemplateContentsRouters';
 import organizationRoutes from './organizationTemplateContentsRouters'
 import organizationsRoutes from './organizationsTemplateContentsRouters'
+import branchRoutes from './branchTemplateContentsRouters'
+import branchesRoutes from './branchesTemplateContentsRouters'
 import rightRoutes from './rightTemplateContentsRouters'
 import rightsRoutes from './rightsTemplateContentsRouters'
 import rightOfOwnerRoutes from './rightOfOwnerTemplateContentsRouters' 
@@ -18,6 +20,8 @@ router.use('/user', userRoutes);
 router.use('/users', usersRoutes);
 router.use('/organization', organizationRoutes);
 router.use('/organizations', organizationsRoutes);
+router.use('/branch', branchRoutes);
+router.use('/branches', branchesRoutes);
 router.use('/right', rightRoutes);
 router.use('/rights', rightsRoutes);
 router.use('/right-of-owner', rightOfOwnerRoutes);

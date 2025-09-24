@@ -229,12 +229,14 @@ CREATE TABLE roles_rights (
 CREATE TABLE zones (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
-    code VARCHAR(100) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    -- code VARCHAR(100) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
+    code VARCHAR(100) NOT NULL, -- Mã quyền có thể thay đổi
     address TEXT,
     description TEXT,
     parentId CHAR(36) NULL,
     organizationId CHAR(36) NOT NULL,
     FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
+    -- FOREIGN KEY (organizationId) REFERENCES organizations(id),
     UNIQUE (organizationId, code),
     isSystem TINYINT(1) DEFAULT 0,
     createdBy VARCHAR(100),
@@ -244,6 +246,76 @@ CREATE TABLE zones (
     FOREIGN KEY (parentId) REFERENCES zones(id),
     CHECK (id <> '')
 );
+
+
+CREATE TABLE branches (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(100) UNIQUE NOT NULL, -- Mã chi nhánh có thể thay đổi
+    address TEXT,
+    description TEXT,
+    organizationId CHAR(36) NOT NULL,
+    FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
+    UNIQUE (organizationId, code),
+    isActive TINYINT(1) DEFAULT 0,
+    isSystem TINYINT(1) DEFAULT 0,
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CHECK (id <> '')
+);
+
+-- tạo chi nhánh General
+INSERT INTO branches (id, name, code, address, description, organizationId,isActive, createdBy) VALUES
+(UUID(), 'General', 'General', 'Trụ sở chính', 'Chi nhánh tổng', @Organizations1, 1, 'system');
+
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- branch
+('view Branch', 'GetBranch', 'Xem thông tin một chi nhánh', 'System', TRUE, FALSE),
+('add Branch', 'PostBranch', 'Thêm một chi nhánh mới', 'System', TRUE, FALSE),
+('update Branch', 'PutBranch', 'Cập nhật thông tin chi nhánh', 'System', TRUE, FALSE),
+('Delete Branch', 'DeleteBranch', 'Xóa một chi nhánh', 'System', TRUE, FALSE),
+('view Branches', 'GetBranches', 'Xem danh sách chi nhánh', 'System', TRUE, FALSE),
+('add Branches', 'PostBranches', 'Thêm nhiều chi nhánh', 'System', TRUE, FALSE),
+('update Branches', 'PutBranches', 'Cập nhật danh sách chi nhánh', 'System', TRUE, FALSE),
+('Delete Branches', 'DeleteBranches', 'Xóa nhiều chi nhánh', 'System', TRUE, FALSE),
+('export Branches', 'ExportBranches', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
+
+
+
+
+
+
+CREATE TABLE departments (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(100) NOT NULL, -- Mã phòng ban có thể thay đổi
+    address TEXT,
+    description TEXT,
+    parentId CHAR(36) NULL,
+    branchId CHAR(36) NOT NULL,
+    FOREIGN KEY (branchId) REFERENCES branches(id) ON DELETE CASCADE,
+    UNIQUE (branchId, code),
+    isSystem TINYINT(1) DEFAULT 0,
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (parentId) REFERENCES zones(id),
+    CHECK (id <> '')
+);
+
+
+
+
+
+
+
+
+
 
 
 
