@@ -159,7 +159,17 @@ export async function insertRole(role: role): Promise<{ data: Object | null, sta
 
 
 export async function updateRole(role: roleUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // kiêm tra dữ liệu đầu vào role.code = 'Administrator' thì không cho update
     const { status, results } = validateDataArray([role], roleUpdateAndDeleteRule, messagesEn);
+    if (status) {
+        const checkAdminSql = "SELECT code FROM roles WHERE id = ? AND code = 'Administrator'";
+        const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [role.id]);
+        if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+            return { data: null, status: false, errorCode: { failData: { code: ' Can not update Administrator role' } } };
+        }
+    }
+
+
     if (status) {
         const columKey = { id: role.id, organizationId: role.organizationId }; // Use userId as the columKey
         return await updateObjectNotIsSystem("roles", role, columKey);
@@ -169,10 +179,15 @@ export async function updateRole(role: roleUpdateAndDelete): Promise<{ data: Obj
 
 
 export async function deleteRole(role: roleUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    const checkAdminSql = "SELECT code FROM roles WHERE id = ? AND code = 'Administrator'";
+    const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [role.id]);
+    if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+        return { data: null, status: false, errorCode: { failData: { code: ' Can not delete Administrator role' } } };
+    }
+
     const columKey = { id: role.id, organizationId: role.organizationId }; // Use userId as the columKey
     const { status, results } = validateDataArray([columKey], roleUpdateAndDeleteRule, messagesEn);
     if (status) {
-
         return await deleteObjectNotIsSystem("roles", columKey);
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -213,7 +228,17 @@ export async function insertRoles(roles: Array<role>): Promise<{ data: Object | 
 
 export async function updateRoles(roles: Array<roleUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(roles, roleUpdateAndDeleteRule, messagesEn);
+
+
     if (status) {
+        // kiêm tra xem trong măng với mỗi role có id và có code = 'Administrator' thì không cho update
+        for (const role of roles) {
+            const checkAdminSql = "SELECT code FROM roles WHERE id = ? AND code = 'Administrator'";
+            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [role.id]);
+            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                return { data: null, status: false, errorCode: { failData: { code: 'Can not update Administrator role' } } };
+            }
+        }
         return await updateObjectsNotIsSystem("roles", roles, ["id", "organizationId"]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -222,6 +247,13 @@ export async function updateRoles(roles: Array<roleUpdateAndDelete>): Promise<{ 
 export async function deleteRoles(roles: Array<roleUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(roles, roleUpdateAndDeleteRule, messagesEn);
     if (status) {
+        for (const role of roles) {
+            const checkAdminSql = "SELECT code FROM roles WHERE id = ? AND code = 'Administrator'";
+            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [role.id]);
+            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                return { data: null, status: false, errorCode: { failData: { code: 'Can not delete Administrator role' } } };
+            }
+        }
 
         const deleteTargets = roles.map((u: roleUpdateAndDelete) => ({
             id: u.id!,

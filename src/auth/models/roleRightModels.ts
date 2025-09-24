@@ -63,7 +63,7 @@ const rolesRightsUpdateAndDeleteSchema: RuleSchema = {
 
 
 export async function getRightsFromRoleId(roleId: string, organizationId: string): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-     const sqlString = "Select rights.id As id, rights.name As name, rights.code As code, rights.description As description,roles_rights.isActive As isActive, roles_rights.isSystem As isSystem from roles_rights, rights, roles  Where roles_rights.roleId = ? and roles_rights.rightId = rights.id and rights.isOwner = 0 and roles.id = roles_rights.roleId and roles.organizationId = ?";
+    const sqlString = "Select rights.id As id, rights.name As name, rights.code As code, rights.description As description,roles_rights.isActive As isActive, roles_rights.isSystem As isSystem from roles_rights, rights, roles  Where roles_rights.roleId = ? and roles_rights.rightId = rights.id and rights.isOwner = 0 and roles.id = roles_rights.roleId and roles.organizationId = ?";
     return await executeQuery(sqlString, [roleId, organizationId]);
 }
 
@@ -103,6 +103,19 @@ export async function insertRoleRights(roleRights: Array<roleRight>): Promise<{ 
 export async function updateRoleRights(roleRights: Array<roleRight>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(roleRights, rolesRightsUpdateAndDeleteSchema, messagesEn);
     if (status) {
+        for (const roleRight of roleRights) {
+            const checkAdminSql = "SELECT code FROM roles WHERE id = ? AND code = 'Administrator'";
+            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [roleRight.roleId]);
+            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                // chỉ cho cập nhật isActive = true của roleRight với roleId là Administrator
+                if (roleRight.isActive === false) {
+                    return { data: null, status: false, errorCode: { failData: { code: 'Can not update Administrator role to inactive' } } };
+                }
+            }
+        }
+    }
+
+    if (status) {
         return await updateObjectsNotIsSystem("roles_rights", roleRights, ["roleId", "rightId"]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -110,8 +123,24 @@ export async function updateRoleRights(roleRights: Array<roleRight>): Promise<{ 
 
 export async function deleteRoleRights(roleRights: Array<{ [key: string]: any }>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(roleRights, rolesRightsUpdateAndDeleteSchema, messagesEn);
+    // kiêm tra xem trong mảng với mỗi roleRight có roleId mà trong bảng roles có code = 'Administrator' thì không cho delete
     if (status) {
-        return await deleteObjectsNotIsSystem("roles_rights", roleRights);
+        for (const roleRight of roleRights) {
+            const checkAdminSql = "SELECT code FROM roles WHERE id = ? AND code = 'Administrator'";
+            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [roleRight.roleId]);
+            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                return { data: null, status: false, errorCode: { failData: { code: ' can not delete Administrator role' } } };
+            }
+        }
+    }
+
+    if (status) {
+        const roleRightPairs = roleRights.map(roleRight => ({
+            roleId: roleRight.roleId,
+            rightId: roleRight.rightId
+        }));
+
+        return await deleteObjectsNotIsSystem("roles_rights", roleRightPairs);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }

@@ -111,9 +111,9 @@ CREATE TABLE roles (
 
 INSERT INTO roles (name, code, description,organizationId,isSystem)
 VALUES
-    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống', @Organizations1, FALSE),
-    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống', @Organizations2,FALSE),
-    ('Administrator', 'ADMIN_ROLE', 'Quản lý toàn hệ thống', @Organizations3,FALSE),
+    ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @Organizations1, FALSE),
+    ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @Organizations2,FALSE),
+    ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @Organizations3,FALSE),
     ('Editor', 'EDITOR_ROLE', 'Có quyền chỉnh sửa nội dung', @Organizations1,FALSE),
     ('Viewer', 'VIEWER_ROLE', 'Chỉ có quyền xem nội dung', @Organizations1, FALSE),
     ('Manager', 'MANAGER_ROLE', 'Quản lý người dùng và phân quyền', @Organizations1,FALSE),
@@ -121,7 +121,7 @@ VALUES
 
 
 
-SET @Administrator1 = (SELECT id FROM roles WHERE code = 'ADMIN_ROLE' AND organizationId = @Organizations1 );
+SET @Administrator1 = (SELECT id FROM roles WHERE code = 'Administrator' AND organizationId = @Organizations1 );
 
 CREATE TABLE rights (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -445,4 +445,4 @@ INSERT IGNORE INTO roles_rights (roleId, rightId, isActive)
 SELECT r.id, rt.id, TRUE
 FROM roles r
 JOIN rights rt ON rt.isOwner = FALSE
-WHERE r.code = 'ADMIN_ROLE';
+WHERE r.code = 'Administrator';
