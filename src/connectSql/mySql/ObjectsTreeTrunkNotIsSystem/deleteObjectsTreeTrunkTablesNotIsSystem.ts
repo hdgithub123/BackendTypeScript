@@ -1,6 +1,6 @@
 import executeTransaction from '../executeTransaction';
 
-export default async function deleteObjectsTreeTablesNotIsSystem(
+export default async function deleteObjectsTreeTrunkTablesNotIsSystem(
   tablesData: Array<{
     table: string;
     dataIn: Array<string | number>;

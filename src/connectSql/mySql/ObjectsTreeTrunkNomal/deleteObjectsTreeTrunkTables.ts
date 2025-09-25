@@ -1,6 +1,6 @@
 import executeTransaction from '../executeTransaction';
 
-export async function deleteObjectsTreeTables(
+export default async function deleteObjectsTreeTrunkTables(
   tablesData: Array<{
     table: string;
     dataIn: Array<string | number>;

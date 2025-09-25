@@ -9,15 +9,30 @@ import deleteObjectsTablesNotIsSystem from './mySql/ObjectNotIsSystem/deleteObje
 import checkExistenceOfFieldsObject from './mySql/ObjectsNomal/checkExistenceOfFieldsObject';
 import checkExistenceOfFieldsObjects from './mySql/ObjectsNomal/checkExistenceOfFieldsObjects';
 import checkExistenceOfFieldsObjectsTables from './mySql/ObjectsNomal/checkExistenceOfFieldsObjectsTables';
-import { insertObjectsTreeTables } from './mySql/ObjectsTreeNomal/insertObjectsTreeTables'
-import { insertObjectsTreeTablesUniqueField } from './mySql/ObjectsTreeNomal/insertObjectsTreeTablesUniqueField'
-import { updateObjectsTreeTables } from './mySql/ObjectsTreeNomal/updateObjectsTreeTables'
-import { deleteObjectsTreeTables } from './mySql/ObjectsTreeNomal/deleteObjectsTreeTables'
-import {insertObjectNotIsSystem,insertObjectsNotIsSystem,updateObjectNotIsSystem,updateObjectsNotIsSystem, deleteObjectsNotIsSystem, deleteObjectNotIsSystem } from './mySql/ObjectNotIsSystem/executeObjects'
-import deleteObjectsTreeTablesNotIsSystem from './mySql/ObjectsTreeNotIsSystem/deleteObjectsTreeTablesNotIsSystem'
-import insertObjectsTreeTablesNotIsSystem from './mySql/ObjectsTreeNotIsSystem/insertObjectsTreeTablesNotIsSystem'
-import insertObjectsTreeTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeNotIsSystem/insertObjectsTreeTablesNotIsSystem'
-import updateObjectsTreeTablesNotIsSystem from './mySql/ObjectsTreeNotIsSystem/updateObjectsTreeTablesNotIsSystem'
+
+import insertObjectsTreeLeafTables from './mySql/ObjectsTreeLeafNomal/insertObjectsTreeLeafTables'
+import insertObjectsTreeLeafTablesUniqueField from './mySql/ObjectsTreeLeafNomal/insertObjectsTreeLeafTablesUniqueField'
+import updateObjectsTreeLeafTables from './mySql/ObjectsTreeLeafNomal/updateObjectsTreeLeafTables'
+import deleteObjectsTreeLeafTables from './mySql/ObjectsTreeLeafNomal/deleteObjectsTreeLeafTables'
+
+import insertObjectsTreeTrunkTables from './mySql/ObjectsTreeTrunkNomal/insertObjectsTreeTrunkTables'
+import insertObjectsTreeTrunkTablesUniqueField from './mySql/ObjectsTreeTrunkNomal/insertObjectsTreeTrunkTablesUniqueField'
+import updateObjectsTreeTrunkTables from './mySql/ObjectsTreeTrunkNomal/updateObjectsTreeTrunkTables'
+import deleteObjectsTreeTrunkTables from './mySql/ObjectsTreeTrunkNomal/deleteObjectsTreeTrunkTables'
+
+
+import { insertObjectNotIsSystem, insertObjectsNotIsSystem, updateObjectNotIsSystem, updateObjectsNotIsSystem, deleteObjectsNotIsSystem, deleteObjectNotIsSystem } from './mySql/ObjectNotIsSystem/executeObjects'
+import deleteObjectsTreeLeafTablesNotIsSystem from './mySql/ObjectsTreeLeafNotIsSystem/deleteObjectsTreeLeafTablesNotIsSystem'
+import insertObjectsTreeLeafTablesNotIsSystem from './mySql/ObjectsTreeLeafNotIsSystem/insertObjectsTreeLeafTablesNotIsSystem'
+import insertObjectsTreeLeafTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeLeafNotIsSystem/insertObjectsTreeLeafTablesNotIsSystem'
+import updateObjectsTreeLeafTablesNotIsSystem from './mySql/ObjectsTreeLeafNotIsSystem/updateObjectsTreeLeafTablesNotIsSystem'
+
+
+import deleteObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/deleteObjectsTreeTrunkTablesNotIsSystem'
+import insertObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/insertObjectsTreeTrunkTablesNotIsSystem'
+import insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/insertObjectsTreeTrunkTablesNotIsSystem'
+import updateObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/updateObjectsTreeTrunkTablesNotIsSystem'
+
 
 export default executeQuery
 
@@ -39,15 +54,26 @@ export {
     updateObjectsTables,
     updateObjectsTablesNotIsSystem,
     deleteObjectsTables,
-    insertObjectsTreeTables,
-    insertObjectsTreeTablesNotIsSystem,
-    updateObjectsTreeTables,
-    updateObjectsTreeTablesNotIsSystem,
-    deleteObjectsTreeTables,
+    insertObjectsTreeLeafTables,
+    insertObjectsTreeLeafTablesNotIsSystem,
+    updateObjectsTreeLeafTables,
+    updateObjectsTreeLeafTablesNotIsSystem,
+    deleteObjectsTreeLeafTables,
     deleteObjectsTablesNotIsSystem,
-    deleteObjectsTreeTablesNotIsSystem,
-    insertObjectsTreeTablesUniqueField,
-    insertObjectsTreeTablesUniqueFieldNotIsSystem,
+    deleteObjectsTreeLeafTablesNotIsSystem,
+    insertObjectsTreeLeafTablesUniqueField,
+    insertObjectsTreeLeafTablesUniqueFieldNotIsSystem,
+
+    insertObjectsTreeTrunkTables,
+    insertObjectsTreeTrunkTablesUniqueField,
+    updateObjectsTreeTrunkTables,
+    deleteObjectsTreeTrunkTables,
+
+    insertObjectsTreeTrunkTablesNotIsSystem,
+    insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem,
+    deleteObjectsTreeTrunkTablesNotIsSystem,
+    updateObjectsTreeTrunkTablesNotIsSystem,
+
     checkExistenceOfFieldsObject,
     checkExistenceOfFieldsObjects,
     checkExistenceOfFieldsObjectsTables,

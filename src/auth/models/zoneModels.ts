@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeTables, updateObjectsTreeTables, deleteObjectsTreeTables, insertObjectsTreeTablesUniqueField } from '../../connectSql'
+import executeQuery, { insertObject, insertObjects, updateObject, updateObjects, deleteObject, deleteObjects, insertObjectsTreeLeafTables, updateObjectsTreeLeafTables, deleteObjectsTreeLeafTables, insertObjectsTreeLeafTablesUniqueField } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 
 //Tạo type cho zone
@@ -140,7 +140,7 @@ export async function insertZone(zone: zone): Promise<{ data: Object | null, sta
 
     const { status, results } = validateDataArray([zone], zoneInsertRule, messagesEn);
     if (status) {
-        return await insertObjectsTreeTables([tablesData]);
+        return await insertObjectsTreeLeafTables([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 
@@ -159,7 +159,7 @@ export async function updateZone(zoneId: string, zone: zone): Promise<{ data: Ob
     };
     const { status, results } = validateDataArray([updateZone], zoneUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await updateObjectsTreeTables([tablesData]);
+        return await updateObjectsTreeLeafTables([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -175,7 +175,7 @@ export async function insertZones(zones: Array<zone>): Promise<{ data: Object | 
 
     const { status, results } = validateDataArray(zones, zoneInsertRule, messagesEn);
     if (status) {
-        return await insertObjectsTreeTables([tablesData]);
+        return await insertObjectsTreeLeafTables([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 
@@ -192,7 +192,7 @@ export async function updateZones(zones: Array<zone>): Promise<{ data: Object | 
 
     const { status, results } = validateDataArray(zones, zoneUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await updateObjectsTreeTables([tablesData]);
+        return await updateObjectsTreeLeafTables([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -209,7 +209,7 @@ export async function deleteZone(zonesId: string | number): Promise<{ data: Obje
     const { status, results } = validateDataArray([columKey], zoneUpdateAndDeleteRule, messagesEn);
     if (status) {
 
-        return await deleteObjectsTreeTables([tablesData]);
+        return await deleteObjectsTreeLeafTables([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 
@@ -229,7 +229,7 @@ export async function deleteZones(zones: Array<string>): Promise<{ data: Object 
     const dataIdZones = zones.map(id => ({ id }));
     const { status, results } = validateDataArray(dataIdZones, zoneUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await deleteObjectsTreeTables([tablesData]);
+        return await deleteObjectsTreeLeafTables([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 
@@ -296,7 +296,7 @@ export async function insertZonesByCode(zones: Array<zone>): Promise<{ data: Obj
 
     const { status, results } = validateDataArray(zones, zoneInsertRuleByCode, messagesEn);
     if (status) {
-        return await insertObjectsTreeTablesUniqueField([tablesData]);
+        return await insertObjectsTreeLeafTablesUniqueField([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
