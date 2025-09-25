@@ -9,15 +9,15 @@ import deleteObjectsTablesNotIsSystem from './mySql/ObjectNotIsSystem/deleteObje
 import checkExistenceOfFieldsObject from './mySql/ObjectsNomal/checkExistenceOfFieldsObject';
 import checkExistenceOfFieldsObjects from './mySql/ObjectsNomal/checkExistenceOfFieldsObjects';
 import checkExistenceOfFieldsObjectsTables from './mySql/ObjectsNomal/checkExistenceOfFieldsObjectsTables';
-import { insertObjectsTreeTables } from './mySql/ObjectsTree/insertObjectsTreeTables'
-import { insertObjectsTreeTablesUniqueField } from './mySql/ObjectsTree/insertObjectsTreeTablesUniqueField'
-import { updateObjectsTreeTables } from './mySql/ObjectsTree/updateObjectsTreeTables'
-import { deleteObjectsTreeTables } from './mySql/ObjectsTree/deleteObjectsTreeTables'
+import { insertObjectsTreeTables } from './mySql/ObjectsTreeNomal/insertObjectsTreeTables'
+import { insertObjectsTreeTablesUniqueField } from './mySql/ObjectsTreeNomal/insertObjectsTreeTablesUniqueField'
+import { updateObjectsTreeTables } from './mySql/ObjectsTreeNomal/updateObjectsTreeTables'
+import { deleteObjectsTreeTables } from './mySql/ObjectsTreeNomal/deleteObjectsTreeTables'
 import {insertObjectNotIsSystem,insertObjectsNotIsSystem,updateObjectNotIsSystem,updateObjectsNotIsSystem, deleteObjectsNotIsSystem, deleteObjectNotIsSystem } from './mySql/ObjectNotIsSystem/executeObjects'
-import deleteObjectsTreeTablesNotIsSystem from './mySql/ObjectsTree/deleteObjectsTreeTablesNotIsSystem'
-import insertObjectsTreeTablesNotIsSystem from './mySql/ObjectsTree/insertObjectsTreeTablesNotIsSystem'
-import insertObjectsTreeTablesUniqueFieldNotIsSystem from './mySql/ObjectsTree/insertObjectsTreeTablesNotIsSystem'
-import updateObjectsTreeTablesNotIsSystem from './mySql/ObjectsTree/updateObjectsTreeTablesNotIsSystem'
+import deleteObjectsTreeTablesNotIsSystem from './mySql/ObjectsTreeNotIsSystem/deleteObjectsTreeTablesNotIsSystem'
+import insertObjectsTreeTablesNotIsSystem from './mySql/ObjectsTreeNotIsSystem/insertObjectsTreeTablesNotIsSystem'
+import insertObjectsTreeTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeNotIsSystem/insertObjectsTreeTablesNotIsSystem'
+import updateObjectsTreeTablesNotIsSystem from './mySql/ObjectsTreeNotIsSystem/updateObjectsTreeTablesNotIsSystem'
 
 export default executeQuery
 

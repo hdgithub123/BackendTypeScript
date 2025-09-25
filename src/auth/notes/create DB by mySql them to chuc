@@ -299,14 +299,85 @@ CREATE TABLE departments (
     branchId CHAR(36) NOT NULL,
     FOREIGN KEY (branchId) REFERENCES branches(id) ON DELETE CASCADE,
     UNIQUE (branchId, code),
+    isActive TINYINT(1) DEFAULT 0,
     isSystem TINYINT(1) DEFAULT 0,
     createdBy VARCHAR(100),
     updatedBy VARCHAR(100),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (parentId) REFERENCES zones(id),
+    FOREIGN KEY (parentId) REFERENCES departments(id),
     CHECK (id <> '')
 );
+
+
+-- Trigger để kiểm tra vòng lặp trong cấu trúc tổ chức (phòng ban)
+
+DELIMITER $$
+
+CREATE TRIGGER trg_departments_no_loop_insert
+BEFORE INSERT ON departments
+FOR EACH ROW
+BEGIN
+    DECLARE hasLoop INT DEFAULT 0;
+
+    IF NEW.parentId IS NOT NULL THEN
+        SELECT COUNT(*) INTO hasLoop
+        FROM (
+            WITH RECURSIVE cte AS (
+                SELECT id, parentId
+                FROM departments
+                WHERE id = NEW.parentId
+
+                UNION ALL
+
+                SELECT d.id, d.parentId
+                FROM departments d
+                JOIN cte c ON d.id = c.parentId
+            )
+            SELECT id FROM cte
+        ) t
+        WHERE t.id = NEW.id;
+
+        IF hasLoop > 0 THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Hierarchy loop detected (INSERT departments).';
+        END IF;
+    END IF;
+END$$
+
+CREATE TRIGGER trg_departments_no_loop_update
+BEFORE UPDATE ON departments
+FOR EACH ROW
+BEGIN
+    DECLARE hasLoop INT DEFAULT 0;
+
+    IF NEW.parentId IS NOT NULL AND NEW.parentId <> OLD.parentId THEN
+        SELECT COUNT(*) INTO hasLoop
+        FROM (
+            WITH RECURSIVE cte AS (
+                SELECT id, parentId
+                FROM departments
+                WHERE id = NEW.parentId
+
+                UNION ALL
+
+                SELECT d.id, d.parentId
+                FROM departments d
+                JOIN cte c ON d.id = c.parentId
+            )
+            SELECT id FROM cte
+        ) t
+        WHERE t.id = NEW.id;
+
+        IF hasLoop > 0 THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Hierarchy loop detected (UPDATE departments).';
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+
 
 
 
