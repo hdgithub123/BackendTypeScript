@@ -216,7 +216,7 @@ export async function insertDepartment(department: department): Promise<{ data: 
         if (!department.id) {
             department.id = uuidv4();
         }
-        
+
         const tablesData = {
             table: "departments",
             dataIn: [department],
@@ -224,7 +224,7 @@ export async function insertDepartment(department: department): Promise<{ data: 
             childField: "id"
         };
 
-        const  data = await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
+        const data = await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
         console.log('Inserted successfully:', data);
         return data;
 
@@ -235,6 +235,12 @@ export async function insertDepartment(department: department): Promise<{ data: 
 
 
 export async function updateDepartment(department: departmentUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // kiểm tra nếu không có id thì trả về lỗi
+    if (!department.id) {
+        return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
+    }
+
+
     // kiêm tra dữ liệu đầu vào department.code = 'Administrator' thì không cho update
     const { status, results } = validateDataArray([department], departmentUpdateAndDeleteRule, messagesEn);
     if (status) {
@@ -252,16 +258,13 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
         // loại bỏ branchId và organizationId trong department
         delete department.branchId;
         delete department.organizationId;
-        
+
         const tablesData = {
             table: "departments",
             dataIn: [department],
             parentField: "parentId",
             childField: "id"
         };
-
-
-        const columKey = { id: department.id, organizationId: department.organizationId }; // Use userId as the columKey
         return await updateObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -269,6 +272,11 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
 
 
 export async function deleteDepartment(department: departmentUpdateAndDelete): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // kiểm tra nếu không có id thì trả về lỗi
+    if (!department.id) {
+        return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
+    }
+
     const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
     const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
     if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
@@ -330,6 +338,15 @@ export async function insertDepartments(departments: Array<department>): Promise
 
 
 export async function updateDepartments(departments: Array<departmentUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // kiểm tra nếu không có id thì trả về lỗi
+    for (const department of departments) {
+        if (!department.id) {
+            return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
+        }
+    }
+
+
+
     const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
 
     if (status) {
@@ -365,6 +382,12 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
 }
 
 export async function deleteDepartments(departments: Array<departmentUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // kiểm tra nếu không có id thì trả về lỗi
+    for (const department of departments) {
+        if (!department.id) {
+            return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
+        }
+    }
     const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
     if (status) {
         for (const department of departments) {
@@ -374,11 +397,6 @@ export async function deleteDepartments(departments: Array<departmentUpdateAndDe
                 return { data: null, status: false, errorCode: { failData: { code: 'Can not delete General department' } } };
             }
         }
-
-        // const deleteTargets = departments.map((u: departmentUpdateAndDelete) => ({
-        //     id: u.id!,
-        //     organizationId: u.organizationId!
-        // }));
 
         const tablesData = {
             table: "departments",
