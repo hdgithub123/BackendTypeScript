@@ -1,25 +1,37 @@
-import executeQuery, { insertObjectsTablesNotIsSystem, insertObject, insertObjects, insertObjectNotIsSystem, insertObjectsNotIsSystem, updateObject, updateObjects, updateObjectNotIsSystem, updateObjectsNotIsSystem, deleteObject, deleteObjects, deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
+import e from 'express';
+import executeQuery from '../../connectSql'
+import {
+    insertObjectsTablesNotIsSystem,
+    insertObject,
+    insertObjects,
+    insertObjectNotIsSystem,
+    insertObjectsNotIsSystem,
+    updateObject,
+    updateObjects,
+    updateObjectNotIsSystem,
+    updateObjectsNotIsSystem,
+    deleteObject,
+    deleteObjects,
+    deleteObjectNotIsSystem,
+    deleteObjectsNotIsSystem,
+
+    insertObjectsTreeTrunkTablesNotIsSystem,
+    insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem,
+    deleteObjectsTreeTrunkTablesNotIsSystem,
+    updateObjectsTreeTrunkTablesNotIsSystem,
+
+    insertObjectsTreeTrunkTables,
+    insertObjectsTreeTrunkTablesUniqueField,
+    updateObjectsTreeTrunkTables,
+    deleteObjectsTreeTrunkTables,
+
+    checkExistenceOfFieldsObject,
+    checkExistenceOfFieldsObjects
+} from '../../connectSql'
+
+
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
 import { v4 as uuidv4 } from 'uuid';
-
-// CREATE TABLE departments (
-//     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-//     name VARCHAR(255) NOT NULL,
-//     code VARCHAR(100) NOT NULL, -- Mã phòng ban có thể thay đổi
-//     address TEXT,
-//     description TEXT,
-//     parentId CHAR(36) NULL,
-//     departmentId CHAR(36) NOT NULL,
-//     FOREIGN KEY (departmentId) REFERENCES departments(id) ON DELETE CASCADE,
-//     UNIQUE (departmentId, code),
-//     isSystem TINYINT(1) DEFAULT 0,
-//     createdBy VARCHAR(100),
-//     updatedBy VARCHAR(100),
-//     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//     FOREIGN KEY (parentId) REFERENCES departments(id),
-//     CHECK (id <> '')
-// );
 
 
 
@@ -30,7 +42,8 @@ export type department = {
     address?: string;
     description?: string;
     parentId?: string;
-    branchId?: string;
+    branchId: string;
+    organizationId: string;
     isActive?: boolean;
     isSystem?: boolean;
     createdBy?: string;
@@ -48,6 +61,7 @@ export type departmentUpdateAndDelete = {
     description?: string;
     parentId?: string;
     branchId?: string;
+    organizationId?: string;
     isActive?: boolean;
     isSystem?: boolean;
     createdBy?: string;
@@ -63,6 +77,7 @@ const departmentInsertRule: RuleSchema = {
     address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     parentId: { type: "string", format: "uuid", required: false },
+    organizationId: { type: "string", format: "uuid", required: true },
     branchId: { type: "string", format: "uuid", required: true },
     isActive: { type: 'boolean', required: false },
     createdBy: { type: "string", required: false, maxLength: 100 },
@@ -81,6 +96,7 @@ const departmentUpdateAndDeleteRule: RuleSchema = {
     isActive: { type: 'boolean', required: false },
     parentId: { type: "string", format: "uuid", required: false },
     branchId: { type: "string", format: "uuid", required: false },
+    organizationId: { type: "string", format: "uuid", required: false },
     createdBy: { type: "string", required: false, maxLength: 100 },
     updatedBy: { type: "string", required: false, maxLength: 100 },
     createdAt: { type: "string", format: "datetime", required: false },
@@ -96,6 +112,7 @@ const departmentCheckRule: RuleSchema = {
     isActive: { type: 'boolean', required: false },
     parentId: { type: "string", format: "uuid", required: false },
     branchId: { type: "string", format: "uuid", required: false },
+    organizationId: { type: "string", format: "uuid", required: false },
     createdBy: { type: "string", required: false, maxLength: 100 },
     updatedBy: { type: "string", required: false, maxLength: 100 },
     createdAt: { type: "string", format: "datetime", required: false },
@@ -121,23 +138,32 @@ export type departmentsExistanceCheck = {
     whereField?: { [field: string]: string | number | undefined };
 };
 
-export async function getDepartment(id: string, branchId: string) {
-    const sqlQuery = "SELECT * FROM departments WHERE id = ? AND branchId = ?";
-    return await executeQuery(sqlQuery, [id, branchId]);
+
+export type departmentData = {
+    table: string;
+    dataIn: Array<department>;
+    parentField: string;
+    childField: string;
 }
-export async function getDepartments(branchId: string) {
-    const Sqlstring = "Select * from departments WHERE branchId = ?";
-    const data = await executeQuery(Sqlstring, [branchId]);
+
+
+export async function getDepartment(id: string, organizationId: string) {
+    const sqlQuery = "SELECT * FROM departments WHERE id = ? AND organizationId = ?";
+    return await executeQuery(sqlQuery, [id, organizationId]);
+}
+export async function getDepartments(organizationId: string) {
+    const Sqlstring = "Select * from departments WHERE organizationId = ?";
+    const data = await executeQuery(Sqlstring, [organizationId]);
     return data;
 
 }
 
-export async function getIdDepartmentsByCodes(branchId: string, codes: string[]) {
+export async function getIdDepartmentsByCodes(organizationId: string, codes: string[]) {
     if (!codes.length) return { data: [], status: true, errorCode: {} };
 
     const placeholders = codes.map(() => '?').join(', ');
-    const query = `SELECT id, code FROM departments WHERE branchId = ? AND code IN (${placeholders})`;
-    const params = [branchId, ...codes];
+    const query = `SELECT id, code FROM departments WHERE organizationId = ? AND code IN (${placeholders})`;
+    const params = [organizationId, ...codes];
 
     const result = await executeQuery(query, params);
     return result;
@@ -169,7 +195,30 @@ export async function checkExistenceDepartments(departmentsCheck: departmentsExi
 export async function insertDepartment(department: department): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([department], departmentInsertRule, messagesEn);
     if (status) {
-        return await insertObjectNotIsSystem("departments", department);
+        // kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
+        const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
+        const { data: branchData, status: branchStatus } = await executeQuery(checkBranchSql, [department.branchId]);
+        if (branchStatus && branchData && Array.isArray(branchData) && branchData.length > 0) {
+            if (branchData[0].organizationId !== department.organizationId) {
+                return { data: null, status: false, errorCode: { failData: { branchId: 'Branch does not belong to the same organization' } } };
+            }
+        } else {
+            return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
+        }
+
+        if (!department.id) {
+            department.id = uuidv4();
+        }
+        
+        const tablesData = {
+            table: "departments",
+            dataIn: [department],
+            parentField: "parentId",
+            childField: "id"
+        };
+
+
+        return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -190,8 +239,20 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
 
 
     if (status) {
-        const columKey = { id: department.id, branchId: department.branchId }; // Use userId as the columKey
-        return await updateObjectNotIsSystem("departments", department, columKey);
+        // loại bỏ branchId và organizationId trong department
+        delete department.branchId;
+        delete department.organizationId;
+        
+        const tablesData = {
+            table: "departments",
+            dataIn: [department],
+            parentField: "parentId",
+            childField: "id"
+        };
+
+
+        const columKey = { id: department.id, organizationId: department.organizationId }; // Use userId as the columKey
+        return await updateObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -204,10 +265,18 @@ export async function deleteDepartment(department: departmentUpdateAndDelete): P
         return { data: null, status: false, errorCode: { failData: { code: ' Can not delete General department' } } };
     }
 
-    const columKey = { id: department.id, branchId: department.branchId }; // Use userId as the columKey
+    const columKey = { id: department.id, organizationId: department.organizationId }; // Use userId as the columKey
     const { status, results } = validateDataArray([columKey], departmentUpdateAndDeleteRule, messagesEn);
     if (status) {
-        return await deleteObjectNotIsSystem("departments", columKey);
+        const tablesData = {
+            table: "departments",
+            dataIn: [department.id],
+            parentField: "parentId",
+            childField: "id"
+        };
+
+
+        return await deleteObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -216,7 +285,29 @@ export async function deleteDepartment(department: departmentUpdateAndDelete): P
 export async function insertDepartments(departments: Array<department>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(departments, departmentInsertRule, messagesEn);
     if (status) {
-        return await insertObjectsNotIsSystem("departments", departments);
+        // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
+        for (const department of departments) {
+            const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
+            const { data: branchData, status: branchStatus } = await executeQuery(checkBranchSql, [department.branchId]);
+            if (branchStatus && branchData && Array.isArray(branchData) && branchData.length > 0) {
+                if (branchData[0].organizationId !== department.organizationId) {
+                    return { data: null, status: false, errorCode: { failData: { branchId: 'Branch does not belong to the same organization' } } };
+                }
+            } else {
+                return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
+            }
+            if (!department.id) {
+                department.id = uuidv4();
+            }
+        }
+
+        const tablesData = {
+            table: "departments",
+            dataIn: departments,
+            parentField: "parentId",
+            childField: "id"
+        };
+        return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -225,7 +316,6 @@ export async function insertDepartments(departments: Array<department>): Promise
 export async function updateDepartments(departments: Array<departmentUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
 
-
     if (status) {
         // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
         for (const department of departments) {
@@ -233,12 +323,27 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
             const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
             if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
                 // Nếu tìm thấy department có code = 'General' trong department thì trả về lỗi
-                if (department.code) {
+                if (department.code || department.parentId) {
                     return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
                 }
             }
         }
-        return await updateObjectsNotIsSystem("departments", departments, ["id", "branchId"]);
+
+        // loại bỏ branchId và organizationId trong mỗi department
+        for (const department of departments) {
+            delete department.branchId;
+            delete department.organizationId;
+        }
+
+
+        const tablesData = {
+            table: "departments",
+            dataIn: departments,
+            parentField: "parentId",
+            childField: "id"
+        };
+
+        return await updateObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -254,12 +359,19 @@ export async function deleteDepartments(departments: Array<departmentUpdateAndDe
             }
         }
 
-        const deleteTargets = departments.map((u: departmentUpdateAndDelete) => ({
-            id: u.id!,
-            branchId: u.branchId!
-        }));
+        // const deleteTargets = departments.map((u: departmentUpdateAndDelete) => ({
+        //     id: u.id!,
+        //     organizationId: u.organizationId!
+        // }));
 
-        return await deleteObjectsNotIsSystem("departments", deleteTargets);
+        const tablesData = {
+            table: "departments",
+            dataIn: departments.map(d => d.id!),
+            parentField: "parentId",
+            childField: "id"
+        };
+
+        return await deleteObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }

@@ -257,6 +257,7 @@ CREATE TABLE branches (
     organizationId CHAR(36) NOT NULL,
     FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
     UNIQUE (organizationId, code),
+    isIndependent TINYINT(1) DEFAULT 0,
     isActive TINYINT(1) DEFAULT 0,
     isSystem TINYINT(1) DEFAULT 0,
     createdBy VARCHAR(100),
@@ -297,8 +298,9 @@ CREATE TABLE departments (
     description TEXT,
     parentId CHAR(36) NULL,
     branchId CHAR(36) NOT NULL,
+    organizationId CHAR(36) NOT NULL,
     FOREIGN KEY (branchId) REFERENCES branches(id) ON DELETE CASCADE,
-    UNIQUE (branchId, code),
+    UNIQUE (organizationId, code),
     isActive TINYINT(1) DEFAULT 0,
     isSystem TINYINT(1) DEFAULT 0,
     createdBy VARCHAR(100),
@@ -380,7 +382,17 @@ DELIMITER ;
 
 
 
-
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- department
+('view Department', 'GetDepartment', 'Xem thông tin một phòng ban', 'System', TRUE, FALSE),
+('add Department', 'PostDepartment', 'Thêm một phòng ban mới', 'System', TRUE, FALSE),
+('update Department', 'PutDepartment', 'Cập nhật thông tin phòng ban', 'System', TRUE, FALSE),
+('Delete Department', 'DeleteDepartment', 'Xóa một phòng ban', 'System', TRUE, FALSE),
+('view Departments', 'GetDepartments', 'Xem danh sách phòng ban', 'System', TRUE, FALSE),
+('add Departments', 'PostDepartments', 'Thêm nhiều phòng ban', 'System', TRUE, FALSE),
+('update Departments', 'PutDepartments', 'Cập nhật danh sách phòng ban', 'System', TRUE, FALSE),
+('Delete Departments', 'DeleteDepartments', 'Xóa nhiều phòng ban', 'System', TRUE, FALSE),
+('export Departments', 'ExportDepartments', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
 
 
 
@@ -580,6 +592,19 @@ INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 ('add RolesTemplateContent', 'PostRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
 ('update RolesTemplateContent', 'PutRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
 ('Delete RolesTemplateContent', 'DeleteRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE);
+
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- department template contents
+('view DepartmentTemplateContent', 'GetDepartmentTemplateContent', 'Xem nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
+('add DepartmentTemplateContent', 'PostDepartmentTemplateContent', 'Thêm nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
+('update DepartmentTemplateContent', 'PutDepartmentTemplateContent', 'Cập nhật nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
+('Delete DepartmentTemplateContent', 'DeleteDepartmentTemplateContent', 'Xóa nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
+
+-- departments template contents
+('view DepartmentsTemplateContent', 'GetDepartmentsTemplateContent', 'Xem nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
+('add DepartmentsTemplateContent', 'PostDepartmentsTemplateContent', 'Thêm nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
+('update DepartmentsTemplateContent', 'PutDepartmentsTemplateContent', 'Cập nhật nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
+('Delete DepartmentsTemplateContent', 'DeleteDepartmentsTemplateContent', 'Xóa nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE);
 
 
 

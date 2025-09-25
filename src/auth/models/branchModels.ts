@@ -9,6 +9,7 @@ export type branch = {
     address?: string;
     description?: string;
     organizationId?: string;
+    isIndependent?: boolean;
     isActive?: boolean;
     isSystem?: boolean;
     createdBy?: string;
@@ -25,6 +26,7 @@ export type branchUpdateAndDelete = {
     description?: string;
     address?: string;
     organizationId: string;
+    isIndependent?: boolean;
     isActive?: boolean;
     isSystem?: boolean;
     createdBy?: string;
@@ -39,6 +41,7 @@ const branchInsertRule: RuleSchema = {
     name: { type: 'string', required: true, minLength: 2, maxLength: 255 },
     address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    isIndependent: { type: 'boolean', required: false },
     isActive: { type: 'boolean', required: false },
     organizationId: { type: "string", format: "uuid", required: true },
     createdBy: { type: "string", required: false, maxLength: 100 },
@@ -54,6 +57,7 @@ const branchUpdateAndDeleteRule: RuleSchema = {
     name: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    isIndependent: { type: 'boolean', required: false },
     isActive: { type: 'boolean', required: false },
     organizationId: { type: "string", format: "uuid", required: true },
     createdBy: { type: "string", required: false, maxLength: 100 },
@@ -68,6 +72,7 @@ const branchCheckRule: RuleSchema = {
     name: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    isIndependent: { type: 'boolean', required: false },
     isActive: { type: 'boolean', required: false },
     organizationId: { type: "string", format: "uuid", required: false },
     createdBy: { type: "string", required: false, maxLength: 100 },
