@@ -19,6 +19,7 @@ import insertObjectsTreeTrunkTables from './mySql/ObjectsTreeTrunkNomal/insertOb
 import insertObjectsTreeTrunkTablesUniqueField from './mySql/ObjectsTreeTrunkNomal/insertObjectsTreeTrunkTablesUniqueField'
 import updateObjectsTreeTrunkTables from './mySql/ObjectsTreeTrunkNomal/updateObjectsTreeTrunkTables'
 import deleteObjectsTreeTrunkTables from './mySql/ObjectsTreeTrunkNomal/deleteObjectsTreeTrunkTables'
+import updateObjectsTreeTrunkTablesUniqueField from './mySql/ObjectsTreeTrunkNomal/updateObjectsTreeTrunkTablesUniqueField'
 
 
 import { insertObjectNotIsSystem, insertObjectsNotIsSystem, updateObjectNotIsSystem, updateObjectsNotIsSystem, deleteObjectsNotIsSystem, deleteObjectNotIsSystem } from './mySql/ObjectNotIsSystem/executeObjects'
@@ -27,12 +28,11 @@ import insertObjectsTreeLeafTablesNotIsSystem from './mySql/ObjectsTreeLeafNotIs
 import insertObjectsTreeLeafTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeLeafNotIsSystem/insertObjectsTreeLeafTablesNotIsSystem'
 import updateObjectsTreeLeafTablesNotIsSystem from './mySql/ObjectsTreeLeafNotIsSystem/updateObjectsTreeLeafTablesNotIsSystem'
 
-
 import deleteObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/deleteObjectsTreeTrunkTablesNotIsSystem'
 import insertObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/insertObjectsTreeTrunkTablesNotIsSystem'
 import insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/insertObjectsTreeTrunkTablesNotIsSystem'
 import updateObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/updateObjectsTreeTrunkTablesNotIsSystem'
-
+import updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem'
 
 export default executeQuery
 
@@ -68,11 +68,13 @@ export {
     insertObjectsTreeTrunkTablesUniqueField,
     updateObjectsTreeTrunkTables,
     deleteObjectsTreeTrunkTables,
+    updateObjectsTreeTrunkTablesUniqueField,
 
     insertObjectsTreeTrunkTablesNotIsSystem,
     insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem,
     deleteObjectsTreeTrunkTablesNotIsSystem,
     updateObjectsTreeTrunkTablesNotIsSystem,
+    updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem,
 
     checkExistenceOfFieldsObject,
     checkExistenceOfFieldsObjects,

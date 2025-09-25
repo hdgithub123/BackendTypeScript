@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
-import {getDepartments,insertDepartments,updateDepartments,deleteDepartments,getDepartment,insertDepartment,updateDepartment,deleteDepartment,checkExistenceDepartment,checkExistenceDepartments,getIdDepartmentsByCodes} from '../controllers/departmentControllers';
+import {getDepartments,insertDepartments,insertDepartmentsByCode,updateDepartments,updateDepartmentsByCode,deleteDepartments,getDepartment,insertDepartment,updateDepartment,deleteDepartment,checkExistenceDepartment,checkExistenceDepartments,getIdDepartmentsByCodes} from '../controllers/departmentControllers';
 // Định tuyến cho trang department
 
 //chú ý route cha phải được đặt sau route con
@@ -15,6 +15,9 @@ router.get('/list',authorization,checkPermission({rightCodes: ["GetDepartments"]
 router.post('/list',authorization,checkPermission({rightCodes: ["PostDepartments"], isAllowChildZone: false}),insertDepartments,insertActivityLogsInfo({action: 'insertDepartments',tableName: 'departments',description:"insert departments"}));
 router.put('/list',authorization,checkPermission({rightCodes: ["PutDepartments"], isAllowChildZone: false}), updateDepartments,insertActivityLogsInfo({action: 'updateDepartments',tableName: 'departments',description:"update departments"}));
 router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteDepartments"], isAllowChildZone: false}), deleteDepartments,insertActivityLogsInfo({action: 'deleteDepartments',tableName: 'departments',description:"delete departments"}));
+
+router.post('/list/code',authorization,checkPermission({rightCodes: ["PostDepartments"], isAllowChildZone: false}),insertDepartmentsByCode,insertActivityLogsInfo({action: 'insertDepartments',tableName: 'departments',description:"insert departments"}));
+router.put('/list/code',authorization,checkPermission({rightCodes: ["PutDepartments"], isAllowChildZone: false}), updateDepartmentsByCode,insertActivityLogsInfo({action: 'updateDepartments',tableName: 'departments',description:"update departments"}));
 
 router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetDepartments", "PutDepartments"], isAllowChildZone: true}),getIdDepartmentsByCodes);
 router.post('/check-department',authorization,checkPermission({rightCodes: ["PostDepartment","PutDepartment"], isAllowChildZone: false}),checkExistenceDepartment);

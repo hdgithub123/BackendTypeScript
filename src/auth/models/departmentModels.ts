@@ -19,6 +19,7 @@ import {
     insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem,
     deleteObjectsTreeTrunkTablesNotIsSystem,
     updateObjectsTreeTrunkTablesNotIsSystem,
+    updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem,
 
     insertObjectsTreeTrunkTables,
     insertObjectsTreeTrunkTablesUniqueField,
@@ -53,6 +54,23 @@ export type department = {
 };
 
 
+export type departmentInsertByCode = {
+    id?: string;
+    code?: string;
+    name?: string;
+    address?: string;
+    description?: string;
+    parentId?: string | null;
+    branchId: string;
+    organizationId: string;
+    isActive?: boolean;
+    isSystem?: boolean;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+};
+
 export type departmentUpdateAndDelete = {
     id: string;
     code?: string;
@@ -77,6 +95,23 @@ const departmentInsertRule: RuleSchema = {
     address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     parentId: { type: "string", format: "uuid", required: false },
+    organizationId: { type: "string", format: "uuid", required: true },
+    branchId: { type: "string", format: "uuid", required: true },
+    isActive: { type: 'boolean', required: false },
+    createdBy: { type: "string", required: false, maxLength: 100 },
+    updatedBy: { type: "string", required: false, maxLength: 100 },
+    createdAt: { type: "string", format: "datetime", required: false },
+    updatedAt: { type: "string", format: "datetime", required: false }
+};
+
+
+const departmentInsertByCodeRule: RuleSchema = {
+    id: { type: 'string', required: false, format: 'uuid' },
+    code: { type: "string", required: true, minLength: 2, maxLength: 100 },
+    name: { type: 'string', required: true, minLength: 2, maxLength: 255 },
+    address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    parentId: { type: "string", required: false,minLength: 2, maxLength: 100 },
     organizationId: { type: "string", format: "uuid", required: true },
     branchId: { type: "string", format: "uuid", required: true },
     isActive: { type: 'boolean', required: false },
@@ -301,6 +336,43 @@ export async function deleteDepartment(department: departmentUpdateAndDelete): P
 
 
 export async function insertDepartments(departments: Array<department>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    const { status, results } = validateDataArray(departments, departmentInsertByCodeRule, messagesEn);
+    if (status) {
+        // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
+        for (const department of departments) {
+            const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
+            const { data: branchData, status: branchStatus } = await executeQuery(checkBranchSql, [department.branchId]);
+            if (branchStatus && branchData && Array.isArray(branchData) && branchData.length > 0) {
+                if (branchData[0].organizationId !== department.organizationId) {
+                    return { data: null, status: false, errorCode: { failData: { branchId: 'Branch does not belong to the same organization' } } };
+                }
+            } else {
+                return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
+            }
+
+            // nếu parentid = '' thì gán parentId = null
+            if (department.parentId === '') {
+                department.parentId = null;
+            }
+
+            if (!department.id) {
+                department.id = uuidv4();
+            }
+        }
+
+        const tablesData = {
+            table: "departments",
+            dataIn: departments,
+            parentField: "parentId",
+            childField: "id"
+        };
+        return await insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem([tablesData]);
+    }
+    return { data: null, status: status, errorCode: { failData: results } };
+}
+
+
+export async function insertDepartmentsByCode(departments: Array<departmentInsertByCode>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(departments, departmentInsertRule, messagesEn);
     if (status) {
         // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
@@ -380,6 +452,52 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
+
+export async function updateDepartmentsByCode(departments: Array<departmentUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    // kiểm tra nếu không có id thì trả về lỗi
+    for (const department of departments) {
+        if (!department.id) {
+            return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
+        }
+    }
+
+
+
+    const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
+
+    if (status) {
+        // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
+        for (const department of departments) {
+            const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
+            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
+            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                // Nếu tìm thấy department có code = 'General' trong department thì trả về lỗi
+                if (department.code || department.parentId) {
+                    return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
+                }
+            }
+        }
+
+        // loại bỏ branchId và organizationId trong mỗi department
+        for (const department of departments) {
+            delete department.branchId;
+            delete department.organizationId;
+        }
+
+
+        const tablesData = {
+            table: "departments",
+            dataIn: departments,
+            parentField: "parentId",
+            childField: "id"
+        };
+
+        return await updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem([tablesData]);
+    }
+    return { data: null, status: status, errorCode: { failData: results } };
+}
+
+
 
 export async function deleteDepartments(departments: Array<departmentUpdateAndDelete>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     // kiểm tra nếu không có id thì trả về lỗi

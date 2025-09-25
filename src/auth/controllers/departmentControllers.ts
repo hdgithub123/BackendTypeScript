@@ -148,6 +148,35 @@ export async function insertDepartments(req: Request, res: Response, next: Funct
 
 }
 
+export async function insertDepartmentsByCode(req: Request, res: Response, next: Function) {
+    try {
+        let departments = req.body; // Lấy dữ liệu từ body của request
+
+        // Đi qua array departments gán department.organizationId = req.user.organizationId
+        if (Array.isArray(departments) && req.user && req.user.organizationId) {
+            departments = departments.map(department => ({
+                ...department,
+                createdBy: req.user.code ?? 'system',
+                updatedBy: req.user.code ?? 'system',
+                organizationId: req.user.organizationId
+            }));
+        }
+
+        const { data, status, errorCode } = await departmentModel.insertDepartmentsByCode(departments); // Gọi hàm insertDepartments từ model
+        if (status) {
+            req.result = data; // Lưu kết quả vào req.result để có thể sử dụng trong middleware khác nếu cần
+            res.status(201).json({ data, status, errorCode });
+            next();
+        } else {
+            res.status(400).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+
+}
+
 export async function updateDepartment(req: Request, res: Response, next: Function) {
     try {
         const department = req.body;
@@ -209,7 +238,33 @@ export async function updateDepartments(req: Request, res: Response, next: Funct
     }
 }
 
+export async function updateDepartmentsByCode(req: Request, res: Response, next: Function) {
+    try {
+        let departments = req.body; // Lấy dữ liệu từ body của request
 
+        // Đi qua array departments gán department.organizationId = req.user.organizationId
+        if (Array.isArray(departments) && req.user && req.user.organizationId) {
+            departments = departments.map(department => ({
+                ...department,
+                organizationId: req.user.organizationId,
+                updatedBy: req.user.code ?? 'Unknown',
+                updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            }));
+        }
+
+        const { data, status, errorCode } = await departmentModel.updateDepartmentsByCode(departments); // Gọi hàm updateDepartments từ model
+        if (status) {
+            req.result = data;
+            res.status(200).json({ data, status, errorCode });
+            next();
+        } else {
+            res.status(400).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
 
 export async function deleteDepartment(req: Request, res: Response, next: Function) {
     try {
