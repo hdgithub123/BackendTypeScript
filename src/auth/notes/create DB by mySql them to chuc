@@ -300,6 +300,7 @@ CREATE TABLE departments (
     branchId CHAR(36) NOT NULL,
     organizationId CHAR(36) NOT NULL,
     FOREIGN KEY (branchId) REFERENCES branches(id) ON DELETE CASCADE,
+    FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
     UNIQUE (organizationId, code),
     isActive TINYINT(1) DEFAULT 0,
     isSystem TINYINT(1) DEFAULT 0,

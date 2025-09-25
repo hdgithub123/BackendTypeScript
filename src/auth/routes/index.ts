@@ -11,12 +11,14 @@ import zoneRouters from './zoneRouters';
 import UserZoneRoleRoute from './userZoneRoleRouters';
 import organizationRouters from './organizationRouters';
 import branchRouters from './branchRouters';
+import departmentRouters from './departmentRouters';
 
 
 const router = express();
 router.use('/activity-logs', activityLogsRouters);
 router.use('/organization', organizationRouters);
 router.use('/branch', branchRouters);
+router.use('/department', departmentRouters);
 router.use('/user', userRoutes);
 router.use('/login', loginRouters);
 router.use('/logout', logoutRouter);

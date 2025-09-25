@@ -41,7 +41,7 @@ export type department = {
     name?: string;
     address?: string;
     description?: string;
-    parentId?: string;
+    parentId?: string | null;
     branchId: string;
     organizationId: string;
     isActive?: boolean;
@@ -59,7 +59,7 @@ export type departmentUpdateAndDelete = {
     name?: string;
     address?: string;
     description?: string;
-    parentId?: string;
+    parentId?: string | null;
     branchId?: string;
     organizationId?: string;
     isActive?: boolean;
@@ -206,6 +206,13 @@ export async function insertDepartment(department: department): Promise<{ data: 
             return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
         }
 
+
+        // nếu parentid = '' thì gán parentId = null
+        if (department.parentId === '') {
+            department.parentId = null;
+        }
+
+
         if (!department.id) {
             department.id = uuidv4();
         }
@@ -217,8 +224,11 @@ export async function insertDepartment(department: department): Promise<{ data: 
             childField: "id"
         };
 
+        const  data = await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
+        console.log('Inserted successfully:', data);
+        return data;
 
-        return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
+        // return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -296,6 +306,12 @@ export async function insertDepartments(departments: Array<department>): Promise
             } else {
                 return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
             }
+
+            // nếu parentid = '' thì gán parentId = null
+            if (department.parentId === '') {
+                department.parentId = null;
+            }
+
             if (!department.id) {
                 department.id = uuidv4();
             }
