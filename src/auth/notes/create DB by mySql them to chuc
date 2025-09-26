@@ -348,34 +348,37 @@ BEGIN
     END IF;
 END$$
 
+
 CREATE TRIGGER trg_departments_no_loop_update
 BEFORE UPDATE ON departments
 FOR EACH ROW
 BEGIN
-    DECLARE hasLoop INT DEFAULT 0;
+    DECLARE v_parent CHAR(36);
+    DECLARE iter INT DEFAULT 0;
 
-    IF NEW.parentId IS NOT NULL AND NEW.parentId <> OLD.parentId THEN
-        SELECT COUNT(*) INTO hasLoop
-        FROM (
-            WITH RECURSIVE cte AS (
-                SELECT id, parentId
-                FROM departments
-                WHERE id = NEW.parentId
-
-                UNION ALL
-
-                SELECT d.id, d.parentId
-                FROM departments d
-                JOIN cte c ON d.id = c.parentId
-            )
-            SELECT id FROM cte
-        ) t
-        WHERE t.id = NEW.id;
-
-        IF hasLoop > 0 THEN
-            SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Hierarchy loop detected (UPDATE departments).';
+    IF NEW.parentId IS NOT NULL AND (OLD.parentId IS NULL OR NEW.parentId <> OLD.parentId) THEN
+        IF NEW.parentId = NEW.id THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Self-parent not allowed (UPDATE).';
         END IF;
+
+        SET v_parent = NEW.parentId;
+
+        loop_check2: LOOP
+            SET iter = iter + 1;
+            IF iter > 1000 THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Too deep or existing cycle detected (UPDATE).';
+            END IF;
+
+            IF v_parent IS NULL THEN
+                LEAVE loop_check2;
+            END IF;
+
+            IF v_parent = NEW.id THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Hierarchy loop detected (UPDATE departments).';
+            END IF;
+
+            SELECT parentId INTO v_parent FROM departments WHERE id = v_parent LIMIT 1;
+        END LOOP loop_check2;
     END IF;
 END$$
 

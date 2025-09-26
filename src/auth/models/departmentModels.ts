@@ -111,7 +111,7 @@ const departmentInsertByCodeRule: RuleSchema = {
     name: { type: 'string', required: true, minLength: 2, maxLength: 255 },
     address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
     description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
-    parentId: { type: "string", required: false,minLength: 2, maxLength: 100 },
+    parentId: { type: "string", required: false, minLength: 2, maxLength: 100 },
     organizationId: { type: "string", format: "uuid", required: true },
     branchId: { type: "string", format: "uuid", required: true },
     isActive: { type: 'boolean', required: false },
@@ -183,11 +183,28 @@ export type departmentData = {
 
 
 export async function getDepartment(id: string, organizationId: string) {
+    // lay ra 
     const sqlQuery = "SELECT * FROM departments WHERE id = ? AND organizationId = ?";
     return await executeQuery(sqlQuery, [id, organizationId]);
 }
+
+
+
 export async function getDepartments(organizationId: string) {
-    const Sqlstring = "Select * from departments WHERE organizationId = ?";
+    // lay ra tat ca cac department, parentCode = 
+    // const Sqlstring = "Select * from departments WHERE organizationId = ?";
+
+    const Sqlstring = `SELECT 
+                        d.*, 
+                        p.code AS _parentCode
+                        FROM 
+                        departments d
+                        LEFT JOIN 
+                        departments p ON d.parentId = p.id
+                        WHERE 
+                        d.organizationId = ?`
+
+
     const data = await executeQuery(Sqlstring, [organizationId]);
     return data;
 
@@ -260,7 +277,6 @@ export async function insertDepartment(department: department): Promise<{ data: 
         };
 
         const data = await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
-        console.log('Inserted successfully:', data);
         return data;
 
         // return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
