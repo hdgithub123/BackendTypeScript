@@ -122,6 +122,23 @@ const departmentInsertByCodeRule: RuleSchema = {
 };
 
 
+const departmentUpdateAndDeleteByCodeRule: RuleSchema = {
+    id: { type: 'string', required: true, format: 'uuid' },
+    code: { type: "string", required: false, minLength: 2, maxLength: 100 },
+    name: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    address: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    description: { type: 'string', required: false, minLength: 2, maxLength: 255 },
+    isActive: { type: 'boolean', required: false },
+    parentId: { type: "string", required: false, minLength: 2, maxLength: 100 },
+    branchId: { type: "string", format: "uuid", required: false },
+    organizationId: { type: "string", format: "uuid", required: false },
+    createdBy: { type: "string", required: false, maxLength: 100 },
+    updatedBy: { type: "string", required: false, maxLength: 100 },
+    createdAt: { type: "string", format: "datetime", required: false },
+    updatedAt: { type: "string", format: "datetime", required: false }
+};
+
+
 const departmentUpdateAndDeleteRule: RuleSchema = {
     id: { type: 'string', required: true, format: 'uuid' },
     code: { type: "string", required: false, minLength: 2, maxLength: 100 },
@@ -444,8 +461,9 @@ export async function insertDepartments(departments: Array<department>): Promise
 
 export async function insertDepartmentsByCode(departments: Array<departmentInsertByCode>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(departments, departmentInsertByCodeRule, messagesEn);
+    
     if (status) {
-        console.log("Validated departments:", departments);
+        
         // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
         for (const department of departments) {
             const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
@@ -564,7 +582,7 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
         }
     }
 
-    const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
+    const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteByCodeRule, messagesEn);
 
     if (status) {
         // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
@@ -599,7 +617,7 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
                 const { data: childData, status: childStatus } = await executeQuery(getParentSql, [department.id]);
                 if (childStatus && childData && Array.isArray(childData) && childData.length > 0) {
                     if (childData[0].parentId) {
-                        return { data: null, status: false, errorCode: { failData: { branchId: 'Can not update branchId when department has parentId' } } };
+                        return { data: null, status: false, errorCode: { failData: { branchId: `Can not update branchId when department has parentId at ${department.code}` } } };
                     }
                 } else {
                     return { data: null, status: false, errorCode: { failData: { id: 'Department not found' } } };
