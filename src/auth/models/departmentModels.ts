@@ -618,6 +618,7 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
         const tablesData = {
             table: "departments",
             dataIn: departments,
+            uniqueField: "code",
             parentField: "parentId",
             childField: "id"
         };
