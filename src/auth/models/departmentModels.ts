@@ -192,18 +192,19 @@ export async function getDepartment(id: string, organizationId: string) {
 
 export async function getDepartments(organizationId: string) {
     // lay ra tat ca cac department, parentCode = 
-    // const Sqlstring = "Select * from departments WHERE organizationId = ?";
+    //const Sqlstring = "Select * from departments WHERE organizationId = ?";
 
+    // lấy cùng với branchCode trong bang branches mã code của branch
     const Sqlstring = `SELECT 
-                        d.*, 
-                        p.code AS _parentCode
+                        d.*,
+                        b.code AS _branchCode,
+                        b.name AS _branchName
                         FROM 
                         departments d
                         LEFT JOIN 
-                        departments p ON d.parentId = p.id
+                        branches b ON d.branchId = b.id
                         WHERE 
-                        d.organizationId = ?`
-
+                        d.organizationId = ?`;
 
     const data = await executeQuery(Sqlstring, [organizationId]);
     return data;
@@ -259,6 +260,19 @@ export async function insertDepartment(department: department): Promise<{ data: 
         }
 
 
+        // kiểm tra xem branchId mà có id = parentId có  = brachId của department không
+        if (department.parentId) {
+            const checkParentSql = "SELECT branchId FROM departments WHERE id = ?";
+            const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.parentId]);
+            if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
+                if (parentData[0].branchId !== department.branchId) {
+                    return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department and Child department does not belong to the same branch' } } };
+                }
+            } else {
+                return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+            }
+        }
+
         // nếu parentid = '' thì gán parentId = null
         if (department.parentId === '') {
             department.parentId = null;
@@ -303,11 +317,38 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
             }
         }
     }
+    // kiểm tra nếu có department.parentId thì phải kiểm tra branchId của cha có khác với con không bằng cách 
+    // lấy branchId của department hiện tại với department.id và lấy branchId của department.parentId nếu khác thì trả về lỗi
+    if (status && department.parentId) {
+        const getBranchSql = "SELECT branchId FROM departments WHERE id = ?";
+        const { data: childData, status: childStatus } = await executeQuery(getBranchSql, [department.id]);
+        const { data: parentData, status: parentStatus } = await executeQuery(getBranchSql, [department.parentId]);
+        if (childStatus && parentStatus && childData && parentData && Array.isArray(childData) && Array.isArray(parentData) && childData.length > 0 && parentData.length > 0) {
+            if (childData[0].branchId !== parentData[0].branchId) {
+                return { data: null, status: false, errorCode: { failData: { parentId: `Parent department and Child department does not belong to the same branch` } } };
+            }
+        } else {
+            return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+        }
+    }
+
+    // kiểm tra nếu có department.branchId thì phải kiểm tra xem có parentId không nếu có thì không cho update
+    if (status && department.branchId) {
+        const getParentSql = "SELECT parentId FROM departments WHERE id = ?";
+        const { data: childData, status: childStatus } = await executeQuery(getParentSql, [department.id]);
+        if (childStatus && childData && Array.isArray(childData) && childData.length > 0) {
+            if (childData[0].parentId) {
+                return { data: null, status: false, errorCode: { failData: { branchId: 'Can not update branchId when department has parentId' } } };
+            }
+        } else {
+            return { data: null, status: false, errorCode: { failData: { id: 'Department not found' } } };
+        }
+    }
 
 
     if (status) {
         // loại bỏ branchId và organizationId trong department
-        delete department.branchId;
+        // delete department.branchId;
         delete department.organizationId;
 
         const tablesData = {
@@ -352,43 +393,6 @@ export async function deleteDepartment(department: departmentUpdateAndDelete): P
 
 
 export async function insertDepartments(departments: Array<department>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    const { status, results } = validateDataArray(departments, departmentInsertByCodeRule, messagesEn);
-    if (status) {
-        // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
-        for (const department of departments) {
-            const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
-            const { data: branchData, status: branchStatus } = await executeQuery(checkBranchSql, [department.branchId]);
-            if (branchStatus && branchData && Array.isArray(branchData) && branchData.length > 0) {
-                if (branchData[0].organizationId !== department.organizationId) {
-                    return { data: null, status: false, errorCode: { failData: { branchId: 'Branch does not belong to the same organization' } } };
-                }
-            } else {
-                return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
-            }
-
-            // nếu parentid = '' thì gán parentId = null
-            if (department.parentId === '') {
-                department.parentId = null;
-            }
-
-            if (!department.id) {
-                department.id = uuidv4();
-            }
-        }
-
-        const tablesData = {
-            table: "departments",
-            dataIn: departments,
-            parentField: "parentId",
-            childField: "id"
-        };
-        return await insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem([tablesData]);
-    }
-    return { data: null, status: status, errorCode: { failData: results } };
-}
-
-
-export async function insertDepartmentsByCode(departments: Array<departmentInsertByCode>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(departments, departmentInsertRule, messagesEn);
     if (status) {
         // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
@@ -397,7 +401,7 @@ export async function insertDepartmentsByCode(departments: Array<departmentInser
             const { data: branchData, status: branchStatus } = await executeQuery(checkBranchSql, [department.branchId]);
             if (branchStatus && branchData && Array.isArray(branchData) && branchData.length > 0) {
                 if (branchData[0].organizationId !== department.organizationId) {
-                    return { data: null, status: false, errorCode: { failData: { branchId: 'Branch does not belong to the same organization' } } };
+                    return { data: null, status: false, errorCode: { failData: { branchId: `Branch does not belong to the same organization at ${department.code}` } } };
                 }
             } else {
                 return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
@@ -406,6 +410,19 @@ export async function insertDepartmentsByCode(departments: Array<departmentInser
             // nếu parentid = '' thì gán parentId = null
             if (department.parentId === '') {
                 department.parentId = null;
+            }
+
+            // kiểm tra xem branchId mà có id = parentId có  = branchId của department không
+            if (department.parentId) {
+                const checkParentSql = "SELECT branchId FROM departments WHERE id = ?";
+                const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.parentId]);
+                if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
+                    if (parentData[0].branchId !== department.branchId) {
+                        return { data: null, status: false, errorCode: { failData: { parentId: `Parent department and Child department does not belong to the same branch at ${department.code}` } } };
+                    }
+                } else {
+                    return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+                }
             }
 
             if (!department.id) {
@@ -420,6 +437,46 @@ export async function insertDepartmentsByCode(departments: Array<departmentInser
             childField: "id"
         };
         return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
+    }
+    return { data: null, status: status, errorCode: { failData: results } };
+}
+
+
+export async function insertDepartmentsByCode(departments: Array<departmentInsertByCode>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    const { status, results } = validateDataArray(departments, departmentInsertByCodeRule, messagesEn);
+    if (status) {
+        console.log("Validated departments:", departments);
+        // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
+        for (const department of departments) {
+            const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
+            const { data: branchData, status: branchStatus } = await executeQuery(checkBranchSql, [department.branchId]);
+            if (branchStatus && branchData && Array.isArray(branchData) && branchData.length > 0) {
+                if (branchData[0].organizationId !== department.organizationId) {
+                    return { data: null, status: false, errorCode: { failData: { branchId: 'Branch does not belong to the same organization' } } };
+                }
+            } else {
+                return { data: null, status: false, errorCode: { failData: { branchId: 'Branch not found' } } };
+            }
+
+            // nếu parentid = '' thì gán parentId = null
+            if (department.parentId === '') {
+                department.parentId = null;
+            }
+
+            if (!department.id) {
+                department.id = uuidv4();
+            }
+        }
+
+        const tablesData = {
+            table: "departments",
+            dataIn: departments,
+            uniqueField: "code",
+            parentField: "parentId",
+            childField: "id"
+        };
+        const result = await insertObjectsTreeTrunkTablesUniqueFieldNotIsSystem([tablesData]);
+        return result;
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -448,11 +505,41 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
                     return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
                 }
             }
+            // kiểm tra nếu có department.parentId thì phải kiểm tra branchId của cha có khác với con không bằng cách 
+            // lấy branchId của department hiện tại với department.id và lấy branchId của department.parentId nếu khác thì trả về lỗi
+            if (status && department.parentId) {
+                const getBranchSql = "SELECT branchId FROM departments WHERE id = ?";
+                const { data: childData, status: childStatus } = await executeQuery(getBranchSql, [department.id]);
+                const { data: parentData, status: parentStatus } = await executeQuery(getBranchSql, [department.parentId]);
+                if (childStatus && parentStatus && childData && parentData && Array.isArray(childData) && Array.isArray(parentData) && childData.length > 0 && parentData.length > 0) {
+                    if (childData[0].branchId !== parentData[0].branchId) {
+                        return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department does not belong to the same branch' } } };
+                    }
+                } else {
+                    return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+                }
+            }
+
+            // kiểm tra nếu có department.branchId thì phải kiểm tra xem có parentId không nếu có thì không cho update
+            if (status && department.branchId) {
+                const getParentSql = "SELECT parentId FROM departments WHERE id = ?";
+                const { data: childData, status: childStatus } = await executeQuery(getParentSql, [department.id]);
+                if (childStatus && childData && Array.isArray(childData) && childData.length > 0) {
+                    if (childData[0].parentId) {
+                        return { data: null, status: false, errorCode: { failData: { branchId: 'Can not update branchId when department has parentId' } } };
+                    }
+                } else {
+                    return { data: null, status: false, errorCode: { failData: { id: 'Department not found' } } };
+                }
+            }
+
+
         }
+
 
         // loại bỏ branchId và organizationId trong mỗi department
         for (const department of departments) {
-            delete department.branchId;
+            // delete department.branchId;
             delete department.organizationId;
         }
 
@@ -477,8 +564,6 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
         }
     }
 
-
-
     const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
 
     if (status) {
@@ -492,11 +577,40 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
                     return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
                 }
             }
+            // kiểm tra nếu có department.parentId thì phải kiểm tra branchId của cha có khác với con không bằng cách 
+            // lấy branchId của department hiện tại với department.id và lấy branchId của department.parentId nếu khác thì trả về lỗi
+            if (status && department.parentId) {
+                const getBranchSql = "SELECT branchId FROM departments WHERE id = ?";
+                const getBranchCodeSql = "SELECT branchId FROM departments WHERE code = ?";
+                const { data: childData, status: childStatus } = await executeQuery(getBranchSql, [department.id]);
+                const { data: parentData, status: parentStatus } = await executeQuery(getBranchCodeSql, [department.parentId]);
+                if (childStatus && parentStatus && childData && parentData && Array.isArray(childData) && Array.isArray(parentData) && childData.length > 0 && parentData.length > 0) {
+                    if (childData[0].branchId !== parentData[0].branchId) {
+                        return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department does not belong to the same branch' } } };
+                    }
+                } else {
+                    return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+                }
+            }
+            // kiểm tra nếu có department.branchId thì phải kiểm tra xem có parentId không nếu có thì không cho update
+
+            if (status && department.branchId) {
+                const getParentSql = "SELECT parentId FROM departments WHERE id = ?";
+                const { data: childData, status: childStatus } = await executeQuery(getParentSql, [department.id]);
+                if (childStatus && childData && Array.isArray(childData) && childData.length > 0) {
+                    if (childData[0].parentId) {
+                        return { data: null, status: false, errorCode: { failData: { branchId: 'Can not update branchId when department has parentId' } } };
+                    }
+                } else {
+                    return { data: null, status: false, errorCode: { failData: { id: 'Department not found' } } };
+                }
+            }
+
         }
 
         // loại bỏ branchId và organizationId trong mỗi department
         for (const department of departments) {
-            delete department.branchId;
+            // delete department.branchId;
             delete department.organizationId;
         }
 

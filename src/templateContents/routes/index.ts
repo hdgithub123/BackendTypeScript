@@ -5,6 +5,10 @@ import organizationRoutes from './organizationTemplateContentsRouters'
 import organizationsRoutes from './organizationsTemplateContentsRouters'
 import branchRoutes from './branchTemplateContentsRouters'
 import branchesRoutes from './branchesTemplateContentsRouters'
+import departmentRoutes from './departmentTemplateContentsRouters'
+import departmentsRoutes from './departmentsTemplateContentsRouters'
+
+
 import rightRoutes from './rightTemplateContentsRouters'
 import rightsRoutes from './rightsTemplateContentsRouters'
 import rightOfOwnerRoutes from './rightOfOwnerTemplateContentsRouters' 
@@ -22,6 +26,8 @@ router.use('/organization', organizationRoutes);
 router.use('/organizations', organizationsRoutes);
 router.use('/branch', branchRoutes);
 router.use('/branches', branchesRoutes);
+router.use('/department', departmentRoutes);
+router.use('/departments', departmentsRoutes);
 router.use('/right', rightRoutes);
 router.use('/rights', rightsRoutes);
 router.use('/right-of-owner', rightOfOwnerRoutes);
