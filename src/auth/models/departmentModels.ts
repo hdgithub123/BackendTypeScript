@@ -438,7 +438,7 @@ export async function insertDepartments(departments: Array<department>): Promise
                         return { data: null, status: false, errorCode: { failData: { parentId: `Parent department and Child department does not belong to the same branch at ${department.code}` } } };
                     }
                 } else {
-                    return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+                    return { data: null, status: false, errorCode: { failData: { parentId: `Parent department not found at ${department.code}` } } };
                 }
             }
 
@@ -604,10 +604,10 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
                 const { data: parentData, status: parentStatus } = await executeQuery(getBranchCodeSql, [department.parentId]);
                 if (childStatus && parentStatus && childData && parentData && Array.isArray(childData) && Array.isArray(parentData) && childData.length > 0 && parentData.length > 0) {
                     if (childData[0].branchId !== parentData[0].branchId) {
-                        return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department does not belong to the same branch' } } };
+                        return { data: null, status: false, errorCode: { failData: { parentId: `Parent department does not belong to the same branch at ${department.code}` } } };
                     }
                 } else {
-                    return { data: null, status: false, errorCode: { failData: { parentId: 'Parent department not found' } } };
+                    return { data: null, status: false, errorCode: { failData: { parentId: `Parent department not found at ${department.code}` } } };
                 }
             }
             // kiểm tra nếu có department.branchId thì phải kiểm tra xem có parentId không nếu có thì không cho update
@@ -620,7 +620,7 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
                         return { data: null, status: false, errorCode: { failData: { branchId: `Can not update branchId when department has parentId at ${department.code}` } } };
                     }
                 } else {
-                    return { data: null, status: false, errorCode: { failData: { id: 'Department not found' } } };
+                    return { data: null, status: false, errorCode: { failData: { id: `Department not found at ${department.code}` } } };
                 }
             }
 
