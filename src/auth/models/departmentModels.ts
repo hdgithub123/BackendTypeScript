@@ -329,8 +329,8 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
         const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
         const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
         if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
-            if (department.code) {
-                return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
+            if (department.code || department.parentId) {
+                return { data: null, status: false, errorCode: { failData: { code: 'Can not update General department' } } };
             }
         }
     }
