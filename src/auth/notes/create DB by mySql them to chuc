@@ -456,7 +456,18 @@ CREATE TABLE users_departments_roles (
     CHECK (userId <> '' AND roleId <> '' AND departmentId <> '')
 );
 
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- users_departments_roles
+('view UsersDepartmentsRoles', 'GetUsersDepartmentsRoles', 'Xem vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('add UsersDepartmentsRoles', 'PostUsersDepartmentsRoles', 'Gán vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
+('update UsersDepartmentsRoles', 'PutUsersDepartmentsRoles', 'Cập nhật vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('Delete UsersDepartmentsRoles', 'DeleteUsersDepartmentsRoles', 'Xóa vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
 
+('view UsersDepartmentRole', 'GetUsersDepartmentRole', 'Xem nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('add UsersDepartmentRole', 'PostUsersDepartmentRole', 'Gán nhiều vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
+('update UsersDepartmentRole', 'PutUsersDepartmentRole', 'Cập nhật nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('Delete UsersDepartmentRole', 'DeleteUsersDepartmentRole', 'Xóa nhiều vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
+('export UsersDepartmentsRoles', 'ExportUsersDepartmentsRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
 
 
 
@@ -613,6 +624,20 @@ INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 ('Delete OrganizationTemplateContent', 'DeleteOrganizationTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE, TRUE);
 
 INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- branch template contents
+('view BranchTemplateContent', 'GetBranchTemplateContent', 'Xem nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
+('add BranchTemplateContent', 'PostBranchTemplateContent', 'Thêm nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
+('update BranchTemplateContent', 'PutBranchTemplateContent', 'Cập nhật nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
+('Delete BranchTemplateContent', 'DeleteBranchTemplateContent', 'Xóa nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
+
+-- branches template contents
+('view BranchesTemplateContent', 'GetBranchesTemplateContent', 'Xem nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE),
+('add BranchesTemplateContent', 'PostBranchesTemplateContent', 'Thêm nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE),
+('update BranchesTemplateContent', 'PutBranchesTemplateContent', 'Cập nhật nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE),
+('Delete BranchesTemplateContent', 'DeleteBranchesTemplateContent', 'Xóa nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE);
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 -- right template contents
 ('view RightTemplateContent', 'GetRightTemplateContent', 'Xem nội dung mẫu của quyền', 'System', TRUE, FALSE),
 ('add RightTemplateContent', 'PostRightTemplateContent', 'Thêm nội dung mẫu của quyền', 'System', TRUE, FALSE),
@@ -664,7 +689,18 @@ INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 ('update DepartmentsTemplateContent', 'PutDepartmentsTemplateContent', 'Cập nhật nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
 ('Delete DepartmentsTemplateContent', 'DeleteDepartmentsTemplateContent', 'Xóa nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE);
 
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+-- user department role template contents
+('view UserDepartmentRoleTemplateContent', 'GetUserDepartmentRoleTemplateContent', 'Xem nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('add UserDepartmentRoleTemplateContent', 'PostUserDepartmentRoleTemplateContent', 'Thêm nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('update UserDepartmentRoleTemplateContent', 'PutUserDepartmentRoleTemplateContent', 'Cập nhật nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('Delete UserDepartmentRoleTemplateContent', 'DeleteUserDepartmentRoleTemplateContent', 'Xóa nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
 
+-- users department roles template contents
+('view UsersDepartmentRolesTemplateContent', 'GetUsersDepartmentRolesTemplateContent', 'Xem nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('add UsersDepartmentRolesTemplateContent', 'PostUsersDepartmentRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('update UsersDepartmentRolesTemplateContent', 'PutUsersDepartmentRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('Delete UsersDepartmentRolesTemplateContent', 'DeleteUsersDepartmentRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE);
 
 -- gán tất cả quyền vào Administrator không có vai trò isOwner
 INSERT IGNORE INTO roles_rights (roleId, rightId, isActive)

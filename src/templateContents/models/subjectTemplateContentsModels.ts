@@ -21,11 +21,12 @@ export type templateContent = {
 };
 
 
+
 const templateContentsInsertSchema: RuleSchema = {
   id: { type: "string", format: "uuid", required: false },
   name: { type: "string", required: true, max: 255 },
   code: { type: "string", required: true, max: 100 },
-  organizationId: { type: "string", required: false, max: 50 },
+  organizationId: { type: "string", required: true, max: 50 },
   scopeName: { type: "string", required: false, max: 255 },
   content: { type: "object", required: true },
   description: { type: "string", required: false, max: 255 },
@@ -37,13 +38,11 @@ const templateContentsInsertSchema: RuleSchema = {
   updatedBy: { type: "string", required: false, max: 100 }
 };
 
-
-
 const templateContentsUpdateAndDeleteSchema: RuleSchema = {
   id: { type: "string", format: "uuid", required: true },
   name: { type: "string", required: false, max: 255 },
   code: { type: "string", required: false, max: 100 },
-  organizationId: { type: "string", required: false, max: 50 },
+  organizationId: { type: "string", required: true, max: 50 },
   scopeName: { type: "string", required: false, max: 255 },
   content: { type: "object", required: false },
   description: { type: "string", required: false, max: 255 },
@@ -57,40 +56,39 @@ const templateContentsUpdateAndDeleteSchema: RuleSchema = {
 
 
 
-export async function getDepartmentsTemplateContent(id: string, organizationId: string) {
-    const sqlQuery = "SELECT * FROM template_contents WHERE id = ? AND scopeName = 'departments' AND organizationId = ?";
-    return await executeQuery(sqlQuery, [id,organizationId]);
+export async function getSubjectTemplateContent(id: string, organizationId: string, scopeName: string) {
+    const sqlQuery = "SELECT * FROM template_contents WHERE id = ? AND scopeName = ? AND organizationId = ?";
+    return await executeQuery(sqlQuery, [id, scopeName, organizationId]);
 }
 
-export async function getDepartmentsTemplateContents(organizationId:string) {
-    const sqlQuery = "SELECT * FROM template_contents WHERE scopeName = 'departments' AND organizationId = ?";
-    return await executeQuery(sqlQuery,[organizationId]);
+export async function getSubjectTemplateContents(organizationId: string, scopeName: string) {
+    const sqlQuery = "SELECT * FROM template_contents WHERE scopeName = ? AND organizationId = ?";
+    return await executeQuery(sqlQuery,[scopeName, organizationId]);
 }
 
 
 
-export async function insertDepartmentsTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function insertSubjectTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([templateContent], templateContentsInsertSchema, messagesEn);
-    const newTemplateContent = { ...templateContent, scopeName: 'departments' };
     if (status) {
-        return await insertObject("template_contents", newTemplateContent);
+        return await insertObject("template_contents", templateContent);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
 
 
-export async function updateDepartmentsTemplateContent( templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+export async function updateSubjectTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([templateContent], templateContentsUpdateAndDeleteSchema, messagesEn);
     if (status) {
-        const columKey = { id: templateContent.id,organizationId: templateContent.organizationId, scopeName: 'departments'};
+        const columKey = { id: templateContent.id,organizationId: templateContent.organizationId, scopeName: templateContent.scopeName}; // Use userId as the columKey
         return await updateObject("template_contents", templateContent, columKey);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
 
 
-export async function deleteDepartmentsTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    const columKey = { id: templateContent.id,organizationId: templateContent.organizationId, scopeName: 'departments'}; 
+export async function deleteSubjectTemplateContent(templateContent: templateContent): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+    const columKey = {  id: templateContent.id,organizationId: templateContent.organizationId, scopeName: templateContent.scopeName }; // Use userId as the columKey
     const { status, results } = validateDataArray([columKey], templateContentsUpdateAndDeleteSchema, messagesEn);
     if (status) {
         return await deleteObject("template_contents", columKey);

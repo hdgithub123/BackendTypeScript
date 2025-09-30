@@ -15,6 +15,9 @@ import rightOfOwnerRoutes from './rightOfOwnerTemplateContentsRouters'
 import rightsOfOwnerRoutes from './rightsOfOwnerTemplateContentsRouters'
 import rolesRoutes from './rolesTemplateContentsRouters'
 import roleRoutes from './roleTemplateContentsRouters' 
+import userDepartmentRoleRotes from './userDepartmentRoleTemplateContentsRouters'
+import userDepartmentRolesRotes from './userDepartmentRolesTemplateContentsRouters'
+
 
 import templateContentsRouters from './templateContentsRouters';
 
@@ -34,14 +37,7 @@ router.use('/right-of-owner', rightOfOwnerRoutes);
 router.use('/rights-of-owner', rightsOfOwnerRoutes);
 router.use('/roles', rolesRoutes);
 router.use('/role', roleRoutes);
-
-// router.use('/login', loginRouters);
-// router.use('/logout', logoutRouter);
-// router.use('/refresh-token', refreshTokenRoute);
-// router.use('/right', rightRouters);
-// router.use('/role', roleRouters);
-// router.use('/role-right', roleRightRouters);
-// router.use('/zone', zoneRouters);
-// router.use('/user-zone-role', UserZoneRoleRoute);
+router.use('/user-department-role', userDepartmentRoleRotes);
+router.use('/user-department-roles', userDepartmentRolesRotes);
 
 export default router;
