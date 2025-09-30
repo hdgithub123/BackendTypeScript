@@ -308,7 +308,7 @@ CREATE TABLE departments (
     updatedBy VARCHAR(100),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (parentId) REFERENCES departments(id),
+    FOREIGN KEY (parentId) REFERENCES departments(id) ON DELETE RESTRICT,
     CHECK (id <> '')
 );
 

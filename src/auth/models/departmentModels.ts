@@ -295,7 +295,7 @@ export async function insertDepartment(department: department): Promise<{ data: 
 
         if (department.parentId === '' || department.parentId === undefined || department.parentId === null) {
             // kiểm tra xem có department nào có parentId = null và branchId = department.branchId không nếu tồn tại thì báo lỗi mỗi chi nhánh có 1 phòng ban gốc
-            const checkParentSql = "SELECT id FROM departments WHERE parentId = null AND branchId = ?";
+            const checkParentSql = "SELECT id FROM departments WHERE parentId IS NULL AND branchId = ?";
             const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.branchId]);
             if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
                 return { data: null, status: false, errorCode: { failData: { parentId: 'Each branch must have one root department' } } };
@@ -330,7 +330,7 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
     const { status, results } = validateDataArray([department], departmentUpdateAndDeleteRule, messagesEn);
 
     if (status && department.parentId) {
-        const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId = null";
+        const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId IS NULL";
         const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
         if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
             return { data: null, status: false, errorCode: { failData: { code: 'Can not update root department' } } };
@@ -390,14 +390,18 @@ export async function deleteDepartment(department: departmentUpdateAndDelete): P
         return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
     }
 
-    const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
-    const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
-    if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
-        return { data: null, status: false, errorCode: { failData: { code: ' Can not delete General department' } } };
-    }
 
     const columKey = { id: department.id, organizationId: department.organizationId }; // Use userId as the columKey
     const { status, results } = validateDataArray([columKey], departmentUpdateAndDeleteRule, messagesEn);
+
+    if (status) {
+        const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId IS NULL";
+        const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
+        if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+            return { data: null, status: false, errorCode: { failData: { code: 'Can not delete root department' } } };
+        }
+    }
+
     if (status) {
         const tablesData = {
             table: "departments",
@@ -405,8 +409,6 @@ export async function deleteDepartment(department: departmentUpdateAndDelete): P
             parentField: "parentId",
             childField: "id"
         };
-
-
         return await deleteObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
@@ -436,7 +438,7 @@ export async function insertDepartments(departments: Array<department>): Promise
 
             if (department.parentId === '' || department.parentId === undefined || department.parentId === null) {
                 // kiểm tra xem có department nào có parentId = null và branchId = department.branchId không nếu tồn tại thì báo lỗi mỗi chi nhánh có 1 phòng ban gốc
-                const checkParentSql = "SELECT id FROM departments WHERE parentId = null AND branchId = ?";
+                const checkParentSql = "SELECT id FROM departments WHERE parentId IS NULL AND branchId = ?";
                 const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.branchId]);
                 if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
                     return { data: null, status: false, errorCode: { failData: { parentId: 'Each branch must have one root department' } } };
@@ -498,7 +500,7 @@ export async function insertDepartmentsByCode(departments: Array<departmentInser
 
             if (department.parentId === '' || department.parentId === undefined || department.parentId === null) {
                 // kiểm tra xem có department nào có parentId = null và branchId = department.branchId không nếu tồn tại thì báo lỗi mỗi chi nhánh có 1 phòng ban gốc
-                const checkParentSql = "SELECT id FROM departments WHERE parentId = null AND branchId = ?";
+                const checkParentSql = "SELECT id FROM departments WHERE parentId IS NULL AND branchId = ?";
                 const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.branchId]);
                 if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
                     return { data: null, status: false, errorCode: { failData: { parentId: 'Each branch must have one root department' } } };
@@ -540,7 +542,7 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
         // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
         for (const department of departments) {
             if (status && department.parentId) {
-                const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId = null";
+                const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId IS NULL";
                 const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
                 if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
                     if (department.parentId) {
@@ -612,7 +614,7 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
         // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
         for (const department of departments) {
             if (status && department.parentId) {
-                const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId = null";
+                const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId IS NULL";
                 const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
                 if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
                     if (department.parentId) {
@@ -683,10 +685,10 @@ export async function deleteDepartments(departments: Array<departmentUpdateAndDe
     const { status, results } = validateDataArray(departments, departmentUpdateAndDeleteRule, messagesEn);
     if (status) {
         for (const department of departments) {
-            const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
+            const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId IS NULL";
             const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
             if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
-                return { data: null, status: false, errorCode: { failData: { code: 'Can not delete General department' } } };
+                return { data: null, status: false, errorCode: { failData: { code: 'Can not delete root department' } } };
             }
         }
 

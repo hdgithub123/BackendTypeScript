@@ -75,11 +75,9 @@ export default async function deleteObjectsTreeTrunkTablesNotIsSystem(
       }
 
       if (idsToDelete.length > 0) {
-        throw new Error(`Cannot delete non-leaf nodes: [${idsToDelete.join(', ')}]`);
+        throw { sqlMessage: "Cannot delete parent records" };
       }
     }
-
-
   });
 
   tablesData.forEach(({ table, dataIn, parentField, childField }) => {
