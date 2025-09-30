@@ -44,7 +44,7 @@ export default async function updateObjectsTreeLeafTables(
           `SELECT * FROM ${table} WHERE ${childField} = ?`,
           [currentId]
         );
-        if (currentRows.length === 0) throw new Error(`Record with ID ${currentId} not found`);
+        if (currentRows.length === 0) throw { message: `Record with ID ${currentId} not found` };
         const currentRecord = currentRows[0];
         const parentIdOld = currentRecord[parentField];
 

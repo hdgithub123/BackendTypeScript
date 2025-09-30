@@ -46,7 +46,7 @@ export default async function insertObjectsTreeTablesNotIsSystem(
             `SELECT * FROM ${table} WHERE ${childField} = ?`,
             [parentId]
           );
-          if (parentRows.length === 0) throw new Error(`Parent with id ${parentId} not found`);
+          if (parentRows.length === 0) throw { message: `Parent with id ${parentId} not found` };
           const parentData = parentRows[0];
 
           const [children] = await connection.execute(

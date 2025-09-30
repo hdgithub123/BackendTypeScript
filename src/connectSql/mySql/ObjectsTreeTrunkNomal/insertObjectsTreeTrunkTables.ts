@@ -43,7 +43,7 @@ export default async function insertObjectsTreeTrunkTables(
             [parentId]
           );
           if ((parentRows as any[]).length === 0) {
-            throw new Error(`Parent with id ${parentId} not found`);
+            throw { message: `Parent with id ${parentId} not found` };
           }
         }
 

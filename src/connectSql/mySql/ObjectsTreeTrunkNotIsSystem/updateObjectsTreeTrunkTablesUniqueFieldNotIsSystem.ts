@@ -44,7 +44,7 @@ export default async function updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem
           `SELECT * FROM ${table} WHERE ${childField} = ?`,
           [currentId]
         );
-        if (currentRows.length === 0) throw new Error(`Record with ID ${currentId} not found`);
+        if (currentRows.length === 0) throw { message: `Record with ID ${currentId} not found` };
         const currentRecord = currentRows[0];
 
         // ✅ Nếu có parentField và uniqueField → tra parentId từ mã

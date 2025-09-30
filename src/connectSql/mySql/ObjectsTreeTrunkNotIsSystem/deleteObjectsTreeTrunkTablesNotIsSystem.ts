@@ -75,7 +75,7 @@ export default async function deleteObjectsTreeTrunkTablesNotIsSystem(
       }
 
       if (idsToDelete.length > 0) {
-        throw { sqlMessage: "Cannot delete parent records" };
+        throw { message: "Cannot delete parent records" };
       }
     }
   });

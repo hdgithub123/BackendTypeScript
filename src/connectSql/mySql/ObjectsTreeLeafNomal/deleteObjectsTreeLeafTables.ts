@@ -56,7 +56,7 @@ export default async function deleteObjectsTreeLeafTables(
       }
 
       if (idsToDelete.length > 0) {
-        throw { sqlMessage: "Cannot delete parent records" };
+        throw { message: "Cannot delete parent records" };
       }
     }
   });
