@@ -208,9 +208,6 @@ export async function getDepartment(id: string, organizationId: string) {
 
 
 export async function getDepartments(organizationId: string) {
-    // lay ra tat ca cac department, parentCode = 
-    //const Sqlstring = "Select * from departments WHERE organizationId = ?";
-
     // lấy cùng với branchCode trong bang branches mã code của branch
     const Sqlstring = `SELECT 
                         d.*,
@@ -296,6 +293,15 @@ export async function insertDepartment(department: department): Promise<{ data: 
         }
 
 
+        if (department.parentId === '' || department.parentId === undefined || department.parentId === null) {
+            // kiểm tra xem có department nào có parentId = null và branchId = department.branchId không nếu tồn tại thì báo lỗi mỗi chi nhánh có 1 phòng ban gốc
+            const checkParentSql = "SELECT id FROM departments WHERE parentId = null AND branchId = ?";
+            const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.branchId]);
+            if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
+                return { data: null, status: false, errorCode: { failData: { parentId: 'Each branch must have one root department' } } };
+            }
+        }
+
         if (!department.id) {
             department.id = uuidv4();
         }
@@ -309,8 +315,6 @@ export async function insertDepartment(department: department): Promise<{ data: 
 
         const data = await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
         return data;
-
-        // return await insertObjectsTreeTrunkTablesNotIsSystem([tablesData]);
     }
     return { data: null, status: status, errorCode: { failData: results } };
 }
@@ -322,18 +326,18 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
         return { data: null, status: false, errorCode: { failData: { id: 'Id is required' } } };
     }
 
-
     // kiêm tra dữ liệu đầu vào department.code = 'Administrator' thì không cho update
     const { status, results } = validateDataArray([department], departmentUpdateAndDeleteRule, messagesEn);
-    if (status) {
-        const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
+
+    if (status && department.parentId) {
+        const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId = null";
         const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
         if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
-            if (department.code || department.parentId) {
-                return { data: null, status: false, errorCode: { failData: { code: 'Can not update General department' } } };
-            }
+            return { data: null, status: false, errorCode: { failData: { code: 'Can not update root department' } } };
         }
     }
+
+
     // kiểm tra nếu có department.parentId thì phải kiểm tra branchId của cha có khác với con không bằng cách 
     // lấy branchId của department hiện tại với department.id và lấy branchId của department.parentId nếu khác thì trả về lỗi
     if (status && department.parentId) {
@@ -429,6 +433,16 @@ export async function insertDepartments(departments: Array<department>): Promise
                 department.parentId = null;
             }
 
+
+            if (department.parentId === '' || department.parentId === undefined || department.parentId === null) {
+                // kiểm tra xem có department nào có parentId = null và branchId = department.branchId không nếu tồn tại thì báo lỗi mỗi chi nhánh có 1 phòng ban gốc
+                const checkParentSql = "SELECT id FROM departments WHERE parentId = null AND branchId = ?";
+                const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.branchId]);
+                if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
+                    return { data: null, status: false, errorCode: { failData: { parentId: 'Each branch must have one root department' } } };
+                }
+            }
+
             // kiểm tra xem branchId mà có id = parentId có  = branchId của department không
             if (department.parentId) {
                 const checkParentSql = "SELECT branchId FROM departments WHERE id = ?";
@@ -461,9 +475,9 @@ export async function insertDepartments(departments: Array<department>): Promise
 
 export async function insertDepartmentsByCode(departments: Array<departmentInsertByCode>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(departments, departmentInsertByCodeRule, messagesEn);
-    
+
     if (status) {
-        
+
         // với mỗi department kiểm tra xem với branchId thì vào bảng branches xem organizationId  trùng với organizationId của department không
         for (const department of departments) {
             const checkBranchSql = "SELECT organizationId FROM branches WHERE id = ?";
@@ -479,6 +493,16 @@ export async function insertDepartmentsByCode(departments: Array<departmentInser
             // nếu parentid = '' thì gán parentId = null
             if (department.parentId === '') {
                 department.parentId = null;
+            }
+
+
+            if (department.parentId === '' || department.parentId === undefined || department.parentId === null) {
+                // kiểm tra xem có department nào có parentId = null và branchId = department.branchId không nếu tồn tại thì báo lỗi mỗi chi nhánh có 1 phòng ban gốc
+                const checkParentSql = "SELECT id FROM departments WHERE parentId = null AND branchId = ?";
+                const { data: parentData, status: parentStatus } = await executeQuery(checkParentSql, [department.branchId]);
+                if (parentStatus && parentData && Array.isArray(parentData) && parentData.length > 0) {
+                    return { data: null, status: false, errorCode: { failData: { parentId: 'Each branch must have one root department' } } };
+                }
             }
 
             if (!department.id) {
@@ -515,12 +539,13 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
     if (status) {
         // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
         for (const department of departments) {
-            const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
-            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
-            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
-                // Nếu tìm thấy department có code = 'General' trong department thì trả về lỗi
-                if (department.code || department.parentId) {
-                    return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
+            if (status && department.parentId) {
+                const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId = null";
+                const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
+                if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                    if (department.parentId) {
+                        return { data: null, status: false, errorCode: { failData: { code: 'Can not update root department' } } };
+                    }
                 }
             }
             // kiểm tra nếu có department.parentId thì phải kiểm tra branchId của cha có khác với con không bằng cách 
@@ -557,7 +582,6 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
 
         // loại bỏ branchId và organizationId trong mỗi department
         for (const department of departments) {
-            // delete department.branchId;
             delete department.organizationId;
         }
 
@@ -587,13 +611,15 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
     if (status) {
         // kiêm tra xem trong măng với mỗi department có id và có code = 'General' thì không cho update
         for (const department of departments) {
-            const checkAdminSql = "SELECT code FROM departments WHERE id = ? AND code = 'General'";
-            const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
-            if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
-                // Nếu tìm thấy department có code = 'General' trong department thì trả về lỗi
-                if (department.code || department.parentId) {
-                    return { data: null, status: false, errorCode: { failData: { code: 'Can not update code General department' } } };
+            if (status && department.parentId) {
+                const checkAdminSql = "SELECT id FROM departments WHERE id = ? AND parentId = null";
+                const { data: adminData, status: adminStatus } = await executeQuery(checkAdminSql, [department.id]);
+                if (adminStatus && adminData && Array.isArray(adminData) && adminData.length > 0) {
+                    if (department.parentId) {
+                        return { data: null, status: false, errorCode: { failData: { code: 'Can not update root department' } } };
+                    }
                 }
+
             }
             // kiểm tra nếu có department.parentId thì phải kiểm tra branchId của cha có khác với con không bằng cách 
             // lấy branchId của department hiện tại với department.id và lấy branchId của department.parentId nếu khác thì trả về lỗi
@@ -628,7 +654,6 @@ export async function updateDepartmentsByCode(departments: Array<departmentUpdat
 
         // loại bỏ branchId và organizationId trong mỗi department
         for (const department of departments) {
-            // delete department.branchId;
             delete department.organizationId;
         }
 
