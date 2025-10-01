@@ -444,30 +444,36 @@ INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 
 
 CREATE TABLE users_departments_roles (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     userId CHAR(36),
     roleId CHAR(36),
     departmentId CHAR(36),
     isActive BOOLEAN,
     isSystem TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (userId, roleId, departmentId),
+    createdBy VARCHAR(100),
+    updatedBy VARCHAR(100),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (userId, roleId, departmentId),
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (roleId) REFERENCES roles(id) ON DELETE CASCADE,
     FOREIGN KEY (departmentId) REFERENCES departments(id) ON DELETE CASCADE,
-    CHECK (userId <> '' AND roleId <> '' AND departmentId <> '')
+    CHECK (userId <> '' AND roleId <> '' AND departmentId <> '' AND id <> '')
 );
+
 
 INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
 -- users_departments_roles
-('view UsersDepartmentsRoles', 'GetUsersDepartmentsRoles', 'Xem vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('add UsersDepartmentsRoles', 'PostUsersDepartmentsRoles', 'Gán vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
-('update UsersDepartmentsRoles', 'PutUsersDepartmentsRoles', 'Cập nhật vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('Delete UsersDepartmentsRoles', 'DeleteUsersDepartmentsRoles', 'Xóa vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
+('view UserDepartmentRole', 'GetUserDepartmentRole', 'Xem nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('add UserDepartmentRole', 'PostUserDepartmentRole', 'Gán nhiều vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
+('update UserDepartmentRole', 'PutUserDepartmentRole', 'Cập nhật nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('Delete UserDepartmentRole', 'DeleteUserDepartmentRole', 'Xóa nhiều vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
 
-('view UsersDepartmentRole', 'GetUsersDepartmentRole', 'Xem nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('add UsersDepartmentRole', 'PostUsersDepartmentRole', 'Gán nhiều vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
-('update UsersDepartmentRole', 'PutUsersDepartmentRole', 'Cập nhật nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('Delete UsersDepartmentRole', 'DeleteUsersDepartmentRole', 'Xóa nhiều vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
-('export UsersDepartmentsRoles', 'ExportUsersDepartmentsRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
+('view UserDepartmentsRoles', 'GetUserDepartmentRoles', 'Xem vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('add UserDepartmentsRoles', 'PostUserDepartmentRoles', 'Gán vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
+('update UserDepartmentsRoles', 'PutUserDepartmentRoles', 'Cập nhật vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
+('Delete UserDepartmentsRoles', 'DeleteUserDepartmentRoles', 'Xóa vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
+('export UserDepartmentsRoles', 'ExportUserDepartmentsRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
 
 
 

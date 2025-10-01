@@ -12,6 +12,7 @@ import UserZoneRoleRoute from './userZoneRoleRouters';
 import organizationRouters from './organizationRouters';
 import branchRouters from './branchRouters';
 import departmentRouters from './departmentRouters';
+import userDepartmentRoleRouters from './userDepartmentRoleRouters';
 
 
 const router = express();
@@ -20,6 +21,7 @@ router.use('/organization', organizationRouters);
 router.use('/branch', branchRouters);
 router.use('/department', departmentRouters);
 router.use('/user', userRoutes);
+router.use('/user-department-role', userDepartmentRoleRouters);
 router.use('/login', loginRouters);
 router.use('/logout', logoutRouter);
 router.use('/refresh-token', refreshTokenRoute);
