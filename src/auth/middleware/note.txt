@@ -6,3 +6,15 @@ const newheaders = {
       zone: zoneId,
       is_child_zone: true,
     };
+
+
+const newheaders = {
+      Authorization: `Bearer ${token}`,
+      organizationId: organizationId,
+      organizationIds: [organizationId],
+      branchId: branchId,
+      branchIds: [branchId],
+      departmentId: departmentId,
+      departmentIds: [departmentId]
+    };
+

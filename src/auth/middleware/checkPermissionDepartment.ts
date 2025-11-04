@@ -15,38 +15,34 @@ const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes:
       }
 
       // Lấy departmentIds từ header
-      const currentDeptHeader = req.headers['departments'];
-      if (!currentDeptHeader) {
+      const currentDepartmentId = req.headers.departmentid;
+      const stringDepartmentIds = req.headers.departmentids;
+      if (!stringDepartmentIds) {
         res.status(400).json({ message: "Missing departments information!" });
         return;
       }
 
       // Chuyển departmentIds thành mảng
-      let departmentIds: string[] = [];
-      if (typeof currentDeptHeader === 'string') {
-        departmentIds = currentDeptHeader.split(',').map(id => id.trim()).filter(Boolean);
-      } else if (Array.isArray(currentDeptHeader)) {
-        departmentIds = currentDeptHeader.map(id => id.toString().trim()).filter(Boolean);
+      let departmentIdsTemp: string[] = [];
+      if (typeof stringDepartmentIds === 'string') {
+        departmentIdsTemp = stringDepartmentIds.split(',').map(id => id.trim()).filter(Boolean);
+      } else if (Array.isArray(stringDepartmentIds)) {
+        departmentIdsTemp = stringDepartmentIds.map(id => id.toString().trim()).filter(Boolean);
       }
 
-      if (departmentIds.length === 0) {
+      if (departmentIdsTemp.length === 0) {
         res.status(400).json({ message: "Invalid departments information!" });
         return;
       }
 
-      // Xử lý cờ isChildDepartment
-      const isChildDeptHeader = req.headers['is_child_department'];
-      let isChildDepartment = false;
 
-      if (!isAllowChildZone) {
-        isChildDepartment = false;
+      let departmentIds: string[] = [];
+      if(isAllowChildZone) {
+        departmentIds = [...departmentIdsTemp,currentDepartmentId as string];
       } else {
-        isChildDepartment = typeof isChildDeptHeader === 'string'
-          ? isChildDeptHeader === 'true' || isChildDeptHeader === '1'
-          : Array.isArray(isChildDeptHeader)
-            ? isChildDeptHeader[0] === 'true' || isChildDeptHeader[0] === '1'
-            : false;
+       departmentIds = currentDepartmentId ? [currentDepartmentId as string] : [];
       }
+
 
       const userId = (req.user as { id: string }).id;
 
@@ -55,7 +51,6 @@ const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes:
         userId, 
         rightCodes, 
         departmentIds, 
-        isChildDepartment 
       });
 
       if (result) {
@@ -75,75 +70,47 @@ const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes:
 export default checkPermission;
 
 
-
 const checkUserPermission = async ({
   userId,
   rightCodes,
   departmentIds,
-  isChildDepartment,
 }: {
   userId: string;
   rightCodes: string[] | number[];
   departmentIds: string[];
-  isChildDepartment: boolean;
 }) => {
-  if (!rightCodes || rightCodes.length === 0) {
-    return false;
-  }
-  if (!departmentIds || departmentIds.length === 0) {
-    return false;
-  }
+  if (!rightCodes || rightCodes.length === 0) return false;
+  if (!departmentIds || departmentIds.length === 0) return false;
 
   const rightPlaceholders = rightCodes.map(() => '?').join(', ');
-  const deptPlaceholders = departmentIds.map(() => '?').join(', ');
 
-  let query = "";
-  let params: any[] = [];
-
-  if (isChildDepartment) {
-    query = `
-      WITH RECURSIVE dept_tree AS (
-        SELECT id
-        FROM departments
-        WHERE id IN (${deptPlaceholders})
-        UNION ALL
-        SELECT d.id
-        FROM departments d
-        JOIN dept_tree dt ON d.parentId = dt.id
-      )
+  for (const deptId of departmentIds) {
+    const query = `
       SELECT rights.id
       FROM users
       JOIN users_departments_roles ON users.id = users_departments_roles.userId
       JOIN roles ON users_departments_roles.roleId = roles.id
       JOIN roles_rights ON roles.id = roles_rights.roleId
       JOIN rights ON roles_rights.rightId = rights.id
-      WHERE roles_rights.isactive = TRUE
-        AND users.isActive = TRUE
+      WHERE users.isActive = TRUE
+        AND roles_rights.isactive = TRUE
         AND users_departments_roles.isactive = TRUE
         AND users.id = ?
-        AND users_departments_roles.departmentId IN (SELECT id FROM dept_tree)
+        AND users_departments_roles.departmentId = ?
         AND rights.code IN (${rightPlaceholders})
     `;
-    params = [...departmentIds, userId, ...rightCodes];
-  } else {
-    query = `
-      SELECT rights.id
-      FROM users
-      JOIN users_departments_roles ON users.id = users_departments_roles.userId
-      JOIN roles ON users_departments_roles.roleId = roles.id
-      JOIN roles_rights ON roles.id = roles_rights.roleId
-      JOIN rights ON roles_rights.rightId = rights.id
-      WHERE users.isActive = TRUE 
-        AND roles_rights.isactive = TRUE 
-        AND users_departments_roles.isactive = TRUE 
-        AND users.id = ?
-        AND users_departments_roles.departmentId IN (${deptPlaceholders})
-        AND rights.code IN (${rightPlaceholders})
-    `;
-    params = [userId, ...departmentIds, ...rightCodes];
+    const params = [userId, deptId, ...rightCodes];
+
+    const result = await executeQuery(query, params);
+
+    const hasPermission = result.data && Array.isArray(result.data) && result.data.length > 0;
+    if (!hasPermission) {
+      // Nếu không có quyền ở phòng ban này → trả về false
+      return false;
+    }
   }
 
-  const result = await executeQuery(query, params);
-
-  return result.data && Array.isArray(result.data) && result.data.length > 0;
+  // Nếu tất cả phòng ban đều có quyền → trả về true
+  return true;
 };
+
