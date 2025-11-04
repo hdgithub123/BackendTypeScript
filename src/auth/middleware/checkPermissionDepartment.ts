@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes: string[] | number[], isAllowChildZone?: boolean }): RequestHandler => {
+const checkPermission = ({ rightCodes, isAllowMoreDepartment = false }: { rightCodes: string[] | number[], isAllowMoreDepartment?: boolean }): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Kiểm tra req.user tồn tại và có userId
@@ -37,7 +37,7 @@ const checkPermission = ({ rightCodes, isAllowChildZone = false }: { rightCodes:
 
 
       let departmentIds: string[] = [];
-      if(isAllowChildZone) {
+      if(isAllowMoreDepartment) {
         departmentIds = [...departmentIdsTemp,currentDepartmentId as string];
       } else {
        departmentIds = currentDepartmentId ? [currentDepartmentId as string] : [];

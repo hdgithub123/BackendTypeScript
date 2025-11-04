@@ -5,19 +5,19 @@ import {getRoles,insertRoles,updateRoles,deleteRoles,getRole,insertRole,updateRo
 // Định tuyến cho trang role
 
 //chú ý route cha phải được đặt sau route con
-router.get('/detail/:id',authorization,checkPermission({rightCodes: ["GetRole"], isAllowChildZone: true}), getRole);
-router.post('/detail/insert',authorization,checkPermission({rightCodes: ["PostRole"], isAllowChildZone: false}), insertRole,insertActivityLogsInfo({action: 'insertRole',tableName: 'role',description:"insert role"}));
-router.put('/detail/:id',authorization,checkPermission({rightCodes: ["PutRole"], isAllowChildZone: false}), updateRole,insertActivityLogsInfo({action: 'updateRole',tableName: 'role',description:"update role"}));
-router.delete('/detail/:id',authorization,checkPermission({rightCodes: ["DeleteRole"], isAllowChildZone: false}), deleteRole,insertActivityLogsInfo({action: 'deleteRole',tableName: 'role',description:"delete role"}));
+router.get('/detail/:id',authorization,checkPermission({rightCodes: ["GetRole"], isAllowMoreDepartment: true}), getRole);
+router.post('/detail/insert',authorization,checkPermission({rightCodes: ["PostRole"], isAllowMoreDepartment: false}), insertRole,insertActivityLogsInfo({action: 'insertRole',tableName: 'role',description:"insert role"}));
+router.put('/detail/:id',authorization,checkPermission({rightCodes: ["PutRole"], isAllowMoreDepartment: false}), updateRole,insertActivityLogsInfo({action: 'updateRole',tableName: 'role',description:"update role"}));
+router.delete('/detail/:id',authorization,checkPermission({rightCodes: ["DeleteRole"], isAllowMoreDepartment: false}), deleteRole,insertActivityLogsInfo({action: 'deleteRole',tableName: 'role',description:"delete role"}));
 
 // router cha
-router.get('/list',authorization,checkPermission({rightCodes: ["GetRoles"], isAllowChildZone: true}),getRoles);
-router.post('/list',authorization,checkPermission({rightCodes: ["PostRoles"], isAllowChildZone: false}),insertRoles,insertActivityLogsInfo({action: 'insertRoles',tableName: 'role',description:"insert roles"}));
-router.put('/list',authorization,checkPermission({rightCodes: ["PutRoles"], isAllowChildZone: false}), updateRoles,insertActivityLogsInfo({action: 'updateRoles',tableName: 'role',description:"update roles"}));
-router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteRoles"], isAllowChildZone: false}), deleteRoles,insertActivityLogsInfo({action: 'deleteRoles',tableName: 'role',description:"delete roles"}));
+router.get('/list',authorization,checkPermission({rightCodes: ["GetRoles"], isAllowMoreDepartment: true}),getRoles);
+router.post('/list',authorization,checkPermission({rightCodes: ["PostRoles"], isAllowMoreDepartment: false}),insertRoles,insertActivityLogsInfo({action: 'insertRoles',tableName: 'role',description:"insert roles"}));
+router.put('/list',authorization,checkPermission({rightCodes: ["PutRoles"], isAllowMoreDepartment: false}), updateRoles,insertActivityLogsInfo({action: 'updateRoles',tableName: 'role',description:"update roles"}));
+router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteRoles"], isAllowMoreDepartment: false}), deleteRoles,insertActivityLogsInfo({action: 'deleteRoles',tableName: 'role',description:"delete roles"}));
 
-router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetRoles", "PutRoles"], isAllowChildZone: true}),getIdRolesByCodes);
-router.post('/check-role',authorization,checkPermission({rightCodes: ["PostRole","PutRole"], isAllowChildZone: false}),checkExistenceRole);
-router.post('/check-roles',authorization,checkPermission({rightCodes: ["PostRoles","PutRoles"], isAllowChildZone: false}),checkExistenceRoles);
+router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetRoles", "PutRoles"], isAllowMoreDepartment: true}),getIdRolesByCodes);
+router.post('/check-role',authorization,checkPermission({rightCodes: ["PostRole","PutRole"], isAllowMoreDepartment: false}),checkExistenceRole);
+router.post('/check-roles',authorization,checkPermission({rightCodes: ["PostRoles","PutRoles"], isAllowMoreDepartment: false}),checkExistenceRoles);
 
 export default router;
