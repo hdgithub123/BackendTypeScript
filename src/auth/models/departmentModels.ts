@@ -369,7 +369,7 @@ export async function updateDepartment(department: departmentUpdateAndDelete): P
 
     if (status) {
         // loại bỏ branchId và organizationId trong department
-        // delete department.branchId;
+        delete department.branchId;
         delete department.organizationId;
 
         const tablesData = {
@@ -585,6 +585,7 @@ export async function updateDepartments(departments: Array<departmentUpdateAndDe
         // loại bỏ branchId và organizationId trong mỗi department
         for (const department of departments) {
             delete department.organizationId;
+            delete department.branchId;
         }
 
 
