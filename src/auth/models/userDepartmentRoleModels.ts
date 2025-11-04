@@ -1,5 +1,6 @@
 import executeQuery, { insertObjectsTablesNotIsSystem, insertObject, insertObjects, insertObjectNotIsSystem, insertObjectsNotIsSystem, updateObject, updateObjects, updateObjectNotIsSystem, updateObjectsNotIsSystem, deleteObject, deleteObjects, deleteObjectNotIsSystem, deleteObjectsNotIsSystem, checkExistenceOfFieldsObject, checkExistenceOfFieldsObjects } from '../../connectSql'
 import { validateDataArray, RuleSchema, messagesVi, messagesEn } from '../../validation'
+import {getAllChildDepartmentIds} from './departmentModels';
 
 //Tạo type cho user
 export type userDepartmentRole = {
@@ -66,15 +67,30 @@ export async function getUserDepartmentRole(userDepartmentRoleId: string, organi
 
     return await executeQuery(sqlQuery, [userDepartmentRoleId, organizationId]);
 }
-export async function getUserDepartmentRoles(organizationId: string) {
-    const sqlQuery = `SELECT udr.id as id, udr.userId as userId, u.code as _userCode, u.name as _userName, d.id as departmentId, d.code as _departmentCode, d.name as _departmentName, r.id as roleId, r.code as _roleCode, r.name as _roleName,
+export async function getUserDepartmentRoles(organizationId: string, departmentIds?: string[]) {
+        // Nếu có departmentIds, lấy thêm tất cả department con
+    if (departmentIds && departmentIds.length > 0) {
+        const allDepartmentIds = await getAllChildDepartmentIds(organizationId, departmentIds);
+        departmentIds = [...new Set([...departmentIds, ...allDepartmentIds])];
+    }
+    
+    let sqlQuery = `SELECT udr.id as id, udr.userId as userId, u.code as _userCode, u.name as _userName, d.id as departmentId, d.code as _departmentCode, d.name as _departmentName, r.id as roleId, r.code as _roleCode, r.name as _roleName,
     udr.createdBy as createdBy, udr.updatedBy as updatedBy, udr.createdAt as createdAt, udr.updatedAt as updatedAt, udr.isActive as isActive, udr.isSystem as isSystem
     FROM users_departments_roles udr
     JOIN users u ON udr.userId = u.id
     JOIN departments d ON udr.departmentId = d.id
     JOIN roles r ON udr.roleId = r.id
     WHERE u.organizationId = ?`;
-    return await executeQuery(sqlQuery, [organizationId]);
+     const params = [organizationId];
+
+    // Thêm điều kiện departmentIds nếu có
+    if (departmentIds && departmentIds.length > 0) {
+        const placeholders = departmentIds.map(() => '?').join(',');
+        sqlQuery += ` AND d.id IN (${placeholders})`;
+        params.push(...departmentIds);
+    }
+
+    return await executeQuery(sqlQuery, params);
 }
 
 

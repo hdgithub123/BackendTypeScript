@@ -205,11 +205,52 @@ export async function getDepartment(id: string, organizationId: string) {
     return await executeQuery(sqlQuery, [id, organizationId]);
 }
 
+export async function getAllChildDepartmentIds(organizationId: string, departmentIds: string[]): Promise<string[]> {
+    if (!departmentIds || departmentIds.length === 0) {
+        return [];
+    }
+
+    // Tạo câu query lấy tất cả các department con
+    const placeholders = departmentIds.map(() => '?').join(',');
+    const sqlString = `
+        WITH RECURSIVE department_tree AS (
+            -- Base case: departments trong danh sách gốc
+            SELECT id, parentId
+            FROM departments
+            WHERE organizationId = ? 
+            AND id IN (${placeholders})
+
+            UNION ALL
+
+            -- Recursive case: lấy tất cả department con
+            SELECT d.id, d.parentId
+            FROM departments d
+            INNER JOIN department_tree dt ON d.parentId = dt.id
+            WHERE d.organizationId = ?
+        )
+        SELECT DISTINCT id FROM department_tree
+    `;
+
+    const params = [organizationId, ...departmentIds, organizationId];
+    const { data, status } = await executeQuery(sqlString, params);
+
+    if (status && Array.isArray(data)) {
+        return data.map(item => item.id);
+    }
+
+    return [];
+}
+
+export async function getDepartments(organizationId: string, departmentIds?: string[]) {
+    // Nếu có departmentIds, lấy thêm tất cả department con
+    if (departmentIds && departmentIds.length > 0) {
+        const allDepartmentIds = await getAllChildDepartmentIds(organizationId, departmentIds);
+        departmentIds = [...new Set([...departmentIds, ...allDepartmentIds])];
+    }
 
 
-export async function getDepartments(organizationId: string) {
     // lấy cùng với branchCode trong bang branches mã code của branch
-    const Sqlstring = `SELECT 
+    let sqlstring = `SELECT 
                         d.*,
                         b.code AS _branchCode,
                         b.name AS _branchName
@@ -219,8 +260,16 @@ export async function getDepartments(organizationId: string) {
                         branches b ON d.branchId = b.id
                         WHERE 
                         d.organizationId = ?`;
+    const params = [organizationId];
 
-    const data = await executeQuery(Sqlstring, [organizationId]);
+    // Thêm điều kiện departmentIds nếu có
+    if (departmentIds && departmentIds.length > 0) {
+        const placeholders = departmentIds.map(() => '?').join(',');
+        sqlstring += ` AND d.id IN (${placeholders})`;
+        params.push(...departmentIds);
+    }
+
+    const data = await executeQuery(sqlstring, params);
     return data;
 
 }

@@ -29,8 +29,9 @@ export async function getUserDepartmentRole(req: Request, res: Response) {
 }
 export async function getUserDepartmentRoles(req: Request, res: Response) {
     try {
+        const departmentIds = (req.user as { departmentIds?: string[] }).departmentIds;
         const organizationId = req.user.organizationId
-        const { data, status } = await userDepartmentRoleModel.getUserDepartmentRoles(organizationId);
+        const { data, status } = await userDepartmentRoleModel.getUserDepartmentRoles(organizationId, departmentIds);
         if (status) {
             res.status(200).json({ status: status, data: data });
         } else {

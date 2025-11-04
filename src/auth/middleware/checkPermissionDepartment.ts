@@ -54,6 +54,8 @@ const checkPermission = ({ rightCodes, isAllowMoreDepartment = false }: { rightC
       });
 
       if (result) {
+        // gán thêm vào req.user departmentIds đã được kiểm tra quyền
+        (req.user as { departmentIds?: string[] }).departmentIds = departmentIds;
         next();
       } else {
         res.status(403).json({ message: "User does not have permission!" });

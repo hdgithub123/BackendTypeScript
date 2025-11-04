@@ -58,8 +58,9 @@ export async function getDepartment(req: Request, res: Response) {
 }
 export async function getDepartments(req: Request, res: Response) {
     try {
+        const departmentIds = (req.user as { departmentIds?: string[] }).departmentIds;
         const organizationId = req.user.organizationId
-        const { data, status, errorCode } = await departmentModel.getDepartments(organizationId);
+        const { data, status, errorCode } = await departmentModel.getDepartments(organizationId, departmentIds);
         if (status) {
             res.status(200).json({ data, status, errorCode });
         } else {
