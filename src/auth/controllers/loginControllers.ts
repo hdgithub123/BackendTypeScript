@@ -15,9 +15,11 @@ const loginController = async (req: Request, res: Response, next: NextFunction) 
     };
     if (result.status && result.refreshToken) {
         res.cookie('RefreshToken', result.refreshToken, cookieOptions);
-        res.json({ status: true, token: result.token });
+        // hãy lấy các thông tin khác bắt đầu từ đây và trả về cho client
+        
+        res.json({ status: true, token: result.token, data: result.info });
         delete req.body.password;
-        req.user = result.user;
+        req.user = result.data;
         next();
     } else {
         res.status(401).json({ status: false, message: result.message });
