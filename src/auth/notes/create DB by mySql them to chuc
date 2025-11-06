@@ -24,7 +24,7 @@ CREATE TABLE organizations (
 
 INSERT INTO organizations 
 VALUES 
-('00000000-0000-0000-0000-000000000001', 'supperOrganization', 'System Org', '', 1, 1, 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('00000000-0000-0000-0000-000000000001', 'RootOrganization', 'System Org', '', 1, 1, 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO organizations (
     code, name, address, isActive, isSystem, createdBy, updatedBy
@@ -33,9 +33,7 @@ INSERT INTO organizations (
     ('ORG002', 'Công ty B', 'Trụ sở chính - Tầng 5', 0, 1, 'system', 'system'),
     ('ORG003', 'Công ty C', '', 1, 0, 'user01', 'user01');
 
-
-
-SET @SupperOrganization = (SELECT id FROM organizations WHERE code = 'supperOrganization');
+SET @RootOrganization = (SELECT id FROM organizations WHERE id = '00000000-0000-0000-0000-000000000001');
 SET @Organizations1 = (SELECT id FROM organizations WHERE code = 'ORG001');
 SET @Organizations2 = (SELECT id FROM organizations WHERE code = 'ORG002');
 SET @Organizations3 = (SELECT id FROM organizations WHERE code = 'ORG003');
@@ -67,13 +65,14 @@ INSERT INTO users (
     code, password, name, address, email, phone, image, organizationId,
     isActive, isSystem, createdBy, updatedBy
 ) VALUES
-('supperAmin', 'hashed_password_1', 'Nguyễn Văn A', '12 Lê Lợi, Hà Nội', 'a.nguyen@example.com', '0901234567', 'avatar1.jpg', @SupperOrganization, 1, 0, 'admin', 'admin'),
+('admin', 'hashed_password_1', 'Nguyễn Văn A', '12 Lê Lợi, Hà Nội', 'a.nguyen@example.com', '0901234567', 'avatar1.jpg', @RootOrganization, 1, 0, 'admin', 'admin'),
 ('admin', 'hashed_password_2', 'System Admin', 'Trụ sở chính', 'sys.admin@example.com', '0987654321', 'sys_avatar.jpg', @Organizations1, 1, 1, 'system', 'system'),
 ('admin', 'hashed_password_3', 'Trần Thị B', '45 Nguyễn Trãi, TP.HCM', 'b.tran@example.com', '0912345678', 'avatar2.jpg', @Organizations2, 1, 0, 'user01', 'user01'),
 ('admin', 'hashed_password_3', 'Trần Thị B', '45 Nguyễn Trãi, TP.HCM', 'b.tran@example.com', '0912345678', 'avatar2.jpg', @Organizations3, 1, 0, 'user01', 'user01'),
 ('user1', 'hashed_password_4', 'Phạm Văn C', '88 Trần Hưng Đạo, Đà Nẵng', 'c.pham@example.com', '0934567890', 'avatar3.jpg', @Organizations1, 0, 0, 'admin', 'admin'),
 ('user2', 'hashed_password_5', 'System Bot', 'Nội bộ', 'bot@example.com', '0976543210', 'bot_avatar.jpg', @Organizations1, 0, 1, 'system', 'system');
 
+-- Cập nhật mật khẩu đã băm cho người dùng 'admin' và 'user1' là với pass đã mã hoá là admin
 SET SQL_SAFE_UPDATES = 0;
 UPDATE users 
 SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
@@ -84,7 +83,7 @@ SET password = '$2b$10$KzyhMc9ylHx6xye2T11SruhtOQ7YPLrx/AlRBxz.n6NJKA7LbwJDy'
 WHERE code = 'user1';
 
 
-SET @supperAmin = (SELECT id FROM users WHERE code = 'supperAmin');
+SET @rootAdmin = (SELECT id FROM users WHERE code = 'admin' AND organizationId = @RootOrganization);
 SET @admin1 = (SELECT id FROM users WHERE code = 'admin' AND organizationId = @Organizations1);
 SET @user1 = (SELECT id FROM users WHERE code = 'user1' AND organizationId = @Organizations1);
 SET @user2 = (SELECT id FROM users WHERE code = 'user2' AND organizationId = @Organizations1);
@@ -111,6 +110,7 @@ CREATE TABLE roles (
 
 INSERT INTO roles (name, code, description,organizationId,isSystem)
 VALUES
+    ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @RootOrganization, FALSE),
     ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @Organizations1, FALSE),
     ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @Organizations2,FALSE),
     ('Administrator', 'Administrator', 'Quản lý toàn hệ thống', @Organizations3,FALSE),
@@ -123,6 +123,8 @@ VALUES
 
 SET @Administrator1 = (SELECT id FROM roles WHERE code = 'Administrator' AND organizationId = @Organizations1 );
 
+SET @RootRoleAdministrator = (SELECT id FROM roles WHERE code = 'Administrator' AND organizationId = @RootOrganization );
+
 CREATE TABLE rights (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(50) NOT NULL,
@@ -132,6 +134,7 @@ CREATE TABLE rights (
     updatedBy VARCHAR(100),
     isSystem TINYINT(1) DEFAULT 0,
     isOwner TINYINT(1) DEFAULT 0,
+    isOrganization TINYINT(1) DEFAULT 0,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CHECK (id <> '')
@@ -139,73 +142,70 @@ CREATE TABLE rights (
 
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
-('Login', 'Login', 'Quyền đăng nhập hệ thống', 'System', TRUE, FALSE),
-('Loguot', 'Loguot', 'Quyền đăng xuất khỏi hệ thống', 'System', TRUE, FALSE),
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization, isOrganization) VALUES
+('Login', 'Login', 'Quyền đăng nhập hệ thống', 'System', TRUE, TRUE, TRUE),
+('Loguot', 'Loguot', 'Quyền đăng xuất khỏi hệ thống', 'System', TRUE, TRUE, TRUE),
 
 -- User
-('view user', 'GetUser', 'Xem thông tin một người dùng', 'System', TRUE, FALSE),
-('add user', 'PostUser', 'Thêm một người dùng mới', 'System', TRUE, FALSE),
-('update user', 'PutUser', 'Cập nhật thông tin người dùng', 'System', TRUE, FALSE),
-('Delete user', 'DeleteUser', 'Xóa một người dùng', 'System', TRUE, FALSE),
-('view users', 'GetUsers', 'Xem danh sách người dùng', 'System', TRUE, FALSE),
-('add users', 'PostUsers', 'Thêm nhiều người dùng', 'System', TRUE, FALSE),
-('update users', 'PutUsers', 'Cập nhật danh sách người dùng', 'System', TRUE, FALSE),
-('Delete users', 'DeleteUsers', 'Xóa nhiều người dùng', 'System', TRUE, FALSE),
-('export Users', 'ExportUsers', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE),
+('view user', 'GetUser', 'Xem thông tin một người dùng', 'System', TRUE, TRUE, TRUE),
+('add user', 'PostUser', 'Thêm một người dùng mới', 'System', TRUE, TRUE, TRUE),
+('update user', 'PutUser', 'Cập nhật thông tin người dùng', 'System', TRUE, TRUE, TRUE),
+('Delete user', 'DeleteUser', 'Xóa một người dùng', 'System', TRUE, TRUE, TRUE),
+('view users', 'GetUsers', 'Xem danh sách người dùng', 'System', TRUE, TRUE, TRUE),
+('add users', 'PostUsers', 'Thêm nhiều người dùng', 'System', TRUE, TRUE, TRUE),
+('update users', 'PutUsers', 'Cập nhật danh sách người dùng', 'System', TRUE, TRUE, TRUE),
+('Delete users', 'DeleteUsers', 'Xóa nhiều người dùng', 'System', TRUE, TRUE, TRUE),
+('export Users', 'ExportUsers', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE),
 
 -- Rights
-('view Right', 'GetRight', 'Xem thông tin một quyền', 'System', TRUE, FALSE),
-('view Rights', 'GetRights', 'Xem danh sách quyền hệ thống', 'System', TRUE, FALSE),
-('export Rights', 'ExportRights', 'Xuất khẩu danh sách quyền', 'System', TRUE, FALSE),
--- Rights of owner
-('view RightOfOwner', 'GetRightOfOwner', 'Xem một quyền cụ thể của chủ sở hữu', 'System', TRUE, TRUE),
-('view RightsOfOwner', 'GetRightsOfOwner', 'Xem danh sách quyền của chủ sở hữu', 'System', TRUE, TRUE),
-('export RightsOfOwner', 'ExportRightsOfOwner', 'Xuất khẩu danh sách quyền của chủ sở hữu', 'System', TRUE, TRUE);
+('view Right', 'GetRight', 'Xem thông tin một quyền', 'System', TRUE, FALSE, TRUE),
+('view Rights', 'GetRights', 'Xem danh sách quyền hệ thống', 'System', TRUE, FALSE, TRUE),
+('export Rights', 'ExportRights', 'Xuất khẩu danh sách quyền', 'System', TRUE, FALSE, TRUE),
+
 
 -- Role
-('view role', 'GetRole', 'Xem một vai trò cụ thể', 'System', TRUE, FALSE),
-('add role', 'PostRole', 'Thêm một vai trò mới', 'System', TRUE, FALSE),
-('update role', 'PutRole', 'Cập nhật vai trò', 'System', TRUE, FALSE),
-('Delete role', 'DeleteRole', 'Xóa một vai trò', 'System', TRUE, FALSE),
-('view Roles', 'GetRoles', 'Xem danh sách vai trò', 'System', TRUE, FALSE),
-('add Roles', 'PostRoles', 'Thêm nhiều vai trò', 'System', TRUE, FALSE),
-('update Roles', 'PutRoles', 'Cập nhật nhiều vai trò', 'System', TRUE, FALSE),
-('Delete Roles', 'DeleteRoles', 'Xóa nhiều vai trò', 'System', TRUE, FALSE),
-('export Roles', 'ExportRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE),
+('view role', 'GetRole', 'Xem một vai trò cụ thể', 'System', TRUE, TRUE, TRUE),
+('add role', 'PostRole', 'Thêm một vai trò mới', 'System', TRUE, TRUE, TRUE),
+('update role', 'PutRole', 'Cập nhật vai trò', 'System', TRUE, TRUE, TRUE),
+('Delete role', 'DeleteRole', 'Xóa một vai trò', 'System', TRUE, TRUE, TRUE),
+('view Roles', 'GetRoles', 'Xem danh sách vai trò', 'System', TRUE, TRUE, TRUE),
+('add Roles', 'PostRoles', 'Thêm nhiều vai trò', 'System', TRUE, TRUE, TRUE),
+('update Roles', 'PutRoles', 'Cập nhật nhiều vai trò', 'System', TRUE, TRUE, TRUE),
+('Delete Roles', 'DeleteRoles', 'Xóa nhiều vai trò', 'System', TRUE, TRUE, TRUE),
+('export Roles', 'ExportRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE),
 
 -- Zone
-('view zone', 'GetZone', 'Xem một khu vực', 'System', TRUE, FALSE),
-('add zone', 'PostZone', 'Thêm khu vực mới', 'System', TRUE, FALSE),
-('update zone', 'PutZone', 'Cập nhật khu vực', 'System', TRUE, FALSE),
-('Delete zone', 'DeleteZone', 'Xóa khu vực', 'System', TRUE, FALSE),
-('view zones', 'GetZones', 'Xem danh sách khu vực', 'System', TRUE, FALSE),
-('add zones', 'PostZones', 'Thêm nhiều khu vực', 'System', TRUE, FALSE),
-('update zones', 'PutZones', 'Cập nhật nhiều khu vực', 'System', TRUE, FALSE),
-('Delete zones', 'DeleteZones', 'Xóa nhiều khu vực', 'System', TRUE, FALSE),
-('export Zones', 'ExportZones', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE),
+('view zone', 'GetZone', 'Xem một khu vực', 'System', TRUE, TRUE, TRUE),
+('add zone', 'PostZone', 'Thêm khu vực mới', 'System', TRUE, TRUE, TRUE),
+('update zone', 'PutZone', 'Cập nhật khu vực', 'System', TRUE, TRUE, TRUE),
+('Delete zone', 'DeleteZone', 'Xóa khu vực', 'System', TRUE, TRUE, TRUE),
+('view zones', 'GetZones', 'Xem danh sách khu vực', 'System', TRUE, TRUE, TRUE),
+('add zones', 'PostZones', 'Thêm nhiều khu vực', 'System', TRUE, TRUE, TRUE),
+('update zones', 'PutZones', 'Cập nhật nhiều khu vực', 'System', TRUE, TRUE, TRUE),
+('Delete zones', 'DeleteZones', 'Xóa nhiều khu vực', 'System', TRUE, TRUE, TRUE),
+('export Zones', 'ExportZones', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE),
 
 -- RoleVsRight
-('view RoleVsRight', 'GetRoleRight', 'Xem quyền gán cho vai trò', 'System', TRUE, FALSE),
-('add RoleRight', 'PostRoleRight', 'Thêm quyền vào vai trò', 'System', TRUE, FALSE),
-('update RoleRight', 'PutRoleRight', 'Cập nhật quyền của vai trò', 'System', TRUE, FALSE),
-('Delete RoleRight', 'DeleteRoleRight', 'Xóa quyền khỏi vai trò', 'System', TRUE, FALSE),
-('view RoleRights', 'GetRoleRights', 'Xem danh sách quyền theo vai trò', 'System', TRUE, FALSE),
-('add RoleRights', 'PostRoleRights', 'Gán nhiều quyền cho vai trò', 'System', TRUE, FALSE),
-('update RoleRights', 'PutRoleRights', 'Cập nhật nhiều quyền cho vai trò', 'System', TRUE, FALSE),
-('Delete RoleRights', 'DeleteRoleRights', 'Xóa nhiều quyền khỏi vai trò', 'System', TRUE, FALSE),
-('export RoleRights', 'ExportRoleRights', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE),
+('view RoleVsRight', 'GetRoleRight', 'Xem quyền gán cho vai trò', 'System', TRUE, TRUE, TRUE),
+('add RoleRight', 'PostRoleRight', 'Thêm quyền vào vai trò', 'System', TRUE, TRUE, TRUE),
+('update RoleRight', 'PutRoleRight', 'Cập nhật quyền của vai trò', 'System', TRUE, TRUE, TRUE),
+('Delete RoleRight', 'DeleteRoleRight', 'Xóa quyền khỏi vai trò', 'System', TRUE, TRUE, TRUE),
+('view RoleRights', 'GetRoleRights', 'Xem danh sách quyền theo vai trò', 'System', TRUE, TRUE, TRUE),
+('add RoleRights', 'PostRoleRights', 'Gán nhiều quyền cho vai trò', 'System', TRUE, TRUE, TRUE),
+('update RoleRights', 'PutRoleRights', 'Cập nhật nhiều quyền cho vai trò', 'System', TRUE, TRUE, TRUE),
+('Delete RoleRights', 'DeleteRoleRights', 'Xóa nhiều quyền khỏi vai trò', 'System', TRUE, TRUE, TRUE),
+('export RoleRights', 'ExportRoleRights', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE),
 
 -- UserZoneRole
-('view UserZoneRole', 'GetUserZoneRole', 'Xem vai trò của người dùng theo khu vực', 'System', TRUE, FALSE),
-('add UserZoneRole', 'PostUserZoneRole', 'Gán vai trò cho người dùng theo khu vực', 'System', TRUE, FALSE),
-('update UserZoneRole', 'PutUserZoneRole', 'Cập nhật vai trò của người dùng theo khu vực', 'System', TRUE, FALSE),
-('Delete UserZoneRole', 'DeleteUserZoneRole', 'Xóa vai trò khỏi người dùng theo khu vực', 'System', TRUE, FALSE),
-('view UserZoneRoles', 'GetUserZoneRoles', 'Xem nhiều vai trò của người dùng theo khu vực', 'System', TRUE, FALSE),
-('add UserZoneRoles', 'PostUserZoneRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System', TRUE, FALSE),
-('update UserZoneRoles', 'PutUserZoneRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System', TRUE, FALSE),
-('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System', TRUE, FALSE),
-('export UserZoneRoles', 'ExportUserZoneRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
+('view UserZoneRole', 'GetUserZoneRole', 'Xem vai trò của người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('add UserZoneRole', 'PostUserZoneRole', 'Gán vai trò cho người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('update UserZoneRole', 'PutUserZoneRole', 'Cập nhật vai trò của người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('Delete UserZoneRole', 'DeleteUserZoneRole', 'Xóa vai trò khỏi người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('view UserZoneRoles', 'GetUserZoneRoles', 'Xem nhiều vai trò của người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('add UserZoneRoles', 'PostUserZoneRoles', 'Gán nhiều vai trò cho người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('update UserZoneRoles', 'PutUserZoneRoles', 'Cập nhật nhiều vai trò của người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('Delete UserZoneRoles', 'DeleteUserZoneRoles', 'Xóa nhiều vai trò khỏi người dùng theo khu vực', 'System', TRUE, TRUE, TRUE),
+('export UserZoneRoles', 'ExportUserZoneRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE);
 
 
 
@@ -267,23 +267,29 @@ CREATE TABLE branches (
     CHECK (id <> '')
 );
 
+-- tạo branch cho RootOrganization
+INSERT INTO branches (id, name, code, address, description, organizationId,isActive, createdBy) VALUES
+('00000000-0000-0000-0000-000000000001', 'Root Branch', 'RootBranch', 'Trụ sở chính', 'Chi nhánh gốc', @RootOrganization, 1, 'system');
+
+SET @RootBranch = (SELECT id FROM branches WHERE id = '00000000-0000-0000-0000-000000000001');
+
 -- tạo chi nhánh General
 INSERT INTO branches (id, name, code, address, description, organizationId,isActive, createdBy) VALUES
 (UUID(), 'General', 'General', 'Trụ sở chính', 'Chi nhánh tổng', @Organizations1, 1, 'system');
 
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- branch
-('view Branch', 'GetBranch', 'Xem thông tin một chi nhánh', 'System', TRUE, FALSE),
-('add Branch', 'PostBranch', 'Thêm một chi nhánh mới', 'System', TRUE, FALSE),
-('update Branch', 'PutBranch', 'Cập nhật thông tin chi nhánh', 'System', TRUE, FALSE),
-('Delete Branch', 'DeleteBranch', 'Xóa một chi nhánh', 'System', TRUE, FALSE),
-('view Branches', 'GetBranches', 'Xem danh sách chi nhánh', 'System', TRUE, FALSE),
-('add Branches', 'PostBranches', 'Thêm nhiều chi nhánh', 'System', TRUE, FALSE),
-('update Branches', 'PutBranches', 'Cập nhật danh sách chi nhánh', 'System', TRUE, FALSE),
-('Delete Branches', 'DeleteBranches', 'Xóa nhiều chi nhánh', 'System', TRUE, FALSE),
-('export Branches', 'ExportBranches', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
+('view Branch', 'GetBranch', 'Xem thông tin một chi nhánh', 'System', TRUE, TRUE, TRUE),
+('add Branch', 'PostBranch', 'Thêm một chi nhánh mới', 'System', TRUE, TRUE, TRUE),
+('update Branch', 'PutBranch', 'Cập nhật thông tin chi nhánh', 'System', TTRUE, TRUE, TRUE),
+('Delete Branch', 'DeleteBranch', 'Xóa một chi nhánh', 'System', TRUE, TRUE, TRUE),
+('view Branches', 'GetBranches', 'Xem danh sách chi nhánh', 'System', TRUE, TRUE, TRUE),
+('add Branches', 'PostBranches', 'Thêm nhiều chi nhánh', 'System', TRUE, TRUE, TRUE),
+('update Branches', 'PutBranches', 'Cập nhật danh sách chi nhánh', 'System', TRUE, TRUE, TRUE),
+('Delete Branches', 'DeleteBranches', 'Xóa nhiều chi nhánh', 'System', TRUE, TRUE, TRUE),
+('export Branches', 'ExportBranches', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE);
 
 
 
@@ -428,18 +434,22 @@ END$$
 
 DELIMITER ;
 
+-- tao phòng ban gốc cho chi nhánh RootBranch
+INSERT INTO departments (id, name, code, address, description, parentId, branchId, organizationId, isActive, createdBy) VALUES
+('00000000-0000-0000-0000-000000000001', 'Root Department', 'RootDepartment', 'Trụ sở chính', 'Phòng ban gốc', NULL, @RootBranch, @RootOrganization, 1, 'system');
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- department
-('view Department', 'GetDepartment', 'Xem thông tin một phòng ban', 'System', TRUE, FALSE),
-('add Department', 'PostDepartment', 'Thêm một phòng ban mới', 'System', TRUE, FALSE),
-('update Department', 'PutDepartment', 'Cập nhật thông tin phòng ban', 'System', TRUE, FALSE),
-('Delete Department', 'DeleteDepartment', 'Xóa một phòng ban', 'System', TRUE, FALSE),
-('view Departments', 'GetDepartments', 'Xem danh sách phòng ban', 'System', TRUE, FALSE),
-('add Departments', 'PostDepartments', 'Thêm nhiều phòng ban', 'System', TRUE, FALSE),
-('update Departments', 'PutDepartments', 'Cập nhật danh sách phòng ban', 'System', TRUE, FALSE),
-('Delete Departments', 'DeleteDepartments', 'Xóa nhiều phòng ban', 'System', TRUE, FALSE),
-('export Departments', 'ExportDepartments', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
+('view Department', 'GetDepartment', 'Xem thông tin một phòng ban', 'System', TRUE, TRUE, TRUE),
+('add Department', 'PostDepartment', 'Thêm một phòng ban mới', 'System', TRUE, TRUE, TRUE),
+('update Department', 'PutDepartment', 'Cập nhật thông tin phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete Department', 'DeleteDepartment', 'Xóa một phòng ban', 'System', TRUE, TRUE, TRUE),
+('view Departments', 'GetDepartments', 'Xem danh sách phòng ban', 'System', TRUE, TRUE, TRUE),
+('add Departments', 'PostDepartments', 'Thêm nhiều phòng ban', 'System', TRUE, TRUE, TRUE),
+('update Departments', 'PutDepartments', 'Cập nhật danh sách phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete Departments', 'DeleteDepartments', 'Xóa nhiều phòng ban', 'System', TRUE, TRUE, TRUE),
+('export Departments', 'ExportDepartments', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE);
 
 
 
@@ -462,18 +472,22 @@ CREATE TABLE users_departments_roles (
 );
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- users_departments_roles
-('view UserDepartmentRole', 'GetUserDepartmentRole', 'Xem nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('add UserDepartmentRole', 'PostUserDepartmentRole', 'Gán nhiều vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
-('update UserDepartmentRole', 'PutUserDepartmentRole', 'Cập nhật nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('Delete UserDepartmentRole', 'DeleteUserDepartmentRole', 'Xóa nhiều vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
+('view UserDepartmentRole', 'GetUserDepartmentRole', 'Xem nhiều vai trò của người dùng theo phòng ban', 'System',TRUE, TRUE, TRUE),
+('add UserDepartmentRole', 'PostUserDepartmentRole', 'Gán nhiều vai trò cho người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('update UserDepartmentRole', 'PutUserDepartmentRole', 'Cập nhật nhiều vai trò của người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete UserDepartmentRole', 'DeleteUserDepartmentRole', 'Xóa nhiều vai trò khỏi người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
 
-('view UserDepartmentsRoles', 'GetUserDepartmentRoles', 'Xem vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('add UserDepartmentsRoles', 'PostUserDepartmentRoles', 'Gán vai trò cho người dùng theo phòng ban', 'System', TRUE, FALSE),
-('update UserDepartmentsRoles', 'PutUserDepartmentRoles', 'Cập nhật vai trò của người dùng theo phòng ban', 'System', TRUE, FALSE),
-('Delete UserDepartmentsRoles', 'DeleteUserDepartmentRoles', 'Xóa vai trò khỏi người dùng theo phòng ban', 'System', TRUE, FALSE),
-('export UserDepartmentsRoles', 'ExportUserDepartmentsRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, FALSE);
+('view UserDepartmentsRoles', 'GetUserDepartmentRoles', 'Xem vai trò của người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('add UserDepartmentsRoles', 'PostUserDepartmentRoles', 'Gán vai trò cho người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('update UserDepartmentsRoles', 'PutUserDepartmentRoles', 'Cập nhật vai trò của người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete UserDepartmentsRoles', 'DeleteUserDepartmentRoles', 'Xóa vai trò khỏi người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('export UserDepartmentsRoles', 'ExportUserDepartmentsRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE);
+
+-- gán quyền cho Administrator cho admin của root organization
+INSERT INTO users_departments_roles (userId, roleId, departmentId, isActive, createdBy) VALUES
+(@rootAdmin, @RootRoleAdministrator, '00000000-0000-0000-0000-000000000001', TRUE, 'system'); -- ad admin cho toan bo phong ban root
 
 
 
@@ -542,11 +556,11 @@ CREATE TABLE activityLogs (
     secure BOOLEAN                               -- Có dùng HTTPS không (true/false)
 );
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- activitylog
-('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System' , TRUE, FALSE),
-('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System', TRUE, FALSE),
-('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System', TRUE, FALSE);
+('view ActivityLogs','GetActivityLogs','Xem nhật ký truy cập','System' , TRUE, TRUE, TRUE),
+('add ActivityLogs','PostActivityLogs','Thêm vào nhật ký truy cập','System', TRUE, TRUE, TRUE),
+('Delete ActivityLogs','DeleteActivityLogs','Xóa nhật ký truy cập','System', TRUE, TRUE, TRUE);
 
 
 
@@ -573,144 +587,153 @@ CREATE TABLE template_contents (
 );
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- template contents
-('view TemplateContent', 'GetTemplateContent', 'Xem nội dung mẫu', 'System', TRUE, FALSE),
-('add TemplateContent', 'PostTemplateContent', 'Thêm nội dung mẫu', 'System', TRUE, FALSE),
-('update TemplateContent', 'PutTemplateContent', 'Cập nhật nội dung mẫu', 'System', TRUE, FALSE),
-('Delete TemplateContent', 'DeleteTemplateContent', 'Xóa nội dung mẫu', 'System', TRUE, FALSE),
-('view TemplateContents', 'GetTemplateContents', 'Xem nhiều nội dung mẫu', 'System', TRUE, FALSE),
-('add TemplateContents', 'PostTemplateContents', 'Thêm nhiều nội dung mẫu', 'System', TRUE, FALSE),
-('update TemplateContents', 'PutTemplateContents', 'Cập nhật nhiều nội dung mẫu', 'System', TRUE, FALSE),
-('Delete TemplateContents', 'DeleteTemplateContents', 'Xóa nhiều nội dung mẫu', 'System', TRUE, FALSE);
+('view TemplateContent', 'GetTemplateContent', 'Xem nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('add TemplateContent', 'PostTemplateContent', 'Thêm nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('update TemplateContent', 'PutTemplateContent', 'Cập nhật nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('Delete TemplateContent', 'DeleteTemplateContent', 'Xóa nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('view TemplateContents', 'GetTemplateContents', 'Xem nhiều nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('add TemplateContents', 'PostTemplateContents', 'Thêm nhiều nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('update TemplateContents', 'PutTemplateContents', 'Cập nhật nhiều nội dung mẫu', 'System', TRUE, TRUE, TRUE),
+('Delete TemplateContents', 'DeleteTemplateContents', 'Xóa nhiều nội dung mẫu', 'System', TRUE, TRUE, TRUE);
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- user template contents
-('view UserTemplateContent', 'GetUserTemplateContent', 'Xem nội dung mẫu của người dùng', 'System', TRUE, FALSE),
-('add UserTemplateContent', 'PostUserTemplateContent', 'Thêm nội dung mẫu của người dùng', 'System', TRUE, FALSE),
-('update UserTemplateContent', 'PutUserTemplateContent', 'Cập nhật nội dung mẫu của người dùng', 'System', TRUE, FALSE),
-('Delete UserTemplateContent', 'DeleteUserTemplateContent', 'Xóa nội dung mẫu của người dùng', 'System', TRUE, FALSE);
+('view UserTemplateContent', 'GetUserTemplateContent', 'Xem nội dung mẫu của người dùng', 'System', TRUE, TRUE, TRUE),
+('add UserTemplateContent', 'PostUserTemplateContent', 'Thêm nội dung mẫu của người dùng', 'System', TRUE, TRUE, TRUE),
+('update UserTemplateContent', 'PutUserTemplateContent', 'Cập nhật nội dung mẫu của người dùng', 'System', TRUE, TRUE, TRUE),
+('Delete UserTemplateContent', 'DeleteUserTemplateContent', 'Xóa nội dung mẫu của người dùng', 'System', TRUE, TRUE, TRUE);
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- user template contents
-('view UsersTemplateContent', 'GetUsersTemplateContent', 'Xem nội dung mẫu của danh sách người dùng', 'System', TRUE, FALSE),
-('add UsersTemplateContent', 'PostUsersTemplateContent', 'Thêm nội dung mẫu của danh sách người dùng', 'System', TRUE, FALSE),
-('update UsersTemplateContent', 'PutUsersTemplateContent', 'Cập nhật nội dung mẫu của danh sách người dùng', 'System', TRUE, FALSE),
-('Delete UsersTemplateContent', 'DeleteUsersTemplateContent', 'Xóa nội dung mẫu của danh sách người dùng', 'System', TRUE, FALSE);
+('view UsersTemplateContent', 'GetUsersTemplateContent', 'Xem nội dung mẫu của danh sách người dùng', 'System', TRUE, TRUE, TRUE),
+('add UsersTemplateContent', 'PostUsersTemplateContent', 'Thêm nội dung mẫu của danh sách người dùng', 'System', TRUE, TRUE, TRUE),
+('update UsersTemplateContent', 'PutUsersTemplateContent', 'Cập nhật nội dung mẫu của danh sách người dùng', 'System', TRUE, TRUE, TRUE),
+('Delete UsersTemplateContent', 'DeleteUsersTemplateContent', 'Xóa nội dung mẫu của danh sách người dùng', 'System', TRUE, TRUE, TRUE);
 
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- organization
-('view Organization', 'GetOrganization', 'Xem thông tin một tổ chức', 'System', TRUE, TRUE),
-('add Organization', 'PostOrganization', 'Thêm một tổ chức mới', 'System', TRUE, TRUE),
-('update Organization', 'PutOrganization', 'Cập nhật thông tin tổ chức', 'System', TRUE, TRUE),
-('Delete Organization', 'DeleteOrganization', 'Xóa một tổ chức', 'System', TRUE, TRUE),
-('view Organizations', 'GetOrganizations', 'Xem danh sách tổ chức', 'System', TRUE, TRUE),
-('add Organizations', 'PostOrganizations', 'Thêm nhiều tổ chức', 'System', TRUE, TRUE),
-('update Organizations', 'PutOrganizations', 'Cập nhật danh sách tổ chức', 'System', TRUE, TRUE),
-('Delete Organizations', 'DeleteOrganizations', 'Xóa nhiều tổ chức', 'System', TRUE, TRUE),
-('export Organizations', 'ExportOrganizations', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE);
+('view Organization', 'GetOrganization', 'Xem thông tin một tổ chức', 'System', TRUE, TRUE, FALSE),
+('add Organization', 'PostOrganization', 'Thêm một tổ chức mới', 'System', TRUE, TRUE, FALSE),
+('update Organization', 'PutOrganization', 'Cập nhật thông tin tổ chức', 'System', TRUE, TRUE, FALSE),
+('Delete Organization', 'DeleteOrganization', 'Xóa một tổ chức', 'System', TRUE, TRUE, FALSE),
+('view Organizations', 'GetOrganizations', 'Xem danh sách tổ chức', 'System', TRUE, TRUE, FALSE),
+('add Organizations', 'PostOrganizations', 'Thêm nhiều tổ chức', 'System', TRUE, TRUE, FALSE),
+('update Organizations', 'PutOrganizations', 'Cập nhật danh sách tổ chức', 'System', TRUE, TRUE, FALSE),
+('Delete Organizations', 'DeleteOrganizations', 'Xóa nhiều tổ chức', 'System', TRUE, TRUE, FALSE),
+('export Organizations', 'ExportOrganizations', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, FALSE);
 
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- organizations template contents
-('view OrganizationsTemplateContent', 'GetOrganizationsTemplateContent', 'Xem nội dung mẫu của tổ chức', 'System', TRUE, TRUE),
-('add OrganizationsTemplateContent', 'PostOrganizationsTemplateContent', 'Thêm nội dung mẫu của tổ chức', 'System', TRUE, TRUE),
-('update OrganizationsTemplateContent', 'PutOrganizationsTemplateContent', 'Cập nhật nội dung mẫu của tổ chức', 'System', TRUE, TRUE),
-('Delete OrganizationsTemplateContent', 'DeleteOrganizationsTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE, TRUE);
+('view OrganizationsTemplateContent', 'GetOrganizationsTemplateContent', 'Xem nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE),
+('add OrganizationsTemplateContent', 'PostOrganizationsTemplateContent', 'Thêm nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE),
+('update OrganizationsTemplateContent', 'PutOrganizationsTemplateContent', 'Cập nhật nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE),
+('Delete OrganizationsTemplateContent', 'DeleteOrganizationsTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE);
 
 -- organization template contents
-('view OrganizationTemplateContent', 'GetOrganizationTemplateContent', 'Xem nội dung mẫu của tổ chức', 'System', TRUE, TRUE),
-('add OrganizationTemplateContent', 'PostOrganizationTemplateContent', 'Thêm nội dung mẫu của tổ chức', 'System', TRUE, TRUE),
-('update OrganizationTemplateContent', 'PutOrganizationTemplateContent', 'Cập nhật nội dung mẫu của tổ chức', 'System', TRUE, TRUE),
-('Delete OrganizationTemplateContent', 'DeleteOrganizationTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE, TRUE);
+('view OrganizationTemplateContent', 'GetOrganizationTemplateContent', 'Xem nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE),
+('add OrganizationTemplateContent', 'PostOrganizationTemplateContent', 'Thêm nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE),
+('update OrganizationTemplateContent', 'PutOrganizationTemplateContent', 'Cập nhật nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE),
+('Delete OrganizationTemplateContent', 'DeleteOrganizationTemplateContent', 'Xóa nội dung mẫu của tổ chức', 'System', TRUE, TRUE, FALSE);
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+
+
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- branch template contents
-('view BranchTemplateContent', 'GetBranchTemplateContent', 'Xem nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
-('add BranchTemplateContent', 'PostBranchTemplateContent', 'Thêm nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
-('update BranchTemplateContent', 'PutBranchTemplateContent', 'Cập nhật nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
-('Delete BranchTemplateContent', 'DeleteBranchTemplateContent', 'Xóa nội dung mẫu của chi nhánh', 'System', TRUE, FALSE),
+('view BranchTemplateContent', 'GetBranchTemplateContent', 'Xem nội dung mẫu của chi nhánh', 'System', TRUE, TRUE, TRUE),
+('add BranchTemplateContent', 'PostBranchTemplateContent', 'Thêm nội dung mẫu của chi nhánh', 'System', TRUE, TRUE, TRUE),
+('update BranchTemplateContent', 'PutBranchTemplateContent', 'Cập nhật nội dung mẫu của chi nhánh', 'System', TRUE, TRUE, TRUE),
+('Delete BranchTemplateContent', 'DeleteBranchTemplateContent', 'Xóa nội dung mẫu của chi nhánh', 'System', TRUE, TRUE, TRUE),
 
 -- branches template contents
-('view BranchesTemplateContent', 'GetBranchesTemplateContent', 'Xem nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE),
-('add BranchesTemplateContent', 'PostBranchesTemplateContent', 'Thêm nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE),
-('update BranchesTemplateContent', 'PutBranchesTemplateContent', 'Cập nhật nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE),
-('Delete BranchesTemplateContent', 'DeleteBranchesTemplateContent', 'Xóa nội dung mẫu của nhiều chi nhánh', 'System', TRUE, FALSE);
+('view BranchesTemplateContent', 'GetBranchesTemplateContent', 'Xem nội dung mẫu của nhiều chi nhánh', 'System', TRUE, TRUE, TRUE),
+('add BranchesTemplateContent', 'PostBranchesTemplateContent', 'Thêm nội dung mẫu của nhiều chi nhánh', 'System', TRUE, TRUE, TRUE),
+('update BranchesTemplateContent', 'PutBranchesTemplateContent', 'Cập nhật nội dung mẫu của nhiều chi nhánh', 'System', TRUE, TRUE, TRUE),
+('Delete BranchesTemplateContent', 'DeleteBranchesTemplateContent', 'Xóa nội dung mẫu của nhiều chi nhánh', 'System', TRUE, TRUE, TRUE);
 
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- right template contents
-('view RightTemplateContent', 'GetRightTemplateContent', 'Xem nội dung mẫu của quyền', 'System', TRUE, FALSE),
-('add RightTemplateContent', 'PostRightTemplateContent', 'Thêm nội dung mẫu của quyền', 'System', TRUE, FALSE),
-('update RightTemplateContent', 'PutRightTemplateContent', 'Cập nhật nội dung mẫu của quyền', 'System', TRUE, FALSE),
-('Delete RightTemplateContent', 'DeleteRightTemplateContent', 'Xóa nội dung mẫu của quyền', 'System', TRUE, FALSE),
-
-
--- right of owner template contents
-('view RightOfOwnerTemplateContent', 'GetRightOfOwnerTemplateContent', 'Xem nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
-('add RightOfOwnerTemplateContent', 'PostRightOfOwnerTemplateContent', 'Thêm nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
-('update RightOfOwnerTemplateContent', 'PutRightOfOwnerTemplateContent', 'Cập nhật nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
-('Delete RightOfOwnerTemplateContent', 'DeleteRightOfOwnerTemplateContent', 'Xóa nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
+('view RightTemplateContent', 'GetRightTemplateContent', 'Xem nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
+('add RightTemplateContent', 'PostRightTemplateContent', 'Thêm nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
+('update RightTemplateContent', 'PutRightTemplateContent', 'Cập nhật nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
+('Delete RightTemplateContent', 'DeleteRightTemplateContent', 'Xóa nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
 
 
 -- rights template contents
-('view RightsTemplateContent', 'GetRightsTemplateContent', 'Xem nội dung mẫu của quyền', 'System', TRUE, FALSE),
-('add RightsTemplateContent', 'PostRightsTemplateContent', 'Thêm nội dung mẫu của quyền', 'System', TRUE, FALSE),
-('update RightsTemplateContent', 'PutRightsTemplateContent', 'Cập nhật nội dung mẫu của quyền', 'System', TRUE, FALSE),
-('Delete RightsTemplateContent', 'DeleteRightsTemplateContent', 'Xóa nội dung mẫu của quyền', 'System', TRUE, FALSE),
+('view RightsTemplateContent', 'GetRightsTemplateContent', 'Xem nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
+('add RightsTemplateContent', 'PostRightsTemplateContent', 'Thêm nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
+('update RightsTemplateContent', 'PutRightsTemplateContent', 'Cập nhật nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
+('Delete RightsTemplateContent', 'DeleteRightsTemplateContent', 'Xóa nội dung mẫu của quyền', 'System', TRUE, TRUE, TRUE),
 
 -- rights of owner template contents
-('view RightsOfOwnerTemplateContent', 'GetRightsOfOwnerTemplateContent', 'Xem nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
-('add RightsOfOwnerTemplateContent', 'PostRightsOfOwnerTemplateContent', 'Thêm nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
-('update RightsOfOwnerTemplateContent', 'PutRightsOfOwnerTemplateContent', 'Cập nhật nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE),
-('Delete RightsOfOwnerTemplateContent', 'DeleteRightsOfOwnerTemplateContent', 'Xóa nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE);
+('view RightsOfOwnerTemplateContent', 'GetRightsOfOwnerTemplateContent', 'Xem nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE, TRUE),
+('add RightsOfOwnerTemplateContent', 'PostRightsOfOwnerTemplateContent', 'Thêm nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE, TRUE),
+('update RightsOfOwnerTemplateContent', 'PutRightsOfOwnerTemplateContent', 'Cập nhật nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE, TRUE),
+('Delete RightsOfOwnerTemplateContent', 'DeleteRightsOfOwnerTemplateContent', 'Xóa nội dung mẫu của quyền chủ sở hữu', 'System', TRUE, TRUE, TRUE);
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- role template contents
-('view RoleTemplateContent', 'GetRoleTemplateContent', 'Xem nội dung mẫu của vai trò', 'System', TRUE, FALSE),
-('add RoleTemplateContent', 'PostRoleTemplateContent', 'Thêm nội dung mẫu của vai trò', 'System', TRUE, FALSE),
-('update RoleTemplateContent', 'PutRoleTemplateContent', 'Cập nhật nội dung mẫu của vai trò', 'System', TRUE, FALSE),
-('Delete RoleTemplateContent', 'DeleteRoleTemplateContent', 'Xóa nội dung mẫu của vai trò', 'System', TRUE, FALSE),
+('view RoleTemplateContent', 'GetRoleTemplateContent', 'Xem nội dung mẫu của vai trò', 'System', TRUE, TRUE, TRUE),
+('add RoleTemplateContent', 'PostRoleTemplateContent', 'Thêm nội dung mẫu của vai trò', 'System', TRUE, TRUE, TRUE),
+('update RoleTemplateContent', 'PutRoleTemplateContent', 'Cập nhật nội dung mẫu của vai trò', 'System', TRUE, TRUE, TRUE),
+('Delete RoleTemplateContent', 'DeleteRoleTemplateContent', 'Xóa nội dung mẫu của vai trò', 'System', TRUE, TRUE, TRUE),
 -- roles template contents
-('view RolesTemplateContent', 'GetRolesTemplateContent', 'Xem nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
-('add RolesTemplateContent', 'PostRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
-('update RolesTemplateContent', 'PutRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE),
-('Delete RolesTemplateContent', 'DeleteRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò', 'System', TRUE, FALSE);
+('view RolesTemplateContent', 'GetRolesTemplateContent', 'Xem nội dung mẫu của nhiều vai trò', 'System', TRUE, TRUE, TRUE),
+('add RolesTemplateContent', 'PostRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò', 'System', TRUE, TRUE, TRUE),
+('update RolesTemplateContent', 'PutRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò', 'System', TRUE, TRUE, TRUE),
+('Delete RolesTemplateContent', 'DeleteRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò', 'System', TRUE, TRUE, TRUE);
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- department template contents
-('view DepartmentTemplateContent', 'GetDepartmentTemplateContent', 'Xem nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
-('add DepartmentTemplateContent', 'PostDepartmentTemplateContent', 'Thêm nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
-('update DepartmentTemplateContent', 'PutDepartmentTemplateContent', 'Cập nhật nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
-('Delete DepartmentTemplateContent', 'DeleteDepartmentTemplateContent', 'Xóa nội dung mẫu của phòng ban', 'System', TRUE, FALSE),
+('view DepartmentTemplateContent', 'GetDepartmentTemplateContent', 'Xem nội dung mẫu của phòng ban', 'System', TRUE, TRUE, TRUE),
+('add DepartmentTemplateContent', 'PostDepartmentTemplateContent', 'Thêm nội dung mẫu của phòng ban', 'System', TRUE, TRUE, TRUE),
+('update DepartmentTemplateContent', 'PutDepartmentTemplateContent', 'Cập nhật nội dung mẫu của phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete DepartmentTemplateContent', 'DeleteDepartmentTemplateContent', 'Xóa nội dung mẫu của phòng ban', 'System', TRUE, TRUE, TRUE),
 
 -- departments template contents
-('view DepartmentsTemplateContent', 'GetDepartmentsTemplateContent', 'Xem nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
-('add DepartmentsTemplateContent', 'PostDepartmentsTemplateContent', 'Thêm nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
-('update DepartmentsTemplateContent', 'PutDepartmentsTemplateContent', 'Cập nhật nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE),
-('Delete DepartmentsTemplateContent', 'DeleteDepartmentsTemplateContent', 'Xóa nội dung mẫu của nhiều phòng ban', 'System', TRUE, FALSE);
+('view DepartmentsTemplateContent', 'GetDepartmentsTemplateContent', 'Xem nội dung mẫu của nhiều phòng ban', 'System', TRUE, TRUE, TRUE),
+('add DepartmentsTemplateContent', 'PostDepartmentsTemplateContent', 'Thêm nội dung mẫu của nhiều phòng ban', 'System', TRUE, TRUE, TRUE),
+('update DepartmentsTemplateContent', 'PutDepartmentsTemplateContent', 'Cập nhật nội dung mẫu của nhiều phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete DepartmentsTemplateContent', 'DeleteDepartmentsTemplateContent', 'Xóa nội dung mẫu của nhiều phòng ban', 'System', TRUE, TRUE, TRUE);
 
-INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner) VALUES
+INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrganization) VALUES
 -- user department role template contents
-('view UserDepartmentRoleTemplateContent', 'GetUserDepartmentRoleTemplateContent', 'Xem nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
-('add UserDepartmentRoleTemplateContent', 'PostUserDepartmentRoleTemplateContent', 'Thêm nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
-('update UserDepartmentRoleTemplateContent', 'PutUserDepartmentRoleTemplateContent', 'Cập nhật nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
-('Delete UserDepartmentRoleTemplateContent', 'DeleteUserDepartmentRoleTemplateContent', 'Xóa nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
+('view UserDepartmentRoleTemplateContent', 'GetUserDepartmentRoleTemplateContent', 'Xem nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('add UserDepartmentRoleTemplateContent', 'PostUserDepartmentRoleTemplateContent', 'Thêm nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('update UserDepartmentRoleTemplateContent', 'PutUserDepartmentRoleTemplateContent', 'Cập nhật nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete UserDepartmentRoleTemplateContent', 'DeleteUserDepartmentRoleTemplateContent', 'Xóa nội dung mẫu của vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
 
 -- users department roles template contents
-('view UsersDepartmentRolesTemplateContent', 'GetUsersDepartmentRolesTemplateContent', 'Xem nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
-('add UsersDepartmentRolesTemplateContent', 'PostUsersDepartmentRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
-('update UsersDepartmentRolesTemplateContent', 'PutUsersDepartmentRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE),
-('Delete UsersDepartmentRolesTemplateContent', 'DeleteUsersDepartmentRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, FALSE);
+('view UsersDepartmentRolesTemplateContent', 'GetUsersDepartmentRolesTemplateContent', 'Xem nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('add UsersDepartmentRolesTemplateContent', 'PostUsersDepartmentRolesTemplateContent', 'Thêm nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('update UsersDepartmentRolesTemplateContent', 'PutUsersDepartmentRolesTemplateContent', 'Cập nhật nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE),
+('Delete UsersDepartmentRolesTemplateContent', 'DeleteUsersDepartmentRolesTemplateContent', 'Xóa nội dung mẫu của nhiều vai trò người dùng theo phòng ban', 'System', TRUE, TRUE, TRUE);
 
--- gán tất cả quyền vào Administrator không có vai trò isOwner
+-- gán tất cả quyền vào Administrator không có vai trò isOwner và không có tổ chức là RootOrganization
 INSERT IGNORE INTO roles_rights (roleId, rightId, isActive)
 SELECT r.id, rt.id, TRUE
 FROM roles r
 JOIN rights rt ON rt.isOwner = FALSE
-WHERE r.code = 'Administrator';
+WHERE r.code = 'Administrator'AND r.organizationId <> @RootOrganization;
+
+-- gán tất cả quyền vào Administrator có vai trò isOwner và có tổ chức là RootOrganization
+INSERT IGNORE INTO roles_rights (roleId, rightId, isActive)
+SELECT r.id, rt.id, TRUE
+FROM roles r
+JOIN rights rt ON rt.isOwner = TRUE
+WHERE r.code = 'Administrator' AND r.organizationId = @RootOrganization;
+
+-- xoá bỏ quyền với right.isOrganization = FALSE khỏi Administrator với organization khác RootOrganization
+DELETE rr
+FROM roles_rights rr
+JOIN roles r ON rr.roleId = r.id
+JOIN rights rt ON rr.rightId = rt.id
+WHERE r.code = 'Administrator' AND r.organizationId <> @RootOrganization AND rt.isOrganization = FALSE;

@@ -11,8 +11,7 @@ router.put('/detail/:id',authorization,checkPermission({rightCodes: ["PutOrganiz
 router.delete('/detail/:id',authorization,checkPermission({rightCodes: ["DeleteOrganization"], isAllowMoreDepartment: false}), deleteOrganization,insertActivityLogsInfo({action: 'deleteOrganization', tableName: 'organizations', description:"delete organization"}));
 
 // router cha
-//router.get('/list',authorization,checkPermission({rightCodes: ["GetOrganizations"], isAllowMoreDepartment: true}),getOrganizations);
-router.get('/list',getOrganizations);
+router.get('/list',authorization,checkPermission({rightCodes: ["GetOrganizations"], isAllowMoreDepartment: true}),getOrganizations);
 
 router.post('/list',authorization,checkPermission({rightCodes: ["PostOrganizations"], isAllowMoreDepartment: false}), insertOrganizations,insertActivityLogsInfo({action: 'insertOrganizations', tableName: 'organizations', description:"insert organizations"}));
 router.put('/list',authorization,checkPermission({rightCodes: ["PutOrganizations"], isAllowMoreDepartment: false}), updateOrganizations,insertActivityLogsInfo({action: 'updateOrganizations', tableName: 'organizations', description:"update organizations"}));

@@ -63,13 +63,21 @@ const rolesRightsUpdateAndDeleteSchema: RuleSchema = {
 
 
 export async function getRightsFromRoleId(roleId: string, organizationId: string): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    const sqlString = "Select rights.id As id, rights.name As name, rights.code As code, rights.description As description,roles_rights.isActive As isActive, roles_rights.isSystem As isSystem from roles_rights, rights, roles  Where roles_rights.roleId = ? and roles_rights.rightId = rights.id and rights.isOwner = 0 and roles.id = roles_rights.roleId and roles.organizationId = ?";
+    // kiểm tra nếu organizationId là '00000000-0000-0000-0000-000000000001' thì lấy quyền isOwner = 1
+    let sqlString = "";
+    if (organizationId === '00000000-0000-0000-0000-000000000001') {
+        sqlString = "Select rights.id As id, rights.name As name, rights.code As code, rights.description As description,roles_rights.isActive As isActive, roles_rights.isSystem As isSystem from roles_rights, rights, roles  Where roles_rights.roleId = ? and roles_rights.rightId = rights.id and rights.isOwner = 1 and roles.id = roles_rights.roleId and roles.organizationId = ?";
+    } else {
+        sqlString = "Select rights.id As id, rights.name As name, rights.code As code, rights.description As description,roles_rights.isActive As isActive, roles_rights.isSystem As isSystem from roles_rights, rights, roles  Where roles_rights.roleId = ? and roles_rights.rightId = rights.id and rights.isOrganization = 1 and roles.id = roles_rights.roleId and roles.organizationId = ?";
+    }
     return await executeQuery(sqlString, [roleId, organizationId]);
 }
 
 
 export async function getRightsNotInRoleId(roleId: string, organizationId: string): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
-    const sqlString = `
+    let sqlString = "";
+    if (organizationId === '00000000-0000-0000-0000-000000000001') {
+        sqlString = `
         SELECT 
             rights.id AS id,
             rights.name AS name,
@@ -84,8 +92,28 @@ export async function getRightsNotInRoleId(roleId: string, organizationId: strin
         LEFT JOIN roles 
             ON roles.id = roles_rights.roleId AND roles.organizationId = ?
         WHERE 
-            rights.isOwner = 0 AND roles_rights.roleId IS NULL
+            rights.isOwner = 1 AND roles_rights.roleId IS NULL
     `;
+    } else {
+        sqlString = `
+        SELECT 
+            rights.id AS id,
+            rights.name AS name,
+            rights.code AS code,
+            rights.description AS description,
+            0 AS isActive,
+            0 AS isSystem
+        FROM 
+            rights
+        LEFT JOIN roles_rights 
+            ON rights.id = roles_rights.rightId AND roles_rights.roleId = ?
+        LEFT JOIN roles 
+            ON roles.id = roles_rights.roleId AND roles.organizationId = ?
+        WHERE 
+            rights.isOrganization = 1 AND roles_rights.roleId IS NULL
+    `;
+    }
+
     return await executeQuery(sqlString, [roleId, organizationId]);
 }
 

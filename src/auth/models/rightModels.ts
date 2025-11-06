@@ -34,26 +34,29 @@ const rightsUpdateAndDeleteSchema: RuleSchema = {
 
 
 export async function getRight(id: string) {
-    const sqlQuery = "SELECT * FROM rights WHERE id = ? AND isOwner = FALSE";
+    const sqlQuery = "SELECT * FROM rights WHERE id = ? AND isOrganization = true";
     return await executeQuery(sqlQuery, [id]);
 }
-export async function getRights() {
-    const Sqlstring = "Select * from rights WHERE isOwner = FALSE";
+export async function getRights(organizationId: string) {
+    let Sqlstring = "Select * from rights WHERE isOrganization = true";
+    if (organizationId === '00000000-0000-0000-0000-000000000001') {
+        Sqlstring = "Select * from rights  WHERE isOwner = true";
+    }
     const data = await executeQuery(Sqlstring);
     return data;
 
 }
 
 
-export async function getRightOfOwner(id: string) {
-    const sqlQuery = "SELECT * FROM rights WHERE id = ? AND isOwner = true";
-    return await executeQuery(sqlQuery, [id]);
-}
-export async function getRightsOfOwner() {
-    const Sqlstring = "Select * from rights WHERE isOwner = true";
-    const data = await executeQuery(Sqlstring);
-    return data;
-}
+// export async function getRightOfOwner(id: string) {
+//     const sqlQuery = "SELECT * FROM rights WHERE id = ? AND isOwner = true";
+//     return await executeQuery(sqlQuery, [id]);
+// }
+// export async function getRightsOfOwner() {
+//     const Sqlstring = "Select * from rights WHERE isOwner = true";
+//     const data = await executeQuery(Sqlstring);
+//     return data;
+// }
 
 
 // export async function insertRight(right: right): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {

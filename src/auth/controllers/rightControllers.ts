@@ -18,7 +18,8 @@ export async function getRight(req: Request, res: Response) {
 }
 export async function getRights(req: Request, res: Response) {
     try {
-        const { data, status, errorCode } = await rightModel.getRights();
+        const organizationId = req.user.organizationId
+        const { data, status, errorCode } = await rightModel.getRights(organizationId);
         if (status) {
             res.status(200).json({ data, status, errorCode });
         } else {
@@ -31,33 +32,33 @@ export async function getRights(req: Request, res: Response) {
 }
 
 
-export async function getRightOfOwner(req: Request, res: Response) {
-    try {
-        const code:string = req.params.code;
-        const { data, status, errorCode } = await rightModel.getRightOfOwner(code);
-        if (status && Array.isArray(data) && data.length > 0) {
-            res.status(200).json({ data, status, errorCode });
-        } else {
-            res.status(404).json({ data, status, errorCode });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
-    }
-}
-export async function getRightsOfOwner(req: Request, res: Response) {
-    try {
-        const { data, status, errorCode } = await rightModel.getRightsOfOwner();
-        if (status) {
-            res.status(200).json({ data, status, errorCode });
-        } else {
-            res.status(500).json({ data, status, errorCode });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
-    }
-}
+// export async function getRightOfOwner(req: Request, res: Response) {
+//     try {
+//         const code:string = req.params.code;
+//         const { data, status, errorCode } = await rightModel.getRightOfOwner(code);
+//         if (status && Array.isArray(data) && data.length > 0) {
+//             res.status(200).json({ data, status, errorCode });
+//         } else {
+//             res.status(404).json({ data, status, errorCode });
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ status: false, message: 'Internal Server Error' });
+//     }
+// }
+// export async function getRightsOfOwner(req: Request, res: Response) {
+//     try {
+//         const { data, status, errorCode } = await rightModel.getRightsOfOwner();
+//         if (status) {
+//             res.status(200).json({ data, status, errorCode });
+//         } else {
+//             res.status(500).json({ data, status, errorCode });
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ status: false, message: 'Internal Server Error' });
+//     }
+// }
 
 
 // export async function insertRight(req: Request, res: Response, next: Function) {

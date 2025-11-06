@@ -133,8 +133,14 @@ export async function checkExistenceRoles(rolesCheck: rolesExistanceCheck): Prom
 export async function insertRole(role: role): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray([role], roleInsertRule, messagesEn);
     if (status) {
-        // lấy ra tất cả các rightId từ bảng rights với isOwner = 0
-        const sqlStringRights = "SELECT id FROM rights WHERE isOwner = 0";
+
+        let sqlStringRights = '';
+        if (role.organizationId === '00000000-0000-0000-0000-000000000001') {
+            sqlStringRights = "SELECT id FROM rights WHERE isOwner = TRUE";
+        } else {
+            sqlStringRights = "SELECT id FROM rights WHERE isOrganization = TRUE";
+        }
+        // lấy ra tất cả các rightId từ bảng rights với isOrganization = TRUE
         const { data, status: statusRights, errorCode } = await executeQuery(sqlStringRights);
         // đưa tất cả các rightId vào bảng roles_rights với isActive = 0, isSystem = 0
         let roleRights: Array<any> = [];
@@ -193,19 +199,64 @@ export async function deleteRole(role: roleUpdateAndDelete): Promise<{ data: Obj
 }
 
 
+// export async function insertRoles(roles: Array<role>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
+//     const { status, results } = validateDataArray(roles, roleInsertRule, messagesEn);
+//     if (status) {
+//         // thêm vào bảng roles giá trị id = uuid
+//         roles = roles.map(role => ({ ...role, id: uuidv4() }));
+//         // lấy ra tất cả các rightId từ bảng rights với isOrganization = TRUE
+//         const sqlStringRights = "SELECT id FROM rights WHERE isOrganization = TRUE";
+//         const { data, status: statusRights, errorCode } = await executeQuery(sqlStringRights);
+//         const sqlStringRightsOwner = "SELECT id FROM rights WHERE isOwner = TRUE";
+//         const { data: dataOwner, status: statusRightsOwner, errorCode: errorCodeOwner } = await executeQuery(sqlStringRightsOwner);
+        
+//         // đưa tất cả các rightId vào bảng roles_rights với isActive = 0, isSystem = 0 của mối role thuộc roles
+//         let roleRights: Array<any> = [];
+//         if (statusRights && data && Array.isArray(data)) {
+//             for (const role of roles) {
+//                 const rightsForRole = data.map((right: any) => ({
+//                     roleId: role.id,
+//                     rightId: right.id,
+//                     isActive: 0,
+//                     isSystem: 0,
+//                 }));
+//                 roleRights.push(...rightsForRole);
+//             }
+//         }
+
+//         if (roleRights.length) {
+//             return await insertObjectsTablesNotIsSystem([{ table: "roles", dataIn: roles }, { table: "roles_rights", dataIn: roleRights }]);
+//         } else {
+//             return await insertObjectsNotIsSystem("roles", roles);
+//         }
+//     }
+//     return { data: null, status: status, errorCode: { failData: results } };
+// }
+
 export async function insertRoles(roles: Array<role>): Promise<{ data: Object | null, status: boolean, errorCode: string | Object }> {
     const { status, results } = validateDataArray(roles, roleInsertRule, messagesEn);
     if (status) {
         // thêm vào bảng roles giá trị id = uuid
         roles = roles.map(role => ({ ...role, id: uuidv4() }));
-        // lấy ra tất cả các rightId từ bảng rights với isOwner = 0
-        const sqlStringRights = "SELECT id FROM rights WHERE isOwner = 0";
-        const { data, status: statusRights, errorCode } = await executeQuery(sqlStringRights);
-        // đưa tất cả các rightId vào bảng roles_rights với isActive = 0, isSystem = 0 của mối role thuộc roles
+        
+        // Lấy rights cho cả owner và organization
+        const sqlStringRights = "SELECT id FROM rights WHERE isOrganization = TRUE";
+        const sqlStringRightsOwner = "SELECT id FROM rights WHERE isOwner = TRUE";
+        
+        const [normalRights, ownerRights] = await Promise.all([
+            executeQuery(sqlStringRights),
+            executeQuery(sqlStringRightsOwner)
+        ]);
+
         let roleRights: Array<any> = [];
-        if (statusRights && data && Array.isArray(data)) {
-            for (const role of roles) {
-                const rightsForRole = data.map((right: any) => ({
+        
+        // Với mỗi role, kiểm tra organizationId để quyết định dùng rights nào
+        for (const role of roles) {
+            const useOwnerRights = role.organizationId === '00000000-0000-0000-0000-000000000001';
+            const rightsList = useOwnerRights ? ownerRights.data : normalRights.data;
+            
+            if (rightsList && Array.isArray(rightsList)) {
+                const rightsForRole = rightsList.map((right: any) => ({
                     roleId: role.id,
                     rightId: right.id,
                     isActive: 0,
@@ -216,7 +267,10 @@ export async function insertRoles(roles: Array<role>): Promise<{ data: Object | 
         }
 
         if (roleRights.length) {
-            return await insertObjectsTablesNotIsSystem([{ table: "roles", dataIn: roles }, { table: "roles_rights", dataIn: roleRights }]);
+            return await insertObjectsTablesNotIsSystem([
+                { table: "roles", dataIn: roles }, 
+                { table: "roles_rights", dataIn: roleRights }
+            ]);
         } else {
             return await insertObjectsNotIsSystem("roles", roles);
         }

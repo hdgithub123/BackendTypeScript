@@ -11,8 +11,6 @@ import departmentsRoutes from './departmentsTemplateContentsRouters'
 
 import rightRoutes from './rightTemplateContentsRouters'
 import rightsRoutes from './rightsTemplateContentsRouters'
-import rightOfOwnerRoutes from './rightOfOwnerTemplateContentsRouters' 
-import rightsOfOwnerRoutes from './rightsOfOwnerTemplateContentsRouters'
 import rolesRoutes from './rolesTemplateContentsRouters'
 import roleRoutes from './roleTemplateContentsRouters' 
 import userDepartmentRoleRotes from './userDepartmentRoleTemplateContentsRouters'
@@ -33,8 +31,6 @@ router.use('/department', departmentRoutes);
 router.use('/departments', departmentsRoutes);
 router.use('/right', rightRoutes);
 router.use('/rights', rightsRoutes);
-router.use('/right-of-owner', rightOfOwnerRoutes);
-router.use('/rights-of-owner', rightsOfOwnerRoutes);
 router.use('/roles', rolesRoutes);
 router.use('/role', roleRoutes);
 router.use('/user-department-role', userDepartmentRoleRotes);
