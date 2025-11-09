@@ -27,6 +27,7 @@ async function authentication(username: string, password: string, organizationCo
                 users.id AS id,
                 users.code AS code,
                 users.name AS name,
+                users.image AS image,
                 users.password AS password,
                 organizations.id AS organizationId,
                 organizations.name AS organizationName
@@ -47,7 +48,7 @@ async function authentication(username: string, password: string, organizationCo
         if (isMatch) {
             const token = jwt.sign({ id: user.id, code: user.code, organizationId: user.organizationId }, secretKey, { expiresIn: tokenExpiresIn });
             const refreshToken = jwt.sign({ id: user.id, code: user.code,organizationId: user.organizationId }, secretKey, { expiresIn: refreshTokenExpiresIn });
-            return { info:{ code: user.code, name: user.name, organizationCode: organizationCode, organizationName: user.organizationName }, data: { id: user.id, code: user.code, organizationId: user.organizationId }, status: true, token, refreshToken, message: null };
+            return { info:{ code: user.code, name: user.name, image: user.image, organizationCode: organizationCode, organizationName: user.organizationName }, data: { id: user.id, code: user.code, organizationId: user.organizationId }, status: true, token, refreshToken, message: null };
         } else {
             return { status: false, token: null, refreshToken: null, message: 'Invalid username or password' };
         }
