@@ -174,16 +174,6 @@ INSERT INTO rights (name, code, description, createdBy,isSystem,isOwner,isOrgani
 ('Delete Roles', 'DeleteRoles', 'Xóa nhiều vai trò', 'System', TRUE, TRUE, TRUE),
 ('export Roles', 'ExportRoles', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE),
 
--- Zone
-('view zone', 'GetZone', 'Xem một khu vực', 'System', TRUE, TRUE, TRUE),
-('add zone', 'PostZone', 'Thêm khu vực mới', 'System', TRUE, TRUE, TRUE),
-('update zone', 'PutZone', 'Cập nhật khu vực', 'System', TRUE, TRUE, TRUE),
-('Delete zone', 'DeleteZone', 'Xóa khu vực', 'System', TRUE, TRUE, TRUE),
-('view zones', 'GetZones', 'Xem danh sách khu vực', 'System', TRUE, TRUE, TRUE),
-('add zones', 'PostZones', 'Thêm nhiều khu vực', 'System', TRUE, TRUE, TRUE),
-('update zones', 'PutZones', 'Cập nhật nhiều khu vực', 'System', TRUE, TRUE, TRUE),
-('Delete zones', 'DeleteZones', 'Xóa nhiều khu vực', 'System', TRUE, TRUE, TRUE),
-('export Zones', 'ExportZones', 'Xuất khẩu danh sách excell', 'System', TRUE, TRUE, TRUE),
 
 -- RoleVsRight
 ('view RoleVsRight', 'GetRoleRight', 'Xem quyền gán cho vai trò', 'System', TRUE, TRUE, TRUE),
@@ -222,30 +212,6 @@ CREATE TABLE roles_rights (
 );
 
 
-
-
-
-
-CREATE TABLE zones (
-    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    name VARCHAR(255) NOT NULL,
-    -- code VARCHAR(100) UNIQUE NOT NULL, -- Mã quyền có thể thay đổi
-    code VARCHAR(100) NOT NULL, -- Mã quyền có thể thay đổi
-    address TEXT,
-    description TEXT,
-    parentId CHAR(36) NULL,
-    organizationId CHAR(36) NOT NULL,
-    FOREIGN KEY (organizationId) REFERENCES organizations(id) ON DELETE CASCADE,
-    -- FOREIGN KEY (organizationId) REFERENCES organizations(id),
-    UNIQUE (organizationId, code),
-    isSystem TINYINT(1) DEFAULT 0,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100),
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (parentId) REFERENCES zones(id),
-    CHECK (id <> '')
-);
 
 
 CREATE TABLE branches (
@@ -491,53 +457,10 @@ INSERT INTO users_departments_roles (userId, roleId, departmentId, isActive, cre
 
 
 
-INSERT INTO zones (id, name, code, address, description, parentId, createdBy,organizationId) VALUES
-(UUID(), 'Tổng Công Ty', 'TC001', 'Hà Nội', 'Trụ sở chính', NULL, 'admin',@Organizations1);
-
-SET @parent_tct = (SELECT id FROM zones WHERE code = 'TC001'AND organizationId = @Organizations1);
-
-INSERT INTO zones (id, name, code, address, description, parentId, createdBy,organizationId) VALUES
-(UUID(), 'Chi Nhánh 1', 'CN001', 'TP HCM', 'Chi nhánh miền Nam', @parent_tct, 'admin',@Organizations1),
-(UUID(), 'Chi Nhánh 2', 'CN002', 'Hà Nội', 'VP miền Bắc', @parent_tct, 'admin',@Organizations1),
-(UUID(), 'Chi nhánh 3', 'CN003', 'Đà Nẵng', 'Chi nhánh miền Trung', @parent_tct, 'admin',@Organizations1);
-
-
-
-SET @cn1 = (SELECT id FROM zones WHERE code = 'CN001' AND organizationId = @Organizations1);
-SET @cn2 = (SELECT id FROM zones WHERE code = 'CN002' AND organizationId = @Organizations1);
-
-INSERT INTO zones (id, name, code, address, description, parentId, createdBy,organizationId) VALUES
-(UUID(), 'Phòng Kinh Doanh HCM', 'P11', 'TP HCM', 'Kinh doanh miền Nam', @cn1, 'admin',@Organizations1),
-(UUID(), 'Phòng Nhân Sự HCM', 'P12', 'TP HCM', 'Nhân sự miền Nam', @cn1, 'admin',@Organizations1),
-(UUID(), 'Phòng Kinh Doanh Đà Nẵng', 'PCN21', 'Đà Nẵng', 'Kinh doanh miền Trung', @cn2, 'admin',@Organizations1),
-(UUID(), 'Phòng Nhân Sự Đà Nẵng', 'PCN22', 'Đà Nẵng', 'Nhân sự miền Trung', @cn2, 'admin',@Organizations1);
-
-
-CREATE TABLE users_zones_roles (
-    userId CHAR(36),
-    roleId CHAR(36),
-    zoneId CHAR(36),
-    isActive BOOLEAN,
-    isSystem TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (userId, roleId, zoneId),
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (roleId) REFERENCES roles(id) ON DELETE CASCADE,
-    FOREIGN KEY (zoneId) REFERENCES zones(id) ON DELETE CASCADE,
-    CHECK (userId <> '' AND roleId <> '' AND zoneId <> '')
-);
-
-
-
-INSERT INTO users_zones_roles (userId, roleId, zoneId,isActive)
-VALUES
-    (@admin1, @Administrator1, @parent_tct, TRUE); -- ad admin cho toan bo 
-
-
 
 CREATE TABLE activityLogs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     organizationId CHAR(36),
-    zoneId CHAR(36),
     departmentId CHAR(36),
     branchId CHAR(36),
     userId CHAR(36),              -- ID người dùng thực hiện hành động
