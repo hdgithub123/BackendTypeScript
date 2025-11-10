@@ -17,7 +17,7 @@ export default function insertActivityLogsInfo(
             const zoneId = req.headers['zone'] ?? "unknown";
             
             let organizationId = "unknown";
-            if (typeof req.user.organizationId === 'string') {
+            if (req.user.organizationId) {
                 organizationId = req.user.organizationId;
             }
             // Lấy thông tin trình duyệt và địa chỉ IP

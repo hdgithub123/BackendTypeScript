@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
-import {getDepartments,insertDepartments,insertDepartmentsByCode,updateDepartments,updateDepartmentsByCode,deleteDepartments,getDepartment,insertDepartment,updateDepartment,deleteDepartment,checkExistenceDepartment,checkExistenceDepartments,getIdDepartmentsByCodes} from '../controllers/departmentControllers';
+import {getSettingDepartments,getDepartments,insertDepartments,insertDepartmentsByCode,updateDepartments,updateDepartmentsByCode,deleteDepartments,getDepartment,insertDepartment,updateDepartment,deleteDepartment,checkExistenceDepartment,checkExistenceDepartments,getIdDepartmentsByCodes} from '../controllers/departmentControllers';
 // Định tuyến cho trang department
 
 //chú ý route cha phải được đặt sau route con
@@ -22,5 +22,9 @@ router.put('/list/code',authorization,checkPermission({rightCodes: ["PutDepartme
 router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetDepartments", "PutDepartments"], isAllowMoreDepartment: true}),getIdDepartmentsByCodes);
 router.post('/check-department',authorization,checkPermission({rightCodes: ["PostDepartment","PutDepartment"], isAllowMoreDepartment: false}),checkExistenceDepartment);
 router.post('/check-departments',authorization,checkPermission({rightCodes: ["PostDepartments","PutDepartments"], isAllowMoreDepartment: false}),checkExistenceDepartments);
+
+
+
+router.get('/setting/list',authorization,getSettingDepartments);
 
 export default router;

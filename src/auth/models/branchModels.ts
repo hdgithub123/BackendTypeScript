@@ -111,6 +111,8 @@ export async function getBranches(organizationId: string) {
 
 }
 
+
+
 export async function getIdBranchesByCodes(organizationId: string, codes: string[]) {
     if (!codes.length) return { data: [], status: true, errorCode: {} };
 
@@ -244,3 +246,11 @@ export async function deleteBranches(branches: Array<branchUpdateAndDelete>): Pr
 }
 
 
+
+
+export async function getSettingBranches(organizationId: string) {
+    const Sqlstring = "Select id, code, name from branches WHERE organizationId = ?";
+    const data = await executeQuery(Sqlstring, [organizationId]);
+    return data;
+
+}

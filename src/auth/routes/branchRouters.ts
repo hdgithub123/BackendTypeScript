@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import {insertActivityLogsInfo, authorization, checkPermission} from '../middleware';
-import {getBranches,insertBranches,updateBranches,deleteBranches,getBranch,insertBranch,updateBranch,deleteBranch,checkExistenceBranch,checkExistenceBranches,getIdBranchesByCodes} from '../controllers/branchControllers';
+import {getSettingBranches ,getBranches,insertBranches,updateBranches,deleteBranches,getBranch,insertBranch,updateBranch,deleteBranch,checkExistenceBranch,checkExistenceBranches,getIdBranchesByCodes} from '../controllers/branchControllers';
 // Định tuyến cho trang branch
 
 
@@ -21,5 +21,7 @@ router.delete('/list',authorization,checkPermission({rightCodes: ["DeleteBranche
 router.post('/ids-codes',authorization,checkPermission({rightCodes: ["GetBranches", "PutBranches"], isAllowMoreDepartment: true}),getIdBranchesByCodes);
 router.post('/check-branch',authorization,checkPermission({rightCodes: ["PostBranch","PutBranch"], isAllowMoreDepartment: false}),checkExistenceBranch);
 router.post('/check-branches',authorization,checkPermission({rightCodes: ["PostBranches","PutBranches"], isAllowMoreDepartment: false}),checkExistenceBranches);
+
+router.get('/setting/list',authorization,getSettingBranches);
 
 export default router;

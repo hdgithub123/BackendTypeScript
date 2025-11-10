@@ -67,6 +67,20 @@ export async function getBranches(req: Request, res: Response) {
     }
 }
 
+export async function getSettingBranches(req: Request, res: Response) {
+    try {
+        const organizationId = req.user.organizationId
+        const { data, status, errorCode } = await branchModel.getSettingBranches(organizationId);
+        if (status) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(404).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
 
 export async function getIdBranchesByCodes(req: Request, res: Response) {
     try {

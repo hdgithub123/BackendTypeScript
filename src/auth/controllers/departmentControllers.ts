@@ -73,6 +73,23 @@ export async function getDepartments(req: Request, res: Response) {
 }
 
 
+export async function getSettingDepartments(req: Request, res: Response) {
+    try {
+        const departmentIds = (req.user as { departmentIds?: string[] }).departmentIds;
+        const organizationId = req.user.organizationId
+        const { data, status, errorCode } = await departmentModel.getSettingDepartments(organizationId, departmentIds);
+        if (status) {
+            res.status(200).json({ data, status, errorCode });
+        } else {
+            res.status(404).json({ data, status, errorCode });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    }
+}
+
+
 export async function getIdDepartmentsByCodes(req: Request, res: Response) {
     try {
         const organizationId = req.user.organizationId

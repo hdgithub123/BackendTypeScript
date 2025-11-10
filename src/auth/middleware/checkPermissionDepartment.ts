@@ -17,10 +17,6 @@ const checkPermission = ({ rightCodes, isAllowMoreDepartment = false }: { rightC
       // Lấy departmentIds từ header
       const currentDepartmentId = req.headers.departmentid;
       const stringDepartmentIds = req.headers.departmentids;
-      if (!stringDepartmentIds) {
-        res.status(400).json({ message: "Missing departments information!" });
-        return;
-      }
 
       // Chuyển departmentIds thành mảng
       let departmentIdsTemp: string[] = [];
@@ -28,29 +24,23 @@ const checkPermission = ({ rightCodes, isAllowMoreDepartment = false }: { rightC
         departmentIdsTemp = stringDepartmentIds.split(',').map(id => id.trim()).filter(Boolean);
       } else if (Array.isArray(stringDepartmentIds)) {
         departmentIdsTemp = stringDepartmentIds.map(id => id.toString().trim()).filter(Boolean);
-      }
-
-      if (departmentIdsTemp.length === 0) {
-        res.status(400).json({ message: "Invalid departments information!" });
-        return;
-      }
-
+      } 
 
       let departmentIds: string[] = [];
-      if(isAllowMoreDepartment) {
-        departmentIds = [...departmentIdsTemp,currentDepartmentId as string];
+      if (isAllowMoreDepartment) {
+        departmentIds = [...departmentIdsTemp, currentDepartmentId as string];
       } else {
-       departmentIds = currentDepartmentId ? [currentDepartmentId as string] : [];
+        departmentIds = currentDepartmentId ? [currentDepartmentId as string] : [];
       }
 
 
       const userId = (req.user as { id: string }).id;
 
       // Gọi hàm check quyền
-      const result = await checkUserPermission({ 
-        userId, 
-        rightCodes, 
-        departmentIds, 
+      const result = await checkUserPermission({
+        userId,
+        rightCodes,
+        departmentIds,
       });
 
       if (result) {

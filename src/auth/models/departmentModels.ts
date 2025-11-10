@@ -274,6 +274,13 @@ export async function getDepartments(organizationId: string, departmentIds?: str
 
 }
 
+export async function getSettingDepartments(organizationId: string, departmentIds?: string[]) {
+    let sqlstring = "SELECT id, name from departments WHERE organizationId = ?";
+    const params = [organizationId];
+    const data = await executeQuery(sqlstring, params);
+    return data;
+}
+
 export async function getIdDepartmentsByCodes(organizationId: string, codes: string[]) {
     if (!codes.length) return { data: [], status: true, errorCode: {} };
 
