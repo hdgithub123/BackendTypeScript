@@ -14,12 +14,10 @@ export default function insertActivityLogsInfo(
             const userName = req.user?.code || 'unknown';
             const action = info?.action ?? "unknown";
             const description = info?.description ?? "unknown";
-            const zoneId = req.headers['zone'] ?? "unknown";
-            
-            let organizationId = "unknown";
-            if (req.user.organizationId) {
-                organizationId = req.user.organizationId;
-            }
+            const branchId = req.headers.branchid ?? "unknown";
+            const departmentId = req.headers.departmentid ?? "unknown";
+            const organizationId = req.user.organizationId ?? "unknown";
+
             // Lấy thông tin trình duyệt và địa chỉ IP
             const ua = req.headers['user-agent'] || '';
             const parser = new UAParser(ua);
@@ -41,7 +39,8 @@ export default function insertActivityLogsInfo(
             if (!resultsData || !Array.isArray(resultsData) || resultsData.length === 0) {
                 activeLogs.push({
                     organizationId,
-                    zoneId,
+                    branchId,
+                    departmentId,
                     userId,
                     userName,
                     action,
@@ -71,7 +70,8 @@ export default function insertActivityLogsInfo(
 
                         activeLogs.push({
                             organizationId,
-                            zoneId,
+                            branchId,
+                            departmentId,
                             userId,
                             userName,
                             action,
