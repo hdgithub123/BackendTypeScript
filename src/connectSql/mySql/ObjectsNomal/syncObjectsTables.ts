@@ -1,6 +1,14 @@
 import executeTransaction from '../executeTransaction';
 require('dotenv').config();
 
+
+// Hàm đồng bộ dữ liệu giữa bảng chính và bảng chi tiết, với bảo vệ dữ liệu hệ thống (isSystem)
+// với mode = 'update': chỉ cập nhật những bản ghi đã tồn tại, không tạo mới và không xóa
+// với mode = 'upsert': cập nhật nếu tồn tại, tạo mới nếu không tồn tại, không xóa
+// với mode = 'sync': cập nhật nếu tồn tại, tạo mới nếu không tồn tại, xóa những bản ghi thừa (không có trong dataIn)
+// với mode phải thêm as const để giữ nguyên kiểu literal và tránh lỗi khi so sánh chuỗi
+// syncKey: trường khóa ngoại dùng để xác định nhóm bản ghi cần đồng bộ (dùng cho mode 'sync') ví dụ: bookingId trong bảng chi tiết liên kết với id trong bảng chính
+
 export default async function syncObjectsTables(
     tablesData: Array<{
         table: string;
