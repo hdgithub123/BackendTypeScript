@@ -1,31 +1,39 @@
 import executeTransaction from '../executeTransaction';
 require('dotenv').config();
 
-// cập nhật cho nhiều bảng, nếu không có thì insert, có thì update, được update trường isSystem, 
-// và có thêm mode 'sync' để xóa các bản ghi thừa, nhưng không được update trường isSystem
 export default async function syncObjectsTablesNotIsSystem(
     tablesData: Array<{
         table: string;
         dataIn: Array<{ [key: string]: any }>;
         columKey: string[];
         mode: 'update' | 'upsert' | 'sync';
-        syncKey?: string; 
+        syncKey?: string;
     }>
 ): Promise<{
-    data: any[];
+    data: Array<{
+        table: string;
+        dataIn: Object[];
+        oldData: Object[];
+        columKey: string[];
+    }>;
     status: boolean;
     errorCode: string | Object;
 }> {
-    const resultData: any[] = [];
+    const resultData: Array<{
+        table: string;
+        dataIn: Object[];
+        oldData: Object[];
+        columKey: string[];
+    }> = [];
 
     const { status, errorCode } = await executeTransaction(async (connection) => {
         for (const { table, dataIn, columKey, mode, syncKey } of tablesData) {
-            const tableOldData: any[] = [];
-            const tableValidDataIn: any[] = [];
-            const keptIds: any[] = []; 
+            const tableOldData: Object[] = [];
+            const tableValidDataIn: Object[] = [];
+            const keptIds: any[] = [];
 
             for (const item of dataIn) {
-                // 1️⃣ Kiểm tra dữ liệu cũ và isSystem
+                // 1️⃣ Lấy dữ liệu cũ để so sánh và kiểm tra isSystem
                 const whereClause = columKey.map(key => `${key} = ?`).join(' AND ');
                 const whereValues = columKey.map(key => item[key]);
                 const [rows]: any = await connection.execute(
@@ -36,11 +44,12 @@ export default async function syncObjectsTablesNotIsSystem(
                 const exists = rows.length > 0;
 
                 if (exists) {
-                    // 🛡️ BẢO VỆ: Nếu là bản ghi hệ thống, không cho phép sửa
+                    // 🛡️ BẢO VỆ: Nếu bản ghi là hệ thống, không cho phép sửa
                     if (rows[0].isSystem === 1 || rows[0].isSystem === true) {
                         throw { failData: { isSystem: `Bản ghi thuộc hệ thống trong bảng '${table}' không thể thay đổi.` } };
                     }
 
+                    // Lưu oldData: Chỉ lấy các trường có trong item gửi lên để đối soát
                     const oldRow = Object.keys(item).reduce((obj: any, key) => {
                         if (key in rows[0]) obj[key] = rows[0][key];
                         return obj;
@@ -48,9 +57,10 @@ export default async function syncObjectsTablesNotIsSystem(
                     tableOldData.push(oldRow);
                 }
 
+                // Nếu mode 'update' mà không tồn tại bản ghi thì bỏ qua dòng này
                 if (mode === 'update' && !exists) continue;
 
-                // 2️⃣ Thực thi ghi dữ liệu
+                // 2️⃣ Thực thi ghi dữ liệu (INSERT ON DUPLICATE hoặc UPDATE)
                 const allKeys = Object.keys(item);
                 
                 if (mode === 'upsert' || mode === 'sync') {
@@ -60,24 +70,30 @@ export default async function syncObjectsTablesNotIsSystem(
                     const updateClause = updateKeys.map(key => `${key} = VALUES(${key})`).join(', ');
 
                     let query = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
-                    if (updateKeys.length > 0) query += ` ON DUPLICATE KEY UPDATE ${updateClause}`;
-                    
+                    if (updateKeys.length > 0) {
+                        query += ` ON DUPLICATE KEY UPDATE ${updateClause}`;
+                    }
                     await connection.execute(query, Object.values(item));
                 } else {
+                    // Mode 'update' thuần túy
                     const setKeys = allKeys.filter(key => !columKey.includes(key));
                     const setClause = setKeys.map(key => `${key} = ?`).join(', ');
                     const setValues = setKeys.map(key => item[key]);
                     
                     if (setKeys.length > 0) {
-                        await connection.execute(`UPDATE ${table} SET ${setClause} WHERE ${whereClause}`, [...setValues, ...whereValues]);
+                        await connection.execute(
+                            `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`, 
+                            [...setValues, ...whereValues]
+                        );
                     }
                 }
 
+                // Lưu lại định danh để không bị xóa ở bước sync
                 keptIds.push(item[columKey[0]]);
                 tableValidDataIn.push(item);
             }
 
-            // 3️⃣ Xử lý Xóa hàng thừa (Có kiểm tra isSystem)
+            // 3️⃣ Xử lý Xóa hàng thừa (Chỉ áp dụng cho mode 'sync')
             if (mode === 'sync' && syncKey) {
                 const parentValue = dataIn.length > 0 ? dataIn[0][syncKey] : null;
 
@@ -96,9 +112,19 @@ export default async function syncObjectsTablesNotIsSystem(
                 }
             }
 
-            resultData.push({ table, dataIn: tableValidDataIn, oldData: tableOldData, columKey });
+            // Push kết quả của bảng hiện tại vào mảng tổng
+            resultData.push({
+                table,
+                dataIn: tableValidDataIn,
+                oldData: tableOldData,
+                columKey
+            });
         }
     });
 
-    return { data: resultData, status, errorCode };
+    return { 
+        data: resultData, 
+        status: status || false, 
+        errorCode: errorCode || '' 
+    };
 }

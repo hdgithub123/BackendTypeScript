@@ -35,8 +35,6 @@ import updateObjectsTreeTrunkTablesNotIsSystem from './mySql/ObjectsTreeTrunkNot
 import updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem from './mySql/ObjectsTreeTrunkNotIsSystem/updateObjectsTreeTrunkTablesUniqueFieldNotIsSystem'
 
 
-import upsertObjectsTablesNotIsSystem from './mySql/ObjectNotIsSystem/upsertObjectsTablesNotIsSystem'
-import upsertObjectsTables from './mySql/ObjectsNomal/upsertObjectsTables'
 import syncObjectsTables from './mySql/ObjectsNomal/syncObjectsTables'
 import syncObjectsTablesNotIsSystem from './mySql/ObjectNotIsSystem/syncObjectsTablesNotIsSystem'
 
@@ -59,10 +57,8 @@ export {
     insertObjectsTables,
     insertObjectsTablesNotIsSystem,
     updateObjectsTables,
-    upsertObjectsTables,
     syncObjectsTables,
     updateObjectsTablesNotIsSystem,
-    upsertObjectsTablesNotIsSystem,
     syncObjectsTablesNotIsSystem,
     deleteObjectsTables,
     insertObjectsTreeLeafTables,
